@@ -1,0 +1,320 @@
+<template>
+  <br-q-title-card
+    title="Register"
+    class="full-width">
+    <div
+      slot="body">
+      <div
+        class="column q-pa-md">
+        <form class="full-width">
+          <q-input
+            v-model="name"
+            outlined
+            stack-label
+            hint="Please enter your name."
+            :error="$v.name.$error"
+            error-message="Your name must be at least 1 character."
+            label="Name"
+            autofocus
+            bottom-slots
+            @blur="$v.name.$touch" />
+          <q-input
+            v-model="ctrl.email"
+            outlined
+            stack-label
+            hint="Please enter your email address."
+            :error="$v.ctrl.email.$error ||
+              ($v.ctrl.email.$dirty && !isEmailUnique && !checkingEmail)"
+            :error-message="emailErrorMessage"
+            :helper="emailAvailable"
+            type="email"
+            label="Email"
+            class="q-mt-md"
+            bottom-slots
+            :loading="checkingEmail"
+            @blur="$v.ctrl.email.$touch" />
+        </form>
+        <div class="row">
+          <q-checkbox
+            v-model="tosAgree"
+            dense />
+          <span class="q-my-md q-ml-sm">
+            I agree to the
+            <a
+              href=""
+              @click.stop.prevent="showTosModal = true">
+              Terms of Service
+            </a>
+          </span>
+        </div>
+        <q-dialog
+          v-model="showTosModal"
+          :maximized="maximizeModal">
+          <q-card
+            :style="!maximizeModal && {width: '700px', maxWidth: '80vw'}">
+            <q-toolbar class="bg-primary text-white">
+              <q-toolbar-title>Terms of Service</q-toolbar-title>
+              <q-btn
+                v-close-popup
+                dense
+                flat
+                label="Close">
+                <q-tooltip>Close</q-tooltip>
+              </q-btn>
+            </q-toolbar>
+            <q-card-section>
+              <h4>Terms of Service</h4>
+              <p>These are the terms of service.</p>
+              <p>These are the terms of service.</p>
+              <p>These are the terms of service.</p>
+              <p>These are the terms of service.</p>
+              <p>These are the terms of service.</p>
+              <p>These are the terms of service.</p>
+              <p>These are the terms of service.</p>
+              <p>These are the terms of service.</p>
+              <p>These are the terms of service.</p>
+              <p>These are the terms of service.</p>
+              <p>These are the terms of service.</p>
+              <p>These are the terms of service.</p>
+              <p>These are the terms of service.</p>
+              <p>These are the terms of service.</p>
+              <p>These are the terms of service.</p>
+              <p>These are the terms of service.</p>
+              <p>These are the terms of service.</p>
+              <p>These are the terms of service.</p>
+              <p>These are the terms of service.</p>
+              <p>These are the terms of service.</p>
+              <p>These are the terms of service.</p>
+              <p>These are the terms of service.</p>
+            </q-card-section>
+          </q-card>
+        </q-dialog>
+        <q-btn
+          :disable="$v.ctrl.$invalid || $v.tosAgree.$invalid ||
+            $v.name.$invalid || checkingEmail || !isEmailUnique || loading"
+          size="form"
+          color="primary"
+          icon="fa fa-sign-in-alt"
+          label="Register"
+          :loading="loading"
+          @click="register" />
+        <div
+          v-if="!isPopup">
+          <div class="q-mt-sm">
+            <small>
+              Already registered?
+              <a
+                href=""
+                @click.stop.prevent="login">
+                Login</a>.
+            </small>
+          </div>
+        </div>
+        <q-banner
+          v-if="error"
+          class="bg-red q-mt-md q-ml-sm">
+          {{error}}
+        </q-banner>
+      </div>
+    </div>
+  </br-q-title-card>
+</template>
+
+<script>
+/*!
+ * Copyright (c) 2018-2022 Digital Bazaar, Inc. All rights reserved.
+ */
+import {AccountService, RegisterController} from 'bedrock-web-account';
+import {BrQTitleCard} from 'bedrock-quasar-components';
+import {getSession} from 'bedrock-web-session';
+import {helpers, sessions} from 'bedrock-web-wallet';
+import {randomColor} from 'randomcolor';
+import {required, email, minLength} from 'vuelidate/lib/validators';
+import {TokenService} from 'bedrock-web-authn-token';
+
+const {createProfile} = helpers;
+const {initSession} = sessions;
+
+export default {
+  name: 'Register',
+  components: {BrQTitleCard},
+  props: {
+    isPopup: {
+      type: Boolean,
+      default: false,
+      required: false
+    }
+  },
+  data() {
+    return {
+      showTosModal: false,
+      tosAgree: false,
+      isEmailUnique: true,
+      checkingEmail: false,
+      ctrl: this._ctrl.state,
+      loading: false,
+      name: '',
+      error: false
+    };
+  },
+  computed: {
+    email() {
+      return this.ctrl.email;
+    },
+    emailAvailable() {
+      if(!this.$v.ctrl.email.$dirty || this.$v.ctrl.email.$error) {
+        return '';
+      }
+      if(this.checkingEmail) {
+        return 'Checking if account is available...';
+      }
+      return 'Account is available!';
+    },
+    emailErrorMessage() {
+      return (this.$v.ctrl.email.$dirty && !this.isEmailUnique) ?
+        'The email address you entered is already in use.' :
+        'Please enter a valid email address.';
+    },
+    maximizeModal() {
+      return this.$q.screen.lt.md;
+    }
+  },
+  watch: {
+    async email(value) {
+      if(!value || !email(value)) {
+        // not a valid email, do not bother checking for uniqueness
+        this.isEmailUnique = true;
+        this.checkingEmail = false;
+        return;
+      }
+      this.checkingEmail = true;
+      if(!this.$v.ctrl.email.$dirty) {
+        this.$v.ctrl.email.$touch();
+      }
+      try {
+        const exists = await this._ctrl.exists();
+        if(value === this.ctrl.email) {
+          this.isEmailUnique = !exists;
+        }
+      } catch(e) {
+        if(e.status === 404) {
+          this.isEmailUnique = true;
+        } else {
+          this.$q.notify({
+            type: 'negative',
+            message: e.message || 'Unknown Error'
+          });
+        }
+      } finally {
+        this.checkingEmail = false;
+      }
+    }
+  },
+  beforeCreate() {
+    this._ctrl = new RegisterController();
+    this._tokenService = new TokenService();
+    this._accountService = new AccountService();
+  },
+  validations: {
+    ctrl: {
+      email: {
+        required,
+        email
+      }
+    },
+    name: {
+      required,
+      minLength: minLength(1)
+    },
+    tosAgree: {
+      required,
+      checked: value => value
+    }
+  },
+  methods: {
+    async createProfile({name}) {
+      const profileContent = {
+        name,
+        created: (new Date()).toISOString(),
+        shared: false,
+        color: randomColor(),
+        type: ['User', 'Person'],
+        didMethod: 'v1', // Default to Veres One type DIDs
+        didOptions: {mode: 'test'} // Default to testnet
+      };
+      const profileAgentContent = {
+        name: 'root',
+        type: ['User', 'Person'],
+        access: 'full'
+      };
+      await createProfile({profileAgentContent, profileContent});
+    },
+    async login() {
+      await this.$emitExtendable('login');
+    },
+    async register() {
+      try {
+        this.error = false;
+        this.loading = true;
+        // double check to ensure the user is not logged in
+        const loggedIn = await getSession();
+        if(loggedIn.end) {
+          await loggedIn.end();
+        }
+        const account = await this._ctrl.register();
+
+        // require nonce based login
+        await this._tokenService.setAuthenticationRequirements({
+          account: account.id,
+          requiredAuthenticationMethods: [
+            'token-client-registration',
+            'login-email-challenge'
+          ]
+        });
+
+        let session;
+        try {
+          // reinitialize session for new registration
+          session = await initSession();
+        } catch(e) {
+          const message =
+            'An error has occured. Please refresh the page to try again.';
+          this.$q.notify({
+            type: 'negative',
+            timeout: 0,
+            message,
+            actions: [{icon: 'fa fa-times', color: 'white'}]
+          });
+          return;
+        }
+        // check here to make sure the login set the session data
+        const {account: currentAccount = null} = session.data;
+        if(!currentAccount) {
+          // user not auto-logged in, presume registration complete for this
+          // type of system
+          await this.$emitExtendable('register');
+        }
+
+        // FIXME: this is a mock method
+        await this.createProfile({name: this.name});
+
+        // registration now complete
+        if(this.isPopup) {
+          return window.close();
+        }
+        await this.$emitExtendable('register');
+      } catch(e) {
+        const newError = `${e.name}: ${e.message || 'No Message'}`;
+        this.error = newError;
+        // eslint-disable-line no-console
+        console.error('Register Error', e);
+      } finally {
+        this.loading = false;
+      }
+    }
+  }
+};
+</script>
+
+<style scoped>
+</style>

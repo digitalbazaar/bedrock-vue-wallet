@@ -1,1 +1,1 @@
-# bedrock-module-template-http
+# bedrock-vue-wallet
