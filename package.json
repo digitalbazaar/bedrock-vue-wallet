@@ -28,7 +28,7 @@
     "config/*",
     "components/*",
     "lib/*",
-    "mocks/*"
+    "mocks/*",
     "routes/*"
   ],
   "repository": {
