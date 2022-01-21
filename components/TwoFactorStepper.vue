@@ -183,10 +183,10 @@
 /*!
  * Copyright (c) 2018-2022 Digital Bazaar, Inc. All rights reserved.
  */
-import appConfig from '../config/application.js';
 import {AccountService} from 'bedrock-web-account';
 import {BrQTitleCard} from 'bedrock-quasar-components';
 import CodeInput from './CodeInput.vue';
+import {config} from '../lib/config.js';
 import {email} from 'vuelidate/lib/validators';
 import {getTwoFactorCodes} from '../mocks/twoFactorCodes.js';
 import {getSession} from 'bedrock-web-session';
@@ -300,7 +300,7 @@ export default {
         account,
         type: 'totp',
         authenticationMethod: 'totp-challenge',
-        serviceId: appConfig.branding.shortName
+        serviceId: config.branding.shortName
       });
       this.otpInfo = result.result;
     },

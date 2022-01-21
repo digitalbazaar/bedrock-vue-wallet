@@ -76,8 +76,8 @@
 /*!
  * Copyright (c) 2018-2022 Digital Bazaar, Inc. All rights reserved.
  */
-import appConfig from '../config/application.js';
 import {BrQTitleCard} from 'bedrock-quasar-components';
+import {config} from '../lib/config.js';
 import TwoFactorStepper from '../components/TwoFactorStepper.vue';
 
 export default {
@@ -85,7 +85,7 @@ export default {
   components: {BrQTitleCard, TwoFactorStepper},
   data() {
     return {
-      branding: appConfig.branding,
+      branding: config.branding,
       stepper: false
     };
   },
