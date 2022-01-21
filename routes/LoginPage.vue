@@ -35,15 +35,13 @@ export default {
     }
   },
   methods: {
-    // FIXME: these routes may need to go to a generic "home" and a generic
-    // "register" instead, to better allow for customization
     async login() {
       // redirect home
-      this.$router.push({name: 'bedrock-vue-wallet-home'});
+      this.$router.push({name: 'home'});
     },
     async register() {
       // redirect to register
-      this.$router.push({name: 'bedrock-vue-wallet-register'});
+      this.$router.push({name: 'register'});
     }
   }
 };

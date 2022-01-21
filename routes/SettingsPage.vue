@@ -163,7 +163,7 @@ export default {
             // if a profile is not found, we will change the route to account
             // settings
             return this.$emitExtendable('redirect', {
-              route: {name: 'bedrock-vue-wallet-settings'}
+              route: {name: 'settings'}
             });
           }
           return profile;
@@ -185,7 +185,7 @@ export default {
     },
     settingsPageMode() {
       const {name} = this.$route;
-      if(name === 'bedrock-vue-wallet-settings-profile') {
+      if(name === 'settings-profile') {
         return 'profile-settings';
       }
       // default to account settings
@@ -240,10 +240,10 @@ export default {
   methods: {
     async navigateTo(location, profileId) {
       if(location === 'account-settings') {
-        await this.$router.push({name: 'bedrock-vue-wallet-settings'});
+        await this.$router.push({name: 'settings'});
       } else if(location === 'profile-settings') {
         await this.$router.push({
-          name: 'bedrock-vue-wallet-settings-profile',
+          name: 'settings-profile',
           params: {profileId}
         });
       }

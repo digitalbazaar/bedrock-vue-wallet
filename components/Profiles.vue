@@ -219,8 +219,10 @@ export default {
       return 'Permanent';
     },
     async handleButton(data) {
+      // FIXME: emit event as this is a component not a page, do not use
+      // router directly
       await this.$router.push({
-        name: 'bedrock-vue-wallet-settings-profile',
+        name: 'settings-profile',
         params: {profileId: data.row.id}
       });
     }

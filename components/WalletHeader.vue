@@ -30,8 +30,8 @@
       class="gt-sm"
       flat
       :options="[
-        {label: 'Credentials', value: 'bedrock-vue-wallet-home'},
-        {label: 'Profiles', value: 'bedrock-vue-wallet-profiles'}
+        {label: 'Credentials', value: 'home'},
+        {label: 'Profiles', value: 'profiles'}
       ]"
       @click.native="handleNav()" />
     <div v-if="account">
@@ -165,23 +165,23 @@ export default {
       // if user is logged in, go home, otherwise to go landing
       const options = {};
       if(this.account) {
-        options.name = 'bedrock-vue-wallet-home';
+        options.name = 'home';
       } else {
         options.path = '/';
       }
       await this.routerPush(options);
     },
     async login() {
-      await this.routerPush({name: 'bedrock-vue-wallet-login'});
+      await this.routerPush({name: 'login'});
     },
     async settings() {
-      await this.routerPush({path: 'bedrock-vue-wallet-settings'});
+      await this.routerPush({path: 'settings'});
     },
     async handleNav() {
       await this.routerPush({name: this.navRouteName});
     },
     async interact() {
-      await this.routerPush({name: 'bedrock-vue-wallet-interact'});
+      await this.routerPush({name: 'interact'});
     },
   }
 };
