@@ -482,8 +482,7 @@ export default {
       /*
       const hasTwoFactor = false;
       if(hasTwoFactor) {
-        // FIXME: do not change route, this is a component, not a page
-        this.$router.push({path: '/authenticate'});
+        await this.$emitExtendable('authenticate');
         return;
       }
       */

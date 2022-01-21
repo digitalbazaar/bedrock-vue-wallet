@@ -70,7 +70,7 @@ import Share from '../components/Share.vue';
 const {prettify} = helpers;
 
 export default {
-  name: 'SharePage',
+  name: 'ChapiSharePage',
   components: {Register, Share, Login, Next, Problem},
   props: {
     account: {

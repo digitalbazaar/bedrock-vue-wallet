@@ -219,8 +219,10 @@ export default {
       return 'Permanent';
     },
     async handleButton(data) {
-      const encodedProfileId = encodeURIComponent(data.row.id);
-      await this.$router.push({path: `/settings/profiles/${encodedProfileId}`});
+      await this.$router.push({
+        name: 'bedrock-vue-wallet-settings-profile',
+        params: {profileId: data.row.id}
+      });
     }
   }
 };

@@ -97,7 +97,7 @@ export default {
         // TODO: consider adding successfully onboarded modal before
         // redirecting to profiles page
 
-        this.$router.push({path: `/profiles`});
+        this.$router.push({name: 'bedrock-vue-wallet-profiles'});
       } catch(e) {
         // FIXME: address unhappy path
         console.error(e);
