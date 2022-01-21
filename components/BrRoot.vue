@@ -39,12 +39,10 @@ import {AccountService} from 'bedrock-web-account';
 import {config} from '../lib/config.js';
 import Drawer from './Drawer.vue';
 import {installHandler} from 'web-credential-handler';
-import {sessions} from 'bedrock-web-wallet';
+import {sessionStorage} from 'bedrock-web-wallet';
 import {store} from 'bedrock-web-store';
 import {TokenService} from 'bedrock-web-authn-token';
 import WalletHeader from './WalletHeader.vue';
-
-const {clearSession, initSession} = sessions;
 
 export default {
   name: 'BrRoot',
@@ -130,12 +128,17 @@ export default {
       this.loadingSession = false;
       this.loadingAccount = false;
       // clears session from memory
-      await clearSession();
+      // FIXME: try to have bedrock-web-wallet automaticlaly trigger this via a
+      // session `change` event handler when destroying the session via
+      // session.end()
+      await sessionStorage.clear();
     },
     async initializeSession() {
       try {
         this.loadingSession = true;
-        this.session = await initSession();
+        // FIXME: fix conflation between session storage and authn session
+        // with the server
+        this.session = await sessionStorage.initialize();
       } catch(e) {
         const message =
           'An error has occured. Please refresh the page to try again.';
