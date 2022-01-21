@@ -127,13 +127,12 @@
 import {AccountService, RegisterController} from 'bedrock-web-account';
 import {BrQTitleCard} from 'bedrock-quasar-components';
 import {getSession} from 'bedrock-web-session';
-import {helpers, sessions} from 'bedrock-web-wallet';
+import {helpers, sessionStorage} from 'bedrock-web-wallet';
 import {randomColor} from 'randomcolor';
 import {required, email, minLength} from 'vuelidate/lib/validators';
 import {TokenService} from 'bedrock-web-authn-token';
 
 const {createProfile} = helpers;
-const {initSession} = sessions;
 
 export default {
   name: 'Register',
@@ -275,7 +274,12 @@ export default {
         let session;
         try {
           // reinitialize session for new registration
-          session = await initSession();
+          // FIXME: rename this session storage call to better indicate that
+          // it can be called multiple times
+          // FIXME: fix conflation between `sessionStorage.initialize` and
+          // `getSession` to remove confusion over which to use and why;
+          // abstraction appears to be leaky
+          session = await sessionStorage.initialize();
         } catch(e) {
           const message =
             'An error has occured. Please refresh the page to try again.';

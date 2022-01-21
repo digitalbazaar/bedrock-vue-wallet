@@ -205,11 +205,10 @@
 import {BrQTitleCard} from 'bedrock-quasar-components';
 import CodeInput from './CodeInput.vue';
 import {config} from '../lib/config.js';
-import {helpers, sessions} from 'bedrock-web-wallet';
+import {helpers, sessionStorage} from 'bedrock-web-wallet';
 import {LoginController} from 'bedrock-web-authn-token';
 import {required, email} from 'vuelidate/lib/validators';
 
-const {initSession} = sessions;
 const {openFirstPartyWindow} = helpers;
 
 export default {
@@ -508,7 +507,9 @@ export default {
 
       try {
         // reinitialize session for new login
-        await initSession();
+        // FIXME: rename this session storage call to better indicate that
+        // it can be called multiple times
+        await sessionStorage.initialize();
       } catch(e) {
         const message =
           'An error has occured. Please refresh the page to try again.';
