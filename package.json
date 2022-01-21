@@ -10,9 +10,14 @@
     "esm": "^3.2.25"
   },
   "peerDependencies": {
+    "bedrock-fontawesome": "^1.0.0",
     "bedrock-quasar": "^4.0.0",
     "bedrock-web-wallet": "digitalbazaar/bedrock-web-wallet#initial",
-    "vue": "^2.5.16"
+    "vue": "^2.5.16",
+    "vue-async-computed": "^3.9.0",
+    "vue-extendable-event": "^1.0.0",
+    "vue-router": "^3.5.0",
+    "vuelidate": "^0.7.6"
   },
   "devDependencies": {
     "eslint": "^7.3.1",
