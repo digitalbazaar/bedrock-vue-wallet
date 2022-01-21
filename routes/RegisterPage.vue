@@ -33,9 +33,7 @@ export default {
   },
   methods: {
     async login() {
-      // FIXME: might need to use a generic "login" route name to allow for
-      // better customization
-      this.$router.push({name: 'bedrock-vue-wallet-login'});
+      this.$router.push({name: 'login'});
     },
     async register() {
       try {
@@ -50,11 +48,8 @@ export default {
           return;
         }
 
-        // FIXME: might need to use a generic "home" route name to allow for
-        // better customization
-
         // redirect home
-        this.$router.push({name: 'bedrock-vue-wallet-home'});
+        this.$router.push({name: 'home'});
       } catch(e) {
         const newError = `${e.name}: ${e.message || 'No Message'}`;
         // eslint-disable-line no-console

@@ -278,7 +278,7 @@ export default {
   methods: {
     cancel() {
       // FIXME: emit an event instead of changing routes in a component
-      this.$router.push({name: 'bedrock-vue-wallet-settings'});
+      this.$router.push({name: 'settings'});
     },
     // FIXME use shared code with TwoFactorSettings
     async getAccountId() {
@@ -370,7 +370,7 @@ export default {
           this.loading = false;
         }
         // FIXME: emit an event instead of changing routes in a component
-        this.$router.push({name: 'bedrock-vue-wallet-settings'});
+        this.$router.push({name: 'settings'});
         return;
       }
     },
