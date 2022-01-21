@@ -116,7 +116,7 @@
 /*!
  * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
  */
-import appConfig from '../config/application.js';
+import {config} from '../lib/config.js';
 import InteractIcon from './InteractIcon.vue';
 
 export default {
@@ -138,7 +138,7 @@ export default {
   },
   data() {
     return {
-      branding: appConfig.branding,
+      branding: config.branding,
       // FIXME: enable customization of the routes that show up in the
       // navigation drawer
       navRouteName: ''

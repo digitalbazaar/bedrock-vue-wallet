@@ -202,9 +202,9 @@
 /*!
  * Copyright (c) 2018-2022 Digital Bazaar, Inc. All rights reserved.
  */
-import appConfig from '../config/application.js';
 import {BrQTitleCard} from 'bedrock-quasar-components';
 import CodeInput from './CodeInput.vue';
+import {config} from '../lib/config.js';
 import {helpers, sessions} from 'bedrock-web-wallet';
 import {LoginController} from 'bedrock-web-authn-token';
 import {required, email} from 'vuelidate/lib/validators';
@@ -217,7 +217,7 @@ export default {
   components: {CodeInput, BrQTitleCard},
   data() {
     return {
-      branding: appConfig.branding,
+      branding: config.branding,
       ctrl: this._ctrl.state,
       emailCode: '',
       emailCodeAuthenticated: false,

@@ -36,9 +36,7 @@
  * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
  */
 import {AccountService} from 'bedrock-web-account';
-// FIXME: enable top-level application to modify this config; parameterize it
-// or make it accessible via a service / web-store
-import appConfig from '../config/application.js';
+import {config} from '../lib/config.js';
 import Drawer from './Drawer.vue';
 import {installHandler} from 'web-credential-handler';
 import {sessions} from 'bedrock-web-wallet';
@@ -100,7 +98,7 @@ export default {
             {url: '/credential-handler'});
           await registration.credentialManager.hints.set(
             accountId, {
-              name: appConfig.branding.shortName,
+              name: config.branding.shortName,
               enabledTypes: ['VerifiablePresentation']
             });
         } catch(e) {
