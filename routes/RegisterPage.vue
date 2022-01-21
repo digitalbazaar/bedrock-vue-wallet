@@ -33,7 +33,9 @@ export default {
   },
   methods: {
     async login() {
-      this.$router.push({path: '/login'});
+      // FIXME: might need to use a generic "login" route name to allow for
+      // better customization
+      this.$router.push({name: 'bedrock-vue-wallet-login'});
     },
     async register() {
       try {
@@ -43,13 +45,16 @@ export default {
         // check here to make sure the login set the session data
         const {account: currentAccount = null} = session.data;
         if(!currentAccount) {
-          // not logged in, redirect to login page
-          this.$router.push({path: '/login'});
+          // not logged in, redirect to login
+          this.login();
           return;
         }
 
-        // redirect to dashboard
-        this.$router.push({path: '/'});
+        // FIXME: might need to use a generic "home" route name to allow for
+        // better customization
+
+        // redirect home
+        this.$router.push({name: 'bedrock-vue-wallet-home'});
       } catch(e) {
         const newError = `${e.name}: ${e.message || 'No Message'}`;
         // eslint-disable-line no-console

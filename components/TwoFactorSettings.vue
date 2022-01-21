@@ -134,7 +134,8 @@ export default {
   },
   methods: {
     enable() {
-      this.$router.push({name: 'two-factor-setup'});
+      // FIXME: emit an event instead of changing routes in a component
+      this.$router.push({name: 'bedrock-vue-wallet-two-factor-setup'});
     },
     // FIXME use shared code with TwoFactorStepper
     async getAccountId() {

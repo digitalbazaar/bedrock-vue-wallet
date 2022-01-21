@@ -162,7 +162,9 @@ export default {
           if(!profile) {
             // if a profile is not found, we will change the route to account
             // settings
-            return this.$emitExtendable('redirect', {path: '/settings'});
+            return this.$emitExtendable('redirect', {
+              route: {name: 'bedrock-vue-wallet-settings'}
+            });
           }
           return profile;
         }
@@ -183,7 +185,7 @@ export default {
     },
     settingsPageMode() {
       const {name} = this.$route;
-      if(name === 'profileSettings') {
+      if(name === 'bedrock-vue-wallet-settings-profile') {
         return 'profile-settings';
       }
       // default to account settings
@@ -210,7 +212,7 @@ export default {
     this.loading = true;
     // redirect to the specified page
     this.$on('redirect', event => {
-      event.waitUntil(this.$router.replace({path: event.path}));
+      event.waitUntil(this.$router.replace(event.route));
     });
     try {
       const profiles = await getProfiles({type: 'Person'});
@@ -238,10 +240,12 @@ export default {
   methods: {
     async navigateTo(location, profileId) {
       if(location === 'account-settings') {
-        await this.$router.push({path: '/settings'});
+        await this.$router.push({name: 'bedrock-vue-wallet-settings'});
       } else if(location === 'profile-settings') {
-        const path = `/settings/profiles/${encodeURIComponent(profileId)}`;
-        await this.$router.push({path});
+        await this.$router.push({
+          name: 'bedrock-vue-wallet-settings-profile',
+          params: {profileId}
+        });
       }
     },
     async handleSelect() {

@@ -71,7 +71,7 @@ const {prettify} = helpers;
 const {storeAllCredentials} = credentialHelpers;
 
 export default {
-  name: 'StoreCredentialPage',
+  name: 'ChapiStorePage',
   components: {Register, StoreCredentials, Problem, Login, Next},
   props: {
     account: {

@@ -24,14 +24,14 @@
     </q-toolbar-title>
     <q-btn-toggle
       v-if="account"
-      v-model="navButton"
+      v-model="navRouteName"
       color="accent"
       toggle-color="info"
       class="gt-sm"
       flat
       :options="[
-        {label: 'Credentials', value: ''},
-        {label: 'Profiles', value: 'profiles'}
+        {label: 'Credentials', value: 'bedrock-vue-wallet-home'},
+        {label: 'Profiles', value: 'bedrock-vue-wallet-profiles'}
       ]"
       @click.native="handleNav()" />
     <div v-if="account">
@@ -139,41 +139,49 @@ export default {
   data() {
     return {
       branding: appConfig.branding,
-      navButton: ''
+      // FIXME: enable customization of the routes that show up in the
+      // navigation drawer
+      navRouteName: ''
     };
   },
   computed: {},
   watch: {
     $route() {
-      this.navButton = this.$route.meta.nav;
+      this.navRouteName = this.$route.name;
     }
   },
   created() {
-    this.navButton = this.$route.meta.nav;
+    this.navRouteName = this.$route.name;
   },
   methods: {
     async routerPush(options) {
       // avoid NavigationDuplicated errors
-      if(this.$route.path !== options.path) {
+      if((options.path && (options.path !== this.$route.path)) ||
+        (options.name && (options.name !== this.$route.name))) {
         await this.$router.push(options);
       }
     },
     async home() {
       // if user is logged in, go home, otherwise to go landing
-      const path = this.account ? '/home' : '/';
-      await this.routerPush({path});
+      const options = {};
+      if(this.account) {
+        options.name = 'bedrock-vue-wallet-home';
+      } else {
+        options.path = '/';
+      }
+      await this.routerPush(options);
     },
     async login() {
-      await this.routerPush({path: '/login'});
+      await this.routerPush({name: 'bedrock-vue-wallet-login'});
     },
     async settings() {
-      await this.routerPush({path: '/settings'});
+      await this.routerPush({path: 'bedrock-vue-wallet-settings'});
     },
     async handleNav() {
-      await this.routerPush({path: '/' + this.navButton});
+      await this.routerPush({name: this.navRouteName});
     },
     async interact() {
-      await this.routerPush({path: '/interact'});
+      await this.routerPush({name: 'bedrock-vue-wallet-interact'});
     },
   }
 };
