@@ -127,7 +127,7 @@
 import {AccountService, RegisterController} from 'bedrock-web-account';
 import {BrQTitleCard} from 'bedrock-quasar-components';
 import {getSession} from 'bedrock-web-session';
-import {helpers, sessionStorage} from 'bedrock-web-wallet';
+import {helpers} from 'bedrock-web-wallet';
 import {randomColor} from 'randomcolor';
 import {required, email, minLength} from 'vuelidate/lib/validators';
 import {TokenService} from 'bedrock-web-authn-token';
@@ -255,14 +255,15 @@ export default {
       try {
         this.error = false;
         this.loading = true;
-        // double check to ensure the user is not logged in
-        const loggedIn = await getSession();
-        if(loggedIn.end) {
-          await loggedIn.end();
-        }
+
+        // end session to ensure the user is not logged in
+        const session = await getSession();
+        await session.end();
+
+        // create new account
         const account = await this._ctrl.register();
 
-        // require nonce based login
+        // setup new account to require nonce based login
         await this._tokenService.setAuthenticationRequirements({
           account: account.id,
           requiredAuthenticationMethods: [
@@ -271,36 +272,15 @@ export default {
           ]
         });
 
-        let session;
-        try {
-          // reinitialize session for new registration
-          // FIXME: rename this session storage call to better indicate that
-          // it can be called multiple times
-          // FIXME: fix conflation between `sessionStorage.initialize` and
-          // `getSession` to remove confusion over which to use and why;
-          // abstraction appears to be leaky
-          session = await sessionStorage.initialize();
-        } catch(e) {
-          const message =
-            'An error has occured. Please refresh the page to try again.';
-          this.$q.notify({
-            type: 'negative',
-            timeout: 0,
-            message,
-            actions: [{icon: 'fa fa-times', color: 'white'}]
-          });
-          return;
-        }
-        // check here to make sure the login set the session data
-        const {account: currentAccount = null} = session.data;
-        if(!currentAccount) {
-          // user not auto-logged in, presume registration complete for this
-          // type of system
-          await this.$emitExtendable('register');
-        }
+        // update session to get auto-login info for new account
+        await session.refresh();
 
-        // FIXME: this is a mock method
-        await this.createProfile({name: this.name});
+        // get auto-login info
+        const {account: currentAccount = null} = session.data;
+        if(currentAccount) {
+          // user was auto-logged in, so create initial profile
+          await this.createProfile({name: this.name});
+        }
 
         // registration now complete
         if(this.isPopup) {
@@ -308,10 +288,19 @@ export default {
         }
         await this.$emitExtendable('register');
       } catch(e) {
-        const newError = `${e.name}: ${e.message || 'No Message'}`;
-        this.error = newError;
         // eslint-disable-line no-console
         console.error('Register Error', e);
+        const newError = `${e.name}: ${e.message || 'No Message'}`;
+        this.error = newError;
+
+        const message =
+          'An error has occured. Please refresh the page to try again.';
+        this.$q.notify({
+          type: 'negative',
+          timeout: 0,
+          message,
+          actions: [{icon: 'fa fa-times', color: 'white'}]
+        });
       } finally {
         this.loading = false;
       }

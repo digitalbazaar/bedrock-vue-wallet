@@ -66,7 +66,7 @@
 /*!
  * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
  */
-import {credentialHelpers, getProfiles, helpers} from 'bedrock-web-wallet';
+import {credentialHelpers, helpers, profileManager} from 'bedrock-web-wallet';
 import ProfileChooser from './ProfileChooser.vue';
 import ShareHeader from './ShareHeader.vue';
 import ShareReview from './ShareReview.vue';
@@ -213,7 +213,7 @@ export default {
     profiles: {
       async get() {
         try {
-          return getProfiles();
+          return await profileManager.getProfiles();
         } catch(e) {
           // TODO: Properly handle error. Retry fetching profiles or set a flag
           // that notifies wallet account holder that they cannot continue.

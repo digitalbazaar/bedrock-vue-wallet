@@ -65,7 +65,7 @@ import AddUserModal from './AddUserModal.vue';
 import {BrQTable} from 'bedrock-quasar-components';
 import EditUserModal from './EditUserModal.vue';
 import {format, utils} from 'quasar';
-import {getProfileManager, users} from 'bedrock-web-wallet';
+import {profileManager, users} from 'bedrock-web-wallet';
 import RemoveItemModal from './RemoveItemModal.vue';
 import SearchBox from './SearchBox.vue';
 
@@ -192,13 +192,11 @@ export default {
   asyncComputed: {
     async accessManager() {
       const {profileId} = this;
-      const profileManager = await getProfileManager();
       return profileManager.getAccessManager({profileId});
     },
     async profile() {
       // must declare property to ensure a watcher gets created for it
       const {profileId} = this;
-      const profileManager = await getProfileManager();
       return profileManager.getProfile({id: profileId});
     },
     users: {
