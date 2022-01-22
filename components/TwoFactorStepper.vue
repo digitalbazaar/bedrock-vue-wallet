@@ -189,8 +189,8 @@ import CodeInput from './CodeInput.vue';
 import {config} from '../lib/config.js';
 import {email} from 'vuelidate/lib/validators';
 import {getTwoFactorCodes} from '../mocks/twoFactorCodes.js';
-import {getSession} from 'bedrock-web-session';
 import QrCode from './QrCode.vue';
+import {session} from 'bedrock-web-session';
 import {TokenService} from 'bedrock-web-authn-token';
 
 export default {
@@ -283,7 +283,6 @@ export default {
     // FIXME use shared code with TwoFactorSettings
     async getAccountId() {
       // FIXME error handling
-      const session = await getSession();
       await session.refresh();
       const {account = null} = session.data;
       // if(!account) ...

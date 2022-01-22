@@ -53,8 +53,8 @@
  * Copyright (c) 2018-2022 Digital Bazaar, Inc. All rights reserved.
  */
 import {BrQTitleCard} from 'bedrock-quasar-components';
-import {getSession} from 'bedrock-web-session';
 import {helpers} from 'bedrock-web-wallet';
+import {session} from 'bedrock-web-session';
 
 const {openFirstPartyWindow} = helpers;
 
@@ -116,7 +116,6 @@ export default {
       }
 
       // refresh session
-      const session = await getSession();
       await session.refresh();
 
       // fallback to login if no session is found

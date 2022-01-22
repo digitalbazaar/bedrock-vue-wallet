@@ -126,10 +126,10 @@
  */
 import {AccountService, RegisterController} from 'bedrock-web-account';
 import {BrQTitleCard} from 'bedrock-quasar-components';
-import {getSession} from 'bedrock-web-session';
 import {helpers} from 'bedrock-web-wallet';
 import {randomColor} from 'randomcolor';
 import {required, email, minLength} from 'vuelidate/lib/validators';
+import {session} from 'bedrock-web-session';
 import {TokenService} from 'bedrock-web-authn-token';
 
 const {createProfile} = helpers;
@@ -257,7 +257,6 @@ export default {
         this.loading = true;
 
         // end session to ensure the user is not logged in
-        const session = await getSession();
         await session.end();
 
         // create new account

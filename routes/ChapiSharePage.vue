@@ -59,12 +59,12 @@
  * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
  */
 import {credentialHelpers, helpers} from 'bedrock-web-wallet';
-import {getSession} from 'bedrock-web-session';
 import Login from '../components/Login.vue';
 import Problem from '../components/Problem.vue';
 import Next from '../components/Next.vue';
 import {receiveCredentialEvent} from 'web-credential-handler';
 import Register from '../components/Register.vue';
+import {session} from 'bedrock-web-session';
 import Share from '../components/Share.vue';
 
 const {prettify} = helpers;
@@ -123,7 +123,6 @@ export default {
     this.removeSessionListener = new Promise(
       resolve => resolveRemoveSession = resolve);
     try {
-      const session = await getSession();
       this.ready = !!this.account;
       const remover = session.on('change', ({newData = {}}) => {
         self.ready = !!newData.account;
@@ -183,8 +182,7 @@ export default {
     this.loading = false;
   },
   async beforeDestroy() {
-    // beforeDestroy can be called before getSession resolves
-    // so we have to await removeSessionListener.
+    // clean up session listener
     (await this.removeSessionListener)();
   },
   methods: {

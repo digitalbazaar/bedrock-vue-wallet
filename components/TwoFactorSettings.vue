@@ -90,8 +90,8 @@
  */
 import {email} from 'vuelidate/lib/validators';
 import {AccountService} from 'bedrock-web-account';
+import {session} from 'bedrock-web-session';
 import {TokenService} from 'bedrock-web-authn-token';
-import {getSession} from 'bedrock-web-session';
 
 export default {
   name: 'TwoFactorSettings',
@@ -140,7 +140,6 @@ export default {
     // FIXME use shared code with TwoFactorStepper
     async getAccountId() {
       // FIXME error handling
-      const session = await getSession();
       await session.refresh();
       const {account = null} = session.data;
       // if(!account) ...

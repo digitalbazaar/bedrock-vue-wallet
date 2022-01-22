@@ -16,8 +16,8 @@
 /*!
  * Copyright (c) 2018-2022 Digital Bazaar, Inc. All rights reserved.
  */
-import {getSession} from 'bedrock-web-session';
 import Register from '../components/Register.vue';
+import {session} from 'bedrock-web-session';
 
 export default {
   name: 'RegisterPage',
@@ -38,7 +38,6 @@ export default {
     async register() {
       try {
         // get account user is logged into
-        const session = await getSession();
         await session.refresh();
         // check here to make sure the login set the session data
         const {account: currentAccount = null} = session.data;
