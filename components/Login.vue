@@ -205,10 +205,10 @@
 import {BrQTitleCard} from 'bedrock-quasar-components';
 import CodeInput from './CodeInput.vue';
 import {config} from '../lib/config.js';
-import {getSession} from 'bedrock-web-session';
 import {helpers} from 'bedrock-web-wallet';
 import {LoginController} from 'bedrock-web-authn-token';
 import {required, email} from 'vuelidate/lib/validators';
+import {session} from 'bedrock-web-session';
 
 const {openFirstPartyWindow} = helpers;
 
@@ -507,7 +507,6 @@ export default {
       this._ctrl.state.challenge = '';
 
       try {
-        const session = await getSession();
         await session.refresh();
       } catch(e) {
         console.log(e);

@@ -39,8 +39,8 @@ import {AccountService} from 'bedrock-web-account';
 import {config} from '../lib/config.js';
 import Drawer from './Drawer.vue';
 import {getRootData} from '../lib/rootData.js';
-import {getSession} from 'bedrock-web-session';
 import {installHandler} from 'web-credential-handler';
+import {session} from 'bedrock-web-session';
 import {TokenService} from 'bedrock-web-authn-token';
 import WalletHeader from './WalletHeader.vue';
 
@@ -131,7 +131,7 @@ export default {
     async initializeSession() {
       try {
         this.loadingSession = true;
-        this.session = await getSession();
+        this.session = session;
       } catch(e) {
         const message =
           'An error has occured. Please refresh the page to try again.';

@@ -49,9 +49,9 @@
  * Copyright (c) 2020-2022 Digital Bazaar, Inc. All rights reserved.
  */
 import {BrQTitleCard} from 'bedrock-quasar-components';
-import {getSession} from 'bedrock-web-session';
 import Login from '../components/Login.vue';
 import {ProfileService} from 'bedrock-web-profile';
+import {session} from 'bedrock-web-session';
 
 export default {
   name: 'OnboardPage',
@@ -62,8 +62,7 @@ export default {
       loginModal: false,
       pageLoading: false,
       profileName: '',
-      profileAgent: '',
-      session: undefined
+      profileAgent: ''
     };
   },
   async mounted() {
@@ -76,8 +75,7 @@ export default {
       this.email = email;
 
       // always log user out to prevent erroneous onboarding
-      this.session = await getSession();
-      await this.session.end();
+      await session.end();
     } finally {
       this.pageLoading = false;
     }
@@ -89,7 +87,6 @@ export default {
       try {
         // TODO: bedrock-web-profile.claimProfileAgent({account, profileAgent})
         const profileService = new ProfileService();
-        const session = await getSession();
         const {account: {id: account}} = session.data;
         const {profileAgent} = this;
         await profileService.claimAgent({account, profileAgent});
