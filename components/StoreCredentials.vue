@@ -63,7 +63,7 @@
  * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
  */
 import CredentialsList from './CredentialsList.vue';
-import {getProfiles} from 'bedrock-web-wallet';
+import {profileManager} from 'bedrock-web-wallet';
 import ProfileChooser from './ProfileChooser.vue';
 
 export default {
@@ -124,7 +124,7 @@ export default {
   asyncComputed: {
     profiles: {
       async get() {
-        return getProfiles();
+        return profileManager.getProfiles();
       },
       default() {
         return [];

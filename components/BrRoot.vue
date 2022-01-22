@@ -38,9 +38,9 @@
 import {AccountService} from 'bedrock-web-account';
 import {config} from '../lib/config.js';
 import Drawer from './Drawer.vue';
+import {getRootData} from '../lib/rootData.js';
+import {getSession} from 'bedrock-web-session';
 import {installHandler} from 'web-credential-handler';
-import {sessionStorage} from 'bedrock-web-wallet';
-import {store} from 'bedrock-web-store';
 import {TokenService} from 'bedrock-web-authn-token';
 import WalletHeader from './WalletHeader.vue';
 
@@ -119,7 +119,7 @@ export default {
     this._tokenService = new TokenService();
   },
   async created() {
-    this.rootData = await store.get({id: 'rootData'});
+    this.rootData = await getRootData();
     await this.initializeSession();
   },
   methods: {
@@ -127,18 +127,11 @@ export default {
       this.showDrawer = false;
       this.loadingSession = false;
       this.loadingAccount = false;
-      // clears session from memory
-      // FIXME: try to have bedrock-web-wallet automaticlaly trigger this via a
-      // session `change` event handler when destroying the session via
-      // session.end()
-      await sessionStorage.clear();
     },
     async initializeSession() {
       try {
         this.loadingSession = true;
-        // FIXME: fix conflation between session storage and authn session
-        // with the server
-        this.session = await sessionStorage.initialize();
+        this.session = await getSession();
       } catch(e) {
         const message =
           'An error has occured. Please refresh the page to try again.';

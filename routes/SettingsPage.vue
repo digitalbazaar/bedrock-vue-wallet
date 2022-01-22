@@ -120,7 +120,7 @@
  */
 import AccessManagement from '../components/AccessManagement.vue';
 import GeneralSettings from '../components/GeneralSettings.vue';
-import {getProfiles} from 'bedrock-web-wallet';
+import {profileManager} from 'bedrock-web-wallet';
 import ProfileSettings from '../components/ProfileSettings.vue';
 import SettingsModule from '../components/SettingsModule.vue';
 import TwoFactorSettings from '../components/TwoFactorSettings.vue';
@@ -215,7 +215,7 @@ export default {
       event.waitUntil(this.$router.replace(event.route));
     });
     try {
-      const profiles = await getProfiles({type: 'Person'});
+      const profiles = await profileManager.getProfiles({type: 'Person'});
       profiles.sort(({name: nameA}, {name: nameB}) =>
         nameA.toLowerCase().localeCompare(nameB.toLowerCase()));
       this.profiles = profiles;

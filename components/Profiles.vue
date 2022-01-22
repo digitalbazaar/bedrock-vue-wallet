@@ -49,7 +49,7 @@
  */
 import AddProfileModal from './AddProfileModal.vue';
 import {BrQTable} from 'bedrock-quasar-components';
-import {helpers, getProfiles, getPrimaryEmail} from 'bedrock-web-wallet';
+import {helpers, getPrimaryEmail, profileManager} from 'bedrock-web-wallet';
 import SearchBox from './SearchBox.vue';
 import {utils} from 'quasar';
 
@@ -152,7 +152,7 @@ export default {
     }
   },
   async created() {
-    this.tableData = await getProfiles({type: 'Person'});
+    this.tableData = await profileManager.getProfiles({type: 'Person'});
     this.tableData.forEach(x => {
       x.created = this.getDate(x.created);
       x.didMethod = this.getTypeLabel(x.didMethod);

@@ -12,7 +12,7 @@
 
 <script>
 import Credentials from '../components/Credentials.vue';
-import {getProfiles, credentialHelpers} from 'bedrock-web-wallet';
+import {credentialHelpers, profileManager} from 'bedrock-web-wallet';
 import {store} from 'bedrock-web-store';
 
 const {getAllDisplayableCredentials} = credentialHelpers;
@@ -73,7 +73,7 @@ export default {
         const {account: accountId} = this;
         if(accountId) {
           try {
-            const profiles = await getProfiles();
+            const profiles = await profileManager.getProfiles();
             this.errorText = '';
             return profiles;
           } catch(e) {
