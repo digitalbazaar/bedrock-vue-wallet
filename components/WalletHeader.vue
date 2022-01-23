@@ -116,7 +116,7 @@
 /*!
  * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
  */
-import {config} from 'bedrock-vue';
+import {config} from 'bedrock-web';
 import InteractIcon from './InteractIcon.vue';
 
 export default {
@@ -138,7 +138,7 @@ export default {
   },
   data() {
     return {
-      branding: config.branding,
+      branding: config.vueWallet.branding,
       // FIXME: enable customization of the routes that show up in the
       // navigation drawer
       navRouteName: ''

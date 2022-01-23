@@ -77,7 +77,7 @@
  * Copyright (c) 2018-2022 Digital Bazaar, Inc. All rights reserved.
  */
 import {BrQTitleCard} from 'bedrock-quasar-components';
-import {config} from 'bedrock-vue';
+import {config} from 'bedrock-web';
 import TwoFactorStepper from '../components/TwoFactorStepper.vue';
 
 export default {
@@ -85,7 +85,7 @@ export default {
   components: {BrQTitleCard, TwoFactorStepper},
   data() {
     return {
-      branding: config.branding,
+      branding: config.vueWallet.branding,
       stepper: false
     };
   },

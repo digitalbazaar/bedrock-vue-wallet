@@ -204,7 +204,7 @@
  */
 import {BrQTitleCard} from 'bedrock-quasar-components';
 import CodeInput from './CodeInput.vue';
-import {config} from 'bedrock-vue';
+import {config} from 'bedrock-web';
 import {helpers} from 'bedrock-web-wallet';
 import {LoginController} from 'bedrock-web-authn-token';
 import {required, email} from 'vuelidate/lib/validators';
@@ -217,7 +217,7 @@ export default {
   components: {CodeInput, BrQTitleCard},
   data() {
     return {
-      branding: config.branding,
+      branding: config.vueWallet.branding,
       ctrl: this._ctrl.state,
       emailCode: '',
       emailCodeAuthenticated: false,
