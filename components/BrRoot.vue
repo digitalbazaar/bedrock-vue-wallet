@@ -36,7 +36,7 @@
  * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
  */
 import {AccountService} from 'bedrock-web-account';
-import {config} from 'bedrock-vue';
+import {config} from 'bedrock-web';
 import Drawer from './Drawer.vue';
 import {getRootData} from '../lib/rootData.js';
 import {installHandler} from 'web-credential-handler';
@@ -96,7 +96,7 @@ export default {
             {url: '/credential-handler'});
           await registration.credentialManager.hints.set(
             accountId, {
-              name: config.branding.shortName,
+              name: config.vueWallet.branding.shortName,
               enabledTypes: ['VerifiablePresentation']
             });
         } catch(e) {

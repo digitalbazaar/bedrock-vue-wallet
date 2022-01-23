@@ -186,7 +186,7 @@
 import {AccountService} from 'bedrock-web-account';
 import {BrQTitleCard} from 'bedrock-quasar-components';
 import CodeInput from './CodeInput.vue';
-import {config} from 'bedrock-vue';
+import {config} from 'bedrock-web';
 import {email} from 'vuelidate/lib/validators';
 import {getTwoFactorCodes} from '../mocks/twoFactorCodes.js';
 import QrCode from './QrCode.vue';
@@ -299,7 +299,7 @@ export default {
         account,
         type: 'totp',
         authenticationMethod: 'totp-challenge',
-        serviceId: config.branding.shortName
+        serviceId: config.vueWallet.branding.shortName
       });
       this.otpInfo = result.result;
     },
