@@ -204,7 +204,7 @@
  */
 import {BrQTitleCard} from 'bedrock-quasar-components';
 import CodeInput from './CodeInput.vue';
-import {config} from '../lib/config.js';
+import {config} from 'bedrock-vue';
 import {helpers} from 'bedrock-web-wallet';
 import {LoginController} from 'bedrock-web-authn-token';
 import {required, email} from 'vuelidate/lib/validators';

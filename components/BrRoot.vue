@@ -36,7 +36,7 @@
  * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
  */
 import {AccountService} from 'bedrock-web-account';
-import {config} from '../lib/config.js';
+import {config} from 'bedrock-vue';
 import Drawer from './Drawer.vue';
 import {getRootData} from '../lib/rootData.js';
 import {installHandler} from 'web-credential-handler';
