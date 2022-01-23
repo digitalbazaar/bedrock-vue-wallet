@@ -77,7 +77,7 @@
  * Copyright (c) 2018-2022 Digital Bazaar, Inc. All rights reserved.
  */
 import {BrQTitleCard} from 'bedrock-quasar-components';
-import {config} from '../lib/config.js';
+import {config} from 'bedrock-vue';
 import TwoFactorStepper from '../components/TwoFactorStepper.vue';
 
 export default {
