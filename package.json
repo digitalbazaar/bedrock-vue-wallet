@@ -7,7 +7,6 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "esm": "^3.2.25"
   },
   "peerDependencies": {
     "bedrock-fontawesome": "^1.0.0",
