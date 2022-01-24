@@ -30,7 +30,6 @@
     "node": ">=12"
   },
   "files": [
-    "config/*",
     "components/*",
     "lib/*",
     "mocks/*",
