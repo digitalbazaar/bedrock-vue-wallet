@@ -42,9 +42,11 @@
 /*!
  * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
  */
+// FIXME: do not import any of these, parameterize them instead
+import {config} from 'bedrock-web';
 import {
   credentialHelpers,
-  CredentialStore,
+  getCredentialStore,
   localCredentials
 } from 'bedrock-web-wallet';
 import {
@@ -52,11 +54,8 @@ import {
   CredentialCard
 } from 'bedrock-vue-credential-card';
 import {store} from 'bedrock-web-store';
-
 const {
-  bundleCredentialTypes,
-  createBundledCredential,
-  deleteCredentialBundle
+  createBundledCredential
 } = credentialHelpers;
 
 const {getLocalVcStore} = localCredentials;
@@ -105,20 +104,17 @@ export default {
         message: 'Deleting your credential...'
       });
       const {id: profileId} = this.currentCardProfile;
-      const credentialStore = new CredentialStore({profileId});
+      // FIXME: this should be parameterized and/or use events, only pages
+      // should interact with lower level application code
+      const credentialStore = await getCredentialStore({
+        // FIXME: temporary password should be replaced -- and this code
+        // shouldn't be called in a component anyway
+        profileId, password: 'password'
+      });
       try {
-        // initialize credential store
-        await credentialStore.init();
-
-        if(this.currentCard.credential.type
-          .includes('AgeVerificationContainerCredential')) {
-          // delete credential bundle
-          await deleteCredentialBundle({id, profileId, credentialStore});
-        } else {
-          // delete credential
-          await credentialStore.deleteCredential({id});
-          // start updating the latest set of credentials on screen
-        }
+        // delete credential
+        await credentialStore.delete({id});
+        // start updating the latest set of credentials on screen
         const rootData = store.get({id: 'rootData'});
         rootData.updateCredentials = true;
         // provide user feedback denoting success
@@ -197,20 +193,26 @@ export default {
     async displayCredential(credentialRecord) {
       let credential = JSON.parse(JSON
         .stringify(credentialRecord.credential));
-      const bundle = bundleCredentialTypes.get(credential.type[1]);
+      const filters = config.credentialStorage.filters;
+      const bundle = filters.bundle[credential.type[1]];
       if(bundle) {
         credential = await createBundledCredential({credentialRecord});
       }
       return credential;
     },
     async handlePresentationView({currentCard, currentCardProfile}) {
+      // FIXME: should be parameterized and not determined by a component
       if(currentCard.credential.type
         .includes('AgeVerificationContainerCredential')) {
         // handles deletion of tokens for age credential
         const credentialId = currentCard.credential.credentialSubject.qr.id;
         const profileId = currentCardProfile.id;
-        const localVcStore = await getLocalVcStore({profileId});
-        await localVcStore.delete({id: credentialId});
+        const credentialStore = await getCredentialStore({
+          // FIXME: temporary password should be replaced -- and this code
+          // shouldn't be called in a component anyway
+          profileId, password: 'password'
+        });
+        await credentialStore.local.delete({id: credentialId, force: true});
       }
     }
   }

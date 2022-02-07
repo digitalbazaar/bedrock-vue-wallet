@@ -252,8 +252,6 @@ export default {
         // creates container credentials for display only
         this.displayableCredentials = createContainers({records});
         const credentials = records.map(r => r.content);
-        // FIXME: Remove this hack used to surface the VON credential
-        //const filteredCredentials = filterHackForChapi(credentials, query);
         return credentials;
       },
       default() {
