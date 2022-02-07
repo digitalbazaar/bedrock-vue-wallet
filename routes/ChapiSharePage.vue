@@ -58,7 +58,7 @@
 /*!
  * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
  */
-import {credentialHelpers, helpers} from 'bedrock-web-wallet';
+import {cryptoSuites, presentations} from 'bedrock-web-wallet';
 import Login from '../components/Login.vue';
 import Problem from '../components/Problem.vue';
 import Next from '../components/Next.vue';
@@ -84,7 +84,7 @@ export default {
       error: undefined,
       challenge: undefined,
       domain: undefined,
-      supportedProofTypes: undefined,
+      acceptedProofTypes: undefined,
       ready: false,
       query: undefined,
       removeSessionListener: undefined,
@@ -118,63 +118,58 @@ export default {
       }
     }
     this.storageChecked = true;
-    const self = this;
-    let resolveRemoveSession;
-    this.removeSessionListener = new Promise(
-      resolve => resolveRemoveSession = resolve);
-    try {
-      this.ready = !!this.account;
-      const remover = session.on('change', ({newData = {}}) => {
-        self.ready = !!newData.account;
-      });
-      resolveRemoveSession(remover);
-    } finally {
-      resolveRemoveSession(() =>
-        console.error('SharePage failed to remove session listener.'));
-    }
+    this.ready = !!this.account;
+    this.removeSessionListener = session.on('change', ({newData = {}}) => {
+      this.ready = !!newData.account;
+    });
     const event = await receiveCredentialEvent();
     console.log('credential request event', event);
     const {web} = event.credentialRequestOptions;
-    const {
-      query, challenge, domain, supportedProofTypes
-    } = web.VerifiablePresentation;
+    const {query, challenge, domain} = web.VerifiablePresentation;
+    // backwards compatibility (name SHOULD be `acceptedProofTypes` but some
+    // older software used `supportedProofTypes`)
+    let {acceptedProofTypes} = web.VerifiablePresentation;
+    if(!acceptedProofTypes && web.VerifiablePresentation.supportedProofTypes) {
+      acceptedProofTypes = web.VerifiablePresentation.supportedProofTypes;
+    }
     console.log('incoming challenge: ', prettify(challenge, null, 2));
     console.log('incoming domain: ', prettify(domain, null, 2));
     console.log('incoming query: ', prettify(query, null, 2));
-    console.log('incoming supportedProofTypes: ',
-      prettify(supportedProofTypes, null, 2));
+    console.log('incoming acceptedProofTypes: ',
+      prettify(acceptedProofTypes, null, 2));
 
-    self.requestOrigin = event.credentialRequestOrigin;
-    self.query = query || {};
+    this.requestOrigin = event.credentialRequestOrigin;
+    this.query = query || {};
     event.respondWith(new Promise((resolve, reject) => {
-      self._share = () => {
+      this._share = () => {
         resolve({
           dataType: 'VerifiablePresentation',
-          data: self.presentation
+          data: this.presentation
         });
       };
-      self._cancel = () => resolve(null);
-      self._error = err => reject(err);
+      this._cancel = () => resolve(null);
+      this._error = err => reject(err);
     }));
 
-    if(supportedProofTypes) {
-      let hasSupportedProofType = false;
-      for(const supportedProofType of supportedProofTypes) {
-        if(helpers.supportedProofTypes.has(supportedProofType.name)) {
-          hasSupportedProofType = true;
+    if(acceptedProofTypes) {
+      let hasAcceptedProofType = false;
+      for(const {name} of acceptedProofTypes) {
+        if(cryptoSuites.supported.has(name)) {
+          hasAcceptedProofType = true;
         }
       }
 
-      if(!hasSupportedProofType) {
-        const error = new Error('The site is requesting credentials that ' +
-          'are not supported by this wallet.');
+      if(!hasAcceptedProofType) {
+        const error = new Error(
+          'The site is requesting credentials that are not supported ' +
+          'by this wallet.');
         error.name = 'ValidationError';
-        error.details = 'None of the "supportedProofTypes" are supported.';
+        error.details = 'None of the "acceptedProofTypes" are supported.';
         this.error = error;
         this.loading = false;
         return;
       }
-      this.supportedProofTypes = supportedProofTypes;
+      this.acceptedProofTypes = acceptedProofTypes;
     }
 
     this.challenge = challenge;
@@ -183,7 +178,7 @@ export default {
   },
   async beforeDestroy() {
     // clean up session listener
-    (await this.removeSessionListener)();
+    this.removeSessionListener();
   },
   methods: {
     setDisplay(display) {
@@ -201,11 +196,11 @@ export default {
           // FIXME: Throw error if challenge not provided
           challenge = 'c0ae1c8e-c7e7-469f-b252-86e6a0e7387e',
           domain,
-          supportedProofTypes
+          acceptedProofTypes
         } = this;
-        const signedPresentation = await credentialHelpers.signPresentation({
+        const signedPresentation = await presentations.sign({
           challenge, domain, presentation, profileId: holder,
-          supportedProofTypes
+          acceptedProofTypes
         });
         this.presentation = signedPresentation;
       } else { // FIXME: Remove this branch of code for mock presentation
