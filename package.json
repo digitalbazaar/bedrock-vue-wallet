@@ -7,7 +7,9 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@digitalbazaar/web-app-manifest-utils": "^1.0.2"
+    "@digitalbazaar/web-app-manifest-utils": "^1.0.2",
+    "qrcode": "^1.5.0",
+    "randomcolor": "^0.6.2"
   },
   "peerDependencies": {
     "bedrock-fontawesome": "^1.0.0",
