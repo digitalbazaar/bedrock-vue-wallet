@@ -66,16 +66,16 @@
 /*!
  * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
  */
-import {credentialHelpers, helpers, profileManager} from 'bedrock-web-wallet';
+import {
+  ageCredentialHelpers, helpers, profileManager
+} from 'bedrock-web-wallet';
 import ProfileChooser from './ProfileChooser.vue';
 import ShareHeader from './ShareHeader.vue';
 import ShareReview from './ShareReview.vue';
 import {WebAppManifestClient} from '@digitalbazaar/web-app-manifest-utils';
 
 const {createCapabilities} = helpers;
-const {
-  getRecords, createContainers, ensureLocalCredentials
-} = credentialHelpers;
+const {ensureLocalCredentials} = ageCredentialHelpers;
 
 const manifestClient = new WebAppManifestClient();
 
@@ -245,8 +245,13 @@ export default {
           return [];
         }
 
+        // FIXME: event should be emitted to deal with the query at the page
+
         // ensures local credentials are made present on the device
-        await ensureLocalCredentials({profiles: [this.selectedProfile]});
+        const credentialStore = await getCredentialStore({
+          profileId: this.selectedProfile
+        });
+        await ensureLocalCredentials({credentialStore});
 
         const records = await getRecords({query, profileId});
         // creates container credentials for display only
@@ -354,6 +359,68 @@ function filterHackForChapi(credentials, query) {
     result.push(customerCredential);
   }
   return result;
+}
+
+// FIXME: move elsewhere?
+async function getRecords({query, profileId}) {
+  // Clone is done here to prevent Vue from calling the function multiple times
+  // due to "query" being set inside of a computed function.
+  const vprQuery = JSON.parse(JSON.stringify(query));
+
+  // convert VPR query into local queries
+  const credentialStore = await getCredentialStore({profileId});
+  const {queries} = credentialStore.local.convertVPRQuery({vprQuery});
+
+  // FIXME: all code here assumes a single `credentialQuery`
+  const type = vprQuery.credentialQuery.example.type;
+  const records = [];
+  if(type.includes('OverAgeTokenCredential')) {
+    vprQuery.credentialQuery.example.type = 'OverAgeTokenCredential';
+    const {queries: [q]} = credentialStore.local.convertVPRQuery({vprQuery});
+    const {documents: results} = await credentialStore.local.find({
+      // only return 1 over age token
+      query: q, limit: 1
+    });
+    // adds only the first OverAgeTokenCredential to records array
+    records.push(results[0]);
+    // removes local credential from type in query
+    const index = type.indexOf('OverAgeTokenCredential');
+    type.splice(index, 1);
+  }
+  if(type.length === 0) {
+    return records;
+  }
+  const {queries: [q]} = credentialStore.remote.convertVPRQuery({vprQuery});
+  const {documents: results} = await credentialStore.remote({query: q});
+  records.push(...results);
+  return records;
+}
+
+// FIXME: move elsewhere?
+async function createContainers({credentialStore, records}) {
+  // FIXME: change this; it is hacky -- build virtual VCs instead somehow
+  const recordsClone = JSON.parse(JSON.stringify(records));
+  const credentials = [];
+  let containerCredential;
+  for(const record of recordsClone) {
+    const type = record.content.type;
+    if(type.includes('OverAgeTokenCredential')) {
+      if(!containerCredential) {
+        ({content: containerCredential} = await credentialStore.local.get({
+          id: record.meta.bundledBy[0]
+        }));
+      }
+      record.content.name = 'Over Age Token Credential';
+      record.content.description =
+        'This credential can be used to prove that you are over ' +
+        'a particular age.';
+      record.content.issuer = containerCredential.issuer;
+      credentials.push(record.content);
+      continue;
+    }
+    credentials.push(record.content);
+  }
+  return credentials;
 }
 </script>
 

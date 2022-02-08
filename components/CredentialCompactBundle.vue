@@ -18,11 +18,6 @@
  * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
  */
 import {CredentialCardList} from 'bedrock-vue-credential-card';
-import {credentialHelpers} from 'bedrock-web-wallet';
-
-const {
-  createCompactBundledCredentials,
-} = credentialHelpers;
 
 export default {
   name: 'CredentialsList',
@@ -60,6 +55,47 @@ export default {
   },
   methods: {}
 };
+
+// FIXME: move elsewhere
+async function createCompactBundledCredentials({credentials}) {
+  const credentialsList = [];
+  const visibleCredentials = JSON.parse(JSON.stringify(credentials))
+    .filter(credential => {
+      return !_hasTypeIn({credential, typeMap: hiddenCredentialTypes});
+    });
+  for(const credential of visibleCredentials) {
+    if(credential.type.includes('AgeVerificationContainerCredential')) {
+      credential.credentialSubject = await createAgeCredential({
+        bundledCredentials: credentials
+      });
+    }
+    credentialsList.push(credential);
+  }
+  return credentialsList;
+}
+
+// FIXME: move elsewhere and refactor to make code avoid doing extra work
+async function createAgeCredential({bundledCredentials}) {
+  const newCredentialSubject = {};
+  let tokenCount = 0;
+  for(const credential of bundledCredentials) {
+    if(compact && credential.type.includes('OverAgeTokenCredential')) {
+      tokenCount += 1;
+      continue;
+    }
+    if(credential.type.includes('PersonalPhotoCredential')) {
+      newCredentialSubject.image = credential.credentialSubject.image;
+      continue;
+    }
+    if(credential.type.includes('AgeVerificationCredential')) {
+      newCredentialSubject.overAge = credential.credentialSubject
+        .overAge;
+      continue;
+    }
+  }
+  newCredentialSubject.concealedIdTokenCount = tokenCount;
+  return newCredentialSubject;
+}
 </script>
 
 <style lang="scss" scoped>
