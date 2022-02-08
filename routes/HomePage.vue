@@ -12,10 +12,12 @@
 
 <script>
 import Credentials from '../components/Credentials.vue';
-import {credentialHelpers, profileManager} from 'bedrock-web-wallet';
+import {
+  ageCredentialHelpers,
+  getCredentialStore,
+  profileManager
+} from 'bedrock-web-wallet';
 import {store} from 'bedrock-web-store';
-
-const {getAllDisplayableCredentials} = credentialHelpers;
 
 export default {
   name: 'HomePage',
@@ -96,8 +98,26 @@ export default {
         this.loadingCredentials = true;
         const profiles = this.filteredProfiles.length === 0 ?
           this.profiles : this.filteredProfiles;
-        // get remote, get local, get refresh
-        this.credentials = await getAllDisplayableCredentials(profiles);
+        // FIXME: do not get ALL of a user's credentials when they load
+        // their home page; figure out how to simplify this and not pull down
+        // unnecessary data (this behavior was preserved during refactoring
+        // but it should be changed)
+        const credentials = [];
+        for(const {id: profileId} of profiles) {
+          const credentialStore = await getCredentialStore({profileId});
+          const [localResults, remoteResults] = await Promise.all([
+            credentialStore.local.find({displayable: true}),
+            credentialStore.remote.find({displayable: true}),
+            ageCredentialHelpers.ensureLocalCredentials({credentialStore})
+          ]);
+          for(const doc of localResults.documents) {
+            credentials.push({credential: doc.content, meta: doc.meta});
+          }
+          for(const doc of remoteResults.documents) {
+            credentials.push({credential: doc.content, meta: doc.meta});
+          }
+        }
+        this.credentials = credentials;
         this.errorText = '';
       } catch(e) {
         console.log('Error: ', e);

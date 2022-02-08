@@ -42,23 +42,18 @@
 /*!
  * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
  */
-// FIXME: do not import any of these, parameterize them instead
-import {config} from 'bedrock-web';
+// FIXME: do not import any of these, parameterize / use events instead
 import {
-  credentialHelpers,
-  getCredentialStore,
-  localCredentials
+  ageCredentialHelpers,
+  getCredentialStore
 } from 'bedrock-web-wallet';
 import {
   CredentialCardDetail,
   CredentialCard
 } from 'bedrock-vue-credential-card';
 import {store} from 'bedrock-web-store';
-const {
-  createBundledCredential
-} = credentialHelpers;
 
-const {getLocalVcStore} = localCredentials;
+const {generateQrCodeDataUrl} = ageCredentialHelpers;
 
 export default {
   name: 'CredentialsList',
@@ -70,10 +65,6 @@ export default {
     credentialRecord: {
       type: Object,
       required: true
-    },
-    compact: {
-      type: Boolean,
-      required: false
     },
     detail: {
       type: Boolean,
@@ -164,14 +155,20 @@ export default {
       }
     },
     async handleClose({currentCard, currentCardProfile}) {
+      // FIXME: this emit an event to be handled by the page that uses this
+      // component; it should not be handled here
       if(currentCard.credential.type
         .includes('AgeVerificationContainerCredential')) {
         const credentialId = currentCard.credential.id;
         const profileId = currentCardProfile.id;
         const rootData = store.get({id: 'rootData'});
         try {
-          const localVcStore = await getLocalVcStore({profileId});
-          await localVcStore.get({id: credentialId});
+          const credentialStore = await getCredentialStore({
+            // FIXME: temporary password should be replaced -- and this code
+            // shouldn't be called in a component anyway
+            profileId, password: 'password'
+          });
+          await credentialStore.local.get({id: credentialId});
         } catch(e) {
           // If AgeVerificationContainerCredential was not found in local
           // storage, then a refresh of the credential list is done in the
@@ -193,9 +190,8 @@ export default {
     async displayCredential(credentialRecord) {
       let credential = JSON.parse(JSON
         .stringify(credentialRecord.credential));
-      const filters = config.credentialStorage.filters;
-      const bundle = filters.bundle[credential.type[1]];
-      if(bundle) {
+      // FIXME: generalize
+      if(credential.type.includes('AgeVerificationContainerCredential')) {
         credential = await createBundledCredential({credentialRecord});
       }
       return credential;
@@ -217,6 +213,66 @@ export default {
     }
   }
 };
+
+// FIXME: move elsewhere and refactor to make code avoid doing extra work
+async function createBundledCredential({credentialRecord}) {
+  const credential = JSON.parse(JSON
+    .stringify(credentialRecord.credential));
+  const profileId = credentialRecord.meta.holder;
+  const credentialStore = await getCredentialStore({
+    // FIXME: temporary password should be replaced -- and this code
+    // shouldn't be called in a component anyway
+    profileId, password: 'password'
+  });
+
+  if(credential.type.includes('AgeVerificationContainerCredential')) {
+    // FIXME: this gets the *entire* bundle, which is likely unnecessary
+    // FIXME: it also re-fetches the container credential because its
+    // original EDV doc has not been preserved / passed through
+    const {allSubDocuments} = await credentialStore.local.getBundle({
+      id: credential.id
+    });
+    credential.credentialSubject = await createAgeCredential({
+      bundledCredentials: subDocuments.map(d => d.content),
+      credentialId: credential.id,
+      credentialStore
+    });
+  }
+  return credential;
+}
+
+// FIXME: move elsewhere and refactor to make code avoid doing extra work
+async function createAgeCredential({
+  bundledCredentials, credentialId, credentialStore
+}) {
+  const newCredentialSubject = {};
+  for(const credential of bundledCredentials) {
+    if(credential.type.includes('PersonalPhotoCredential')) {
+      newCredentialSubject.image = credential.credentialSubject.image;
+      continue;
+    }
+    if(credential.type.includes('AgeVerificationCredential')) {
+      newCredentialSubject.overAge = credential.credentialSubject.overAge;
+      continue;
+    }
+  }
+  const localTokenVcs = bundledCredentials.filter(
+    vc => vc.type.includes('OverAgeTokenCredential'));
+  tokenCount = localTokenVcs.length;
+  const qr = {};
+  if(!qr.url) {
+    qr.id = localTokenVcs[0].id;
+    qr.url = await generateQrCodeDataUrl({credential: localTokenVcs[0]});
+    if(tokenCount === 1) {
+      await reissue({
+        ageVerificationContainerId: credentialId, credentialStore
+      });
+    }
+  }
+  newCredentialSubject.qr = qr;
+  newCredentialSubject.concealedIdTokenCount = localTokenVcs.length;
+  return newCredentialSubject;
+}
 </script>
 
 <style lang="scss" scoped>
