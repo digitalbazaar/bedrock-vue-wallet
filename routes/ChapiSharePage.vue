@@ -58,7 +58,7 @@
 /*!
  * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
  */
-import {cryptoSuites, presentations} from 'bedrock-web-wallet';
+import {cryptoSuites, helpers, presentations} from 'bedrock-web-wallet';
 import Login from '../components/Login.vue';
 import Problem from '../components/Problem.vue';
 import Next from '../components/Next.vue';
