@@ -104,7 +104,10 @@ export default {
         // but it should be changed)
         const credentials = [];
         for(const {id: profileId} of profiles) {
-          const credentialStore = await getCredentialStore({profileId});
+          // FIXME: determine how password will be provided / set
+          const credentialStore = await getCredentialStore({
+            profileId, password: 'password'
+          });
           const [localResults, remoteResults] = await Promise.all([
             credentialStore.local.find({displayable: true}),
             credentialStore.remote.find({displayable: true}),
