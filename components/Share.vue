@@ -256,7 +256,7 @@ export default {
 
         const records = await getRecords({query, profileId});
         // creates container credentials for display only
-        this.displayableCredentials = createContainers({records});
+        this.displayableCredentials = await createContainers({records});
         const credentials = records.map(r => r.content);
         return credentials;
       },
