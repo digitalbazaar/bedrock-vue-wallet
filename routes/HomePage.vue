@@ -109,8 +109,8 @@ export default {
             profileId, password: 'password'
           });
           const [localResults, remoteResults] = await Promise.all([
-            credentialStore.local.find({displayable: true}),
-            credentialStore.remote.find({displayable: true}),
+            credentialStore.local.find({query: {displayable: true}}),
+            credentialStore.remote.find({query: {displayable: true}}),
             ageCredentialHelpers.ensureLocalCredentials({credentialStore})
           ]);
           for(const doc of localResults.documents) {
