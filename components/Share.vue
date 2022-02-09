@@ -67,7 +67,7 @@
  * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
  */
 import {
-  ageCredentialHelpers, helpers, profileManager
+  ageCredentialHelpers, getCredentialStore, helpers, profileManager
 } from 'bedrock-web-wallet';
 import ProfileChooser from './ProfileChooser.vue';
 import ShareHeader from './ShareHeader.vue';
@@ -250,8 +250,7 @@ export default {
         // ensures local credentials are made present on the device
         const credentialStore = await getCredentialStore({
           // FIXME: determine how password will be provided / set
-          profileId: this.selectedProfile,
-          password: 'password'
+          profileId, password: 'password'
         });
         await ensureLocalCredentials({credentialStore});
 
@@ -369,34 +368,40 @@ async function getRecords({query, profileId}) {
   // due to "query" being set inside of a computed function.
   const vprQuery = JSON.parse(JSON.stringify(query));
 
-  // convert VPR query into local queries
+  // convert VPR query into local queries...
   const credentialStore = await getCredentialStore({
     // FIXME: determine how password will be provided / set
     profileId, password: 'password'
   });
-  const {queries} = credentialStore.local.convertVPRQuery({vprQuery});
 
   // FIXME: all code here assumes a single `credentialQuery`
   const type = vprQuery.credentialQuery.example.type;
   const records = [];
   if(type.includes('OverAgeTokenCredential')) {
+    // query for *only* the over age token credential
     vprQuery.credentialQuery.example.type = 'OverAgeTokenCredential';
-    const {queries: [q]} = credentialStore.local.convertVPRQuery({vprQuery});
+    const {queries: [q]} = await credentialStore.local.convertVPRQuery({
+      vprQuery
+    });
     const {documents: results} = await credentialStore.local.find({
       // only return 1 over age token
       query: q, limit: 1
     });
     // adds only the first OverAgeTokenCredential to records array
     records.push(results[0]);
-    // removes local credential from type in query
+
+    // remove local credential from type in query and restore its value
     const index = type.indexOf('OverAgeTokenCredential');
     type.splice(index, 1);
+    vprQuery.credentialQuery.example.type = type;
   }
-  if(type.length === 0) {
+  if(vprQuery.credentialQuery.example.type.length === 0) {
     return records;
   }
-  const {queries: [q]} = credentialStore.remote.convertVPRQuery({vprQuery});
-  const {documents: results} = await credentialStore.remote({query: q});
+  const {queries: [q]} = await credentialStore.remote.convertVPRQuery({
+    vprQuery
+  });
+  const {documents: results} = await credentialStore.remote.find({query: q});
   records.push(...results);
   return records;
 }
