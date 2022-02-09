@@ -161,7 +161,10 @@ export default {
           throw new Error('VerifiablePresentation not set.');
         }
 
-        const credentialStore = await getCredentialStore({profileId: holder});
+        const credentialStore = await getCredentialStore({
+          // FIXME: determine how password will be provided / set
+          profileId: holder, password: 'password'
+        });
         await credentialStore.add({credentials: verifiableCredential});
 
         this._store();

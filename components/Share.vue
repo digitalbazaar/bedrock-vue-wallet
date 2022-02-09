@@ -249,7 +249,9 @@ export default {
 
         // ensures local credentials are made present on the device
         const credentialStore = await getCredentialStore({
-          profileId: this.selectedProfile
+          // FIXME: determine how password will be provided / set
+          profileId: this.selectedProfile,
+          password: 'password'
         });
         await ensureLocalCredentials({credentialStore});
 
@@ -368,7 +370,10 @@ async function getRecords({query, profileId}) {
   const vprQuery = JSON.parse(JSON.stringify(query));
 
   // convert VPR query into local queries
-  const credentialStore = await getCredentialStore({profileId});
+  const credentialStore = await getCredentialStore({
+    // FIXME: determine how password will be provided / set
+    profileId, password: 'password'
+  });
   const {queries} = credentialStore.local.convertVPRQuery({vprQuery});
 
   // FIXME: all code here assumes a single `credentialQuery`
