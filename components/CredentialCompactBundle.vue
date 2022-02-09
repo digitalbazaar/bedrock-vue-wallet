@@ -56,7 +56,17 @@ export default {
   methods: {}
 };
 
-// FIXME: move elsewhere
+// FIXME: refactor and use config
+const hiddenCredentialTypes = new Map([
+  ['PersonalPhotoCredential', true],
+  ['OverAgeTokenCredential', true],
+  ['AgeVerificationCredential', true]
+]);
+const bundleCredentialTypes = new Map([
+  ['AgeVerificationContainerCredential', true]
+]);
+
+// FIXME: refactor and move elsewhere
 async function createCompactBundledCredentials({credentials}) {
   const credentialsList = [];
   const visibleCredentials = JSON.parse(JSON.stringify(credentials))
@@ -95,6 +105,10 @@ async function createAgeCredential({bundledCredentials}) {
   }
   newCredentialSubject.concealedIdTokenCount = tokenCount;
   return newCredentialSubject;
+}
+
+function _hasTypeIn({credential, typeMap}) {
+  return credential.type.find(credType => typeMap.has(credType));
 }
 </script>
 
