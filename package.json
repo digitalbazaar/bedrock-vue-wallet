@@ -15,7 +15,7 @@
   "peerDependencies": {
     "bedrock-fontawesome": "^1.0.0",
     "bedrock-quasar": "^4.0.0",
-    "bedrock-web-wallet": "digitalbazaar/bedrock-web-wallet#initial",
+    "bedrock-web-wallet": "^1.0.0",
     "vue": "^2.6.12",
     "vue-async-computed": "^3.9.0",
     "vue-extendable-event": "^1.0.0",
