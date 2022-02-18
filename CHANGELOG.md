@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 1.0.1 - TBD
+## 1.0.1 - 2022-02-18
 
 ### Fixed
 - Fix compact bundle bug.
