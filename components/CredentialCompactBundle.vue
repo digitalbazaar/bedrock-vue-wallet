@@ -89,7 +89,7 @@ async function createAgeCredential({bundledCredentials}) {
   const newCredentialSubject = {};
   let tokenCount = 0;
   for(const credential of bundledCredentials) {
-    if(compact && credential.type.includes('OverAgeTokenCredential')) {
+    if(credential.type.includes('OverAgeTokenCredential')) {
       tokenCount += 1;
       continue;
     }
