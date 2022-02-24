@@ -1,5 +1,12 @@
 # bedrock-vue-wallet ChangeLog
 
+## 2.0.0 - 2022-02-xx
+
+### Changed
+- **BREAKING**: Use `bedrock-web-wallet@2`. This package includes
+  breaking changes to how encrypted indexes for EDVs are computed
+  and is incompatible with previous versions.
+
 ## 1.0.1 - 2022-02-18
 
 ### Fixed
