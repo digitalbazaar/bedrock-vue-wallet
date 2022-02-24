@@ -1,5 +1,10 @@
 # bedrock-vue-wallet ChangeLog
 
+## 2.0.1 - 2022-02-xx
+
+### Fixed
+- Fix credential card bundle component code.
+
 ## 2.0.0 - 2022-02-23
 
 ### Changed

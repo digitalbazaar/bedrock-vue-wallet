@@ -233,7 +233,7 @@ async function createBundledCredential({credentialRecord}) {
       id: credential.id
     });
     credential.credentialSubject = await createAgeCredential({
-      bundledCredentials: subDocuments.map(d => d.content),
+      bundledCredentials: allSubDocuments.map(d => d.content),
       credentialId: credential.id,
       credentialStore
     });
