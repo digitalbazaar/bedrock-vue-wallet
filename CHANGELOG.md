@@ -1,5 +1,10 @@
 # bedrock-vue-wallet ChangeLog
 
+## 2.0.2 - 2022-02-xx
+
+### Fixed
+- Fix import of missing function.
+
 ## 2.0.1 - 2022-02-23
 
 ### Fixed

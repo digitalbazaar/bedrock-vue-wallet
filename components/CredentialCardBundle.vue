@@ -53,7 +53,7 @@ import {
 } from 'bedrock-vue-credential-card';
 import {store} from 'bedrock-web-store';
 
-const {generateQrCodeDataUrl} = ageCredentialHelpers;
+const {generateQrCodeDataUrl, reissue} = ageCredentialHelpers;
 
 export default {
   name: 'CredentialsList',
@@ -258,7 +258,7 @@ async function createAgeCredential({
   }
   const localTokenVcs = bundledCredentials.filter(
     vc => vc.type.includes('OverAgeTokenCredential'));
-  tokenCount = localTokenVcs.length;
+  const tokenCount = localTokenVcs.length;
   const qr = {};
   if(!qr.url) {
     qr.id = localTokenVcs[0].id;
