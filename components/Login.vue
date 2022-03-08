@@ -116,9 +116,9 @@
             You may also click directly on the link sent to your email.
           </p>
           <code-input
-            hint="Please enter the 9 character code sent to your email address."
-            :min-length="9"
-            :max-length="9"
+            hint="Please enter the 6 character code sent to your email address."
+            :min-length="6"
+            :max-length="6"
             @code="emailCode = $event.code"
             @invalid="invalidEmailCode = $event.invalid" />
           <q-btn
@@ -180,9 +180,9 @@
           Please enter the code from that email below.
         </p>
         <code-input
-          hint="Please enter the 9 character code sent to your email address."
-          :min-length="9"
-          :max-length="9"
+          hint="Please enter the 6 character code sent to your email address."
+          :min-length="6"
+          :max-length="6"
           @code="recoveryEmailCode = $event.code"
           @invalid="invalidRecoveryEmailCode = $event.invalid" />
         <q-btn
