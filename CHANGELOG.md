@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 4.0.0 - 2022-03-xx
+## 4.0.0 - 2022-03-08
 
 ### Changed
 - **BREAKING**: Use `6` digit email codes.
