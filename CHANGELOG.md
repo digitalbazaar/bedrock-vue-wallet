@@ -1,5 +1,10 @@
 # bedrock-vue-wallet ChangeLog
 
+## 5.0.0 - 2022-03-xx
+
+### Changed
+- **BREAKING**: Use `bedrock-web-wallet@4`.
+
 ## 4.0.0 - 2022-03-08
 
 ### Changed
