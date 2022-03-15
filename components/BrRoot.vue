@@ -38,8 +38,8 @@
 import {AccountService} from 'bedrock-web-account';
 import {config} from 'bedrock-web';
 import Drawer from './Drawer.vue';
-import {getRootData} from '../lib/rootData.js';
 import {installHandler} from 'web-credential-handler';
+import {rootData} from '../lib/rootData.js';
 import {session} from 'bedrock-web-session';
 import {TokenService} from 'bedrock-web-authn-token';
 import WalletHeader from './WalletHeader.vue';
@@ -119,7 +119,7 @@ export default {
     this._tokenService = new TokenService();
   },
   async created() {
-    this.rootData = await getRootData();
+    this.rootData = rootData;
     await this.initializeSession();
   },
   methods: {

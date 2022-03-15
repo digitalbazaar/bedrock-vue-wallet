@@ -51,7 +51,7 @@ import {
   CredentialCardDetail,
   CredentialCard
 } from 'bedrock-vue-credential-card';
-import {store} from 'bedrock-web-store';
+import {rootData} from './rootData.js';
 
 const {generateQrCodeDataUrl, reissue} = ageCredentialHelpers;
 
@@ -106,7 +106,6 @@ export default {
         // delete credential
         await credentialStore.delete({id});
         // start updating the latest set of credentials on screen
-        const rootData = store.get({id: 'rootData'});
         rootData.updateCredentials = true;
         // provide user feedback denoting success
         this.$q.notify({
@@ -161,7 +160,6 @@ export default {
         .includes('AgeVerificationContainerCredential')) {
         const credentialId = currentCard.credential.id;
         const profileId = currentCardProfile.id;
-        const rootData = store.get({id: 'rootData'});
         try {
           const credentialStore = await getCredentialStore({
             // FIXME: temporary password should be replaced -- and this code

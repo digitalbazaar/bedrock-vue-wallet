@@ -17,7 +17,7 @@ import {
   getCredentialStore,
   profileManager
 } from 'bedrock-web-wallet';
-import {store} from 'bedrock-web-store';
+import {rootData} from './rootData.js';
 
 export default {
   name: 'HomePage',
@@ -66,7 +66,7 @@ export default {
     }
   },
   created() {
-    this.rootData = store.get({id: 'rootData'});
+    this.rootData = rootData;
     this.rootData.updateCredentials = false;
   },
   asyncComputed: {

@@ -1,5 +1,14 @@
 # bedrock-vue-wallet ChangeLog
 
+## 6.0.0 - 2022-03-xx
+
+### Changed
+- **BREAKING**: Replace `getRootData` async function with `rootData`
+  singleton export.
+
+### Removed
+- **BREAKING**: Remove `bedrock-web-store` dependency.
+
 ## 5.0.0 - 2022-03-10
 
 ### Changed
