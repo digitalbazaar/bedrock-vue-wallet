@@ -51,7 +51,7 @@ import {
   CredentialCardDetail,
   CredentialCard
 } from 'bedrock-vue-credential-card';
-import {rootData} from './rootData.js';
+import {rootData} from '../lib/rootData.js';
 
 const {generateQrCodeDataUrl, reissue} = ageCredentialHelpers;
 

@@ -17,7 +17,7 @@ import {
   getCredentialStore,
   profileManager
 } from 'bedrock-web-wallet';
-import {rootData} from './rootData.js';
+import {rootData} from '../lib/rootData.js';
 
 export default {
   name: 'HomePage',

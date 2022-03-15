@@ -64,7 +64,6 @@
  */
 import CredentialCardBundle from './CredentialCardBundle.vue';
 import CredentialCompactBundle from './CredentialCompactBundle.vue';
-import {rootData} from '../lib/rootData.js';
 
 export default {
   name: 'CredentialsList',
@@ -141,11 +140,6 @@ export default {
       return !(this.credentials && this.credentials.length > 0) &&
         !this.loading;
     }
-  },
-  async created() {
-    // FIXME: parameterize `schemaMap`
-    const rootData = await rootData;
-    this.schemaMap = rootData.schemaMap || {};
   },
   methods: {
     // FIXME: this should be emitting an event; it should not require
