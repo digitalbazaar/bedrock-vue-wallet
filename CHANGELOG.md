@@ -5,6 +5,7 @@
 ### Changed
 - **BREAKING**: Replace `getRootData` async function with `rootData`
   singleton export.
+- **BREAKING**: Change default local VC storage password.
 
 ### Removed
 - **BREAKING**: Remove `bedrock-web-store` dependency.

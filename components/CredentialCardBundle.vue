@@ -98,9 +98,10 @@ export default {
       // FIXME: this should be parameterized and/or use events, only pages
       // should interact with lower level application code
       const credentialStore = await getCredentialStore({
-        // FIXME: temporary password should be replaced -- and this code
-        // shouldn't be called in a component anyway
-        profileId, password: 'password'
+        // FIXME: determine how password will be provided / set; currently
+        // set to `profileId`
+        // FIXME: this code shouldn't be called in a component anyway
+        profileId, password: profileId
       });
       try {
         // delete credential
@@ -162,9 +163,10 @@ export default {
         const profileId = currentCardProfile.id;
         try {
           const credentialStore = await getCredentialStore({
-            // FIXME: temporary password should be replaced -- and this code
-            // shouldn't be called in a component anyway
-            profileId, password: 'password'
+            // FIXME: determine how password will be provided / set; currently
+            // set to `profileId`
+            // FIXME: this code shouldn't be called in a component anyway
+            profileId, password: profileId
           });
           await credentialStore.local.get({id: credentialId});
         } catch(e) {
@@ -202,9 +204,10 @@ export default {
         const credentialId = currentCard.credential.credentialSubject.qr.id;
         const profileId = currentCardProfile.id;
         const credentialStore = await getCredentialStore({
-          // FIXME: temporary password should be replaced -- and this code
-          // shouldn't be called in a component anyway
-          profileId, password: 'password'
+          // FIXME: determine how password will be provided / set; currently
+          // set to `profileId`
+          // FIXME: this code shouldn't be called in a component anyway
+          profileId, password: profileId
         });
         await credentialStore.local.delete({id: credentialId, force: true});
       }
@@ -218,9 +221,10 @@ async function createBundledCredential({credentialRecord}) {
     .stringify(credentialRecord.credential));
   const profileId = credentialRecord.meta.holder;
   const credentialStore = await getCredentialStore({
-    // FIXME: temporary password should be replaced -- and this code
-    // shouldn't be called in a component anyway
-    profileId, password: 'password'
+    // FIXME: determine how password will be provided / set; currently
+    // set to `profileId`
+    // FIXME: this code shouldn't be called in a component anyway
+    profileId, password: profileId
   });
 
   if(credential.type.includes('AgeVerificationContainerCredential')) {

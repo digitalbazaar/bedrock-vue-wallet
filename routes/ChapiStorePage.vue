@@ -162,8 +162,9 @@ export default {
         }
 
         const credentialStore = await getCredentialStore({
-          // FIXME: determine how password will be provided / set
-          profileId: holder, password: 'password'
+          // FIXME: determine how password will be provided / set; currently
+          // set to `profileId`
+          profileId: holder, password: holder
         });
         await credentialStore.add({credentials: verifiableCredential});
 
