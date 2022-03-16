@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 6.0.0 - 2022-03-xx
+## 6.0.0 - 2022-03-16
 
 ### Changed
 - **BREAKING**: Replace `getRootData` async function with `rootData`
