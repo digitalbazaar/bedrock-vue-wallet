@@ -120,7 +120,7 @@
  */
 import AccessManagement from '../components/AccessManagement.vue';
 import GeneralSettings from '../components/GeneralSettings.vue';
-import {profileManager} from 'bedrock-web-wallet';
+import {profileManager} from '@bedrock/web-wallet';
 import ProfileSettings from '../components/ProfileSettings.vue';
 import SettingsModule from '../components/SettingsModule.vue';
 import TwoFactorSettings from '../components/TwoFactorSettings.vue';

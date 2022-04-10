@@ -59,7 +59,7 @@
 /*!
  * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
  */
-import {getCredentialStore, helpers, validator} from 'bedrock-web-wallet';
+import {getCredentialStore, helpers, validator} from '@bedrock/web-wallet';
 import Login from '../components/Login.vue';
 import Next from '../components/Next.vue';
 import Problem from '../components/Problem.vue';

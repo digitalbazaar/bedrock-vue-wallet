@@ -18,7 +18,7 @@
 /*!
  * Copyright (c) 2019-2022 Digital Bazaar, Inc. All rights reserved.
  */
-import {BrQTitleCard} from 'bedrock-quasar-components';
+import {BrQTitleCard} from '@bedrock/quasar-components';
 import Profiles from '../components/Profiles.vue';
 
 export default {

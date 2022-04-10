@@ -17,7 +17,7 @@
  * Copyright (c) 2018-2022 Digital Bazaar, Inc. All rights reserved.
  */
 import Register from '../components/Register.vue';
-import {session} from 'bedrock-web-session';
+import {session} from '@bedrock/web-session';
 
 export default {
   name: 'RegisterPage',

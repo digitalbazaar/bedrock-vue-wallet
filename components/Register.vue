@@ -124,13 +124,13 @@
 /*!
  * Copyright (c) 2018-2022 Digital Bazaar, Inc. All rights reserved.
  */
-import {AccountService, RegisterController} from 'bedrock-web-account';
-import {BrQTitleCard} from 'bedrock-quasar-components';
-import {helpers} from 'bedrock-web-wallet';
+import {AccountService, RegisterController} from '@bedrock/web-account';
+import {BrQTitleCard} from '@bedrock/quasar-components';
+import {helpers} from '@bedrock/web-wallet';
 import {randomColor} from 'randomcolor';
 import {required, email, minLength} from 'vuelidate/lib/validators';
-import {session} from 'bedrock-web-session';
-import {TokenService} from 'bedrock-web-authn-token';
+import {session} from '@bedrock/web-session';
+import {TokenService} from '@bedrock/web-authn-token';
 
 const {createProfile} = helpers;
 

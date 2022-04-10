@@ -35,13 +35,13 @@
 /*!
  * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
  */
-import {AccountService} from 'bedrock-web-account';
-import {config} from 'bedrock-web';
+import {AccountService} from '@bedrock/web-account';
+import {config} from '@bedrock/web';
 import Drawer from './Drawer.vue';
 import {installHandler} from 'web-credential-handler';
 import {rootData} from '../lib/rootData.js';
-import {session} from 'bedrock-web-session';
-import {TokenService} from 'bedrock-web-authn-token';
+import {session} from '@bedrock/web-session';
+import {TokenService} from '@bedrock/web-authn-token';
 import WalletHeader from './WalletHeader.vue';
 
 export default {

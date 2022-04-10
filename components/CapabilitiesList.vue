@@ -33,7 +33,7 @@
 // FIXME: determine if this is specific to another capability component
 // e.g., `CapabilityDescription.vue` -- and it should be created and moved
 // there rather than be a lib function
-import {capabilities} from 'bedrock-web-wallet';
+import {capabilities} from '@bedrock/web-wallet';
 const {generateDescription}  = capabilities;
 
 export default {

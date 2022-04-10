@@ -58,13 +58,13 @@
 /*!
  * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
  */
-import {cryptoSuites, helpers, presentations} from 'bedrock-web-wallet';
+import {cryptoSuites, helpers, presentations} from '@bedrock/web-wallet';
 import Login from '../components/Login.vue';
 import Problem from '../components/Problem.vue';
 import Next from '../components/Next.vue';
 import {receiveCredentialEvent} from 'web-credential-handler';
 import Register from '../components/Register.vue';
-import {session} from 'bedrock-web-session';
+import {session} from '@bedrock/web-session';
 import Share from '../components/Share.vue';
 
 const {prettify} = helpers;

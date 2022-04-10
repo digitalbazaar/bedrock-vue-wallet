@@ -116,7 +116,7 @@
 /*!
  * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
  */
-import {config} from 'bedrock-web';
+import {config} from '@bedrock/web';
 import InteractIcon from './InteractIcon.vue';
 
 export default {

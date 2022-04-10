@@ -47,7 +47,7 @@
 /*!
  * Copyright (c) 2018-2022 Digital Bazaar, Inc. All rights reserved.
  */
-import {getPrimaryEmail} from 'bedrock-web-wallet';
+import {getPrimaryEmail} from '@bedrock/web-wallet';
 import {required, email} from 'vuelidate/lib/validators';
 
 export default {

@@ -33,7 +33,7 @@
 /*!
  * Copyright (c) 2020-2022 Digital Bazaar, Inc. All rights reserved.
  */
-import {BrQModal} from 'bedrock-quasar-components';
+import {BrQModal} from '@bedrock/quasar-components';
 import {format} from 'quasar';
 
 export default {

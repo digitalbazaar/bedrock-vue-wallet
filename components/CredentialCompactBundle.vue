@@ -17,7 +17,7 @@
 /*!
  * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
  */
-import {CredentialCardList} from 'bedrock-vue-credential-card';
+import {CredentialCardList} from '@bedrock/vue-credential-card';
 
 export default {
   name: 'CredentialsList',
