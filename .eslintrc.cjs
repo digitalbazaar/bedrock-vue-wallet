@@ -6,8 +6,12 @@ module.exports = {
   },
   env: {
     browser: true,
-    node: true,
+    node: true
   },
-  extends: ['digitalbazaar', 'digitalbazaar/jsdoc', 'digitalbazaar/vue'],
+  extends: [
+    'digitalbazaar',
+    'digitalbazaar/jsdoc',
+    'digitalbazaar/vue'
+  ],
   ignorePatterns: ['node_modules/']
 };
