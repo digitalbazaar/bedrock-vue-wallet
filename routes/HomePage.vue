@@ -16,7 +16,7 @@ import {
   ageCredentialHelpers,
   getCredentialStore,
   profileManager
-} from 'bedrock-web-wallet';
+} from '@bedrock/web-wallet';
 import {rootData} from '../lib/rootData.js';
 
 export default {

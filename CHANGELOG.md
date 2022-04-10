@@ -5,6 +5,7 @@
 ### Changed
 - **BREAKING**: Rename package to `@bedrock/vue-wallet`.
 - **BREAKING**: Convert to module (ESM).
+- **BREAKING**: Disable `rsvp` features.
 
 ## 6.0.0 - 2022-03-16
 

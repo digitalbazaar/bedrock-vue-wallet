@@ -52,9 +52,9 @@
 /*!
  * Copyright (c) 2018-2022 Digital Bazaar, Inc. All rights reserved.
  */
-import {BrQTitleCard} from 'bedrock-quasar-components';
-import {helpers} from 'bedrock-web-wallet';
-import {session} from 'bedrock-web-session';
+import {BrQTitleCard} from '@bedrock/quasar-components';
+import {helpers} from '@bedrock/web-wallet';
+import {session} from '@bedrock/web-session';
 
 const {openFirstPartyWindow} = helpers;
 

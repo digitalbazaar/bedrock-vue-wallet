@@ -183,15 +183,15 @@
 /*!
  * Copyright (c) 2018-2022 Digital Bazaar, Inc. All rights reserved.
  */
-import {AccountService} from 'bedrock-web-account';
-import {BrQTitleCard} from 'bedrock-quasar-components';
+import {AccountService} from '@bedrock/web-account';
+import {BrQTitleCard} from '@bedrock/quasar-components';
 import CodeInput from './CodeInput.vue';
-import {config} from 'bedrock-web';
+import {config} from '@bedrock/web';
 import {email} from 'vuelidate/lib/validators';
 import {getTwoFactorCodes} from '../mocks/twoFactorCodes.js';
 import QrCode from './QrCode.vue';
-import {session} from 'bedrock-web-session';
-import {TokenService} from 'bedrock-web-authn-token';
+import {session} from '@bedrock/web-session';
+import {TokenService} from '@bedrock/web-authn-token';
 
 export default {
   name: 'TwoFactorStepper',

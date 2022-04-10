@@ -68,7 +68,7 @@
  */
 import {
   ageCredentialHelpers, getCredentialStore, helpers, profileManager
-} from 'bedrock-web-wallet';
+} from '@bedrock/web-wallet';
 import ProfileChooser from './ProfileChooser.vue';
 import ShareHeader from './ShareHeader.vue';
 import ShareReview from './ShareReview.vue';

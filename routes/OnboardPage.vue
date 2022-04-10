@@ -48,10 +48,10 @@
 /*!
  * Copyright (c) 2020-2022 Digital Bazaar, Inc. All rights reserved.
  */
-import {BrQTitleCard} from 'bedrock-quasar-components';
+import {BrQTitleCard} from '@bedrock/quasar-components';
 import Login from '../components/Login.vue';
-import {ProfileService} from 'bedrock-web-profile';
-import {session} from 'bedrock-web-session';
+import {ProfileService} from '@bedrock/web-profile';
+import {session} from '@bedrock/web-session';
 
 export default {
   name: 'OnboardPage',

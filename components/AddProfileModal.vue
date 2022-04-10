@@ -18,7 +18,7 @@
 /*!
  * Copyright (c) 2018-2022 Digital Bazaar, Inc. All rights reserved.
  */
-import {BrQModal} from 'bedrock-quasar-components';
+import {BrQModal} from '@bedrock/quasar-components';
 import ProfileForm from './ProfileForm.vue';
 import {randomColor} from 'randomcolor';
 

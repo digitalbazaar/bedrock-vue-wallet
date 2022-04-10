@@ -63,7 +63,7 @@
  * Copyright (c) 2018-2022 Digital Bazaar, Inc. All rights reserved.
  */
 import QrCode from './QrCode.vue';
-import {RsvpClient} from 'rsvp-client';
+//import {RsvpClient} from 'rsvp-client';
 
 const payload = {
   ttl: 300000,
@@ -98,13 +98,14 @@ export default {
       window.location.href = url;
     },
     async getSiteInfo() {
-      const rsvpClient = new RsvpClient();
+      throw new Error('Not implemented');
+      /*const rsvpClient = new RsvpClient();
       const result = await rsvpClient.createRequest({payload});
       this.requestUrl = result.url;
       const data = await rsvpClient.getResponse({url: this.requestUrl});
       this.siteInfo.name = data.name;
       this.siteInfo.url = data.url;
-      this.nextStep();
+      this.nextStep();*/
     }
   }
 };
