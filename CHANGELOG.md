@@ -1,5 +1,10 @@
 # bedrock-vue-wallet ChangeLog
 
+## 7.0.1 - 2022-04-xx
+
+### Fixed
+- Remove broken `addConfig` API.
+
 ## 7.0.0 - 2022-04-10
 
 ### Changed
