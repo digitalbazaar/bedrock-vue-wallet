@@ -1,5 +1,7 @@
 # bedrock-vue-wallet ChangeLog
 
+## 7.0.2 - 2022-04-11
+
 ### Fixed
 - Fix import path to have `.js` extension.
 
