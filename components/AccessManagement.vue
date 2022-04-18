@@ -192,7 +192,9 @@ export default {
   asyncComputed: {
     async accessManager() {
       const {profileId} = this;
-      return profileManager.getAccessManager({profileId});
+      const {accessManager} = await profileManager.getAccessManager(
+        {profileId});
+      return accessManager;
     },
     async profile() {
       // must declare property to ensure a watcher gets created for it
