@@ -96,13 +96,11 @@ export default {
       if(!Array.isArray(type)) {
         type = [type];
       }
-      if(type.includes('Person')) {
-        return 'fas fa-user-circle';
-      }
       if(type.includes('Organization')) {
         return 'fas fa-building';
       }
-      return 'fas fa-question';
+      // default to user circle for Person and any other profile type
+      return 'fas fa-user-circle';
     }
   }
 };

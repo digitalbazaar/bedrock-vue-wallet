@@ -234,19 +234,15 @@ export default {
     async createProfile({name}) {
       const profileContent = {
         name,
-        created: (new Date()).toISOString(),
         shared: false,
         color: randomColor(),
-        type: ['User', 'Person'],
+        type: ['User', 'Person']
+      };
+      const profileOptions = {
         didMethod: 'v1', // Default to Veres One type DIDs
         didOptions: {mode: 'test'} // Default to testnet
       };
-      const profileAgentContent = {
-        name: 'root',
-        type: ['User', 'Person'],
-        access: 'full'
-      };
-      await createProfile({profileAgentContent, profileContent});
+      await createProfile({profileContent, profileOptions});
     },
     async login() {
       await this.$emitExtendable('login');

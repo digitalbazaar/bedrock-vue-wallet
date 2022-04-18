@@ -152,7 +152,7 @@ export default {
     }
   },
   async created() {
-    this.tableData = await profileManager.getProfiles({type: 'Person'});
+    this.tableData = await profileManager.getProfiles();
     this.tableData.forEach(x => {
       x.created = this.getDate(x.created);
       x.didMethod = this.getTypeLabel(x.didMethod);
@@ -181,10 +181,7 @@ export default {
         const profileContent = {
           color,
           name,
-          didMethod,
-          didOptions,
           type: ['User', 'Person'],
-          created: (new Date()).toISOString(),
           shared: false
         };
         const profileAgentContent = {
@@ -192,6 +189,10 @@ export default {
           name: 'root',
           type: ['User', 'Person'],
           access: 'full'
+        };
+        const profileOptions = {
+          didMethod,
+          didOptions
         };
         if(shared && form.managingProfile) {
           const {label} = (this.profileOptions || []).find(({value}) => {
@@ -201,7 +202,7 @@ export default {
           profileAgentContent.name = label;
         }
         const {profile} = await createProfile(
-          {profileContent, profileAgentContent});
+          {profileContent, profileAgentContent, profileOptions});
         profile.created = this.getDate(profile.created);
         profile.didMethod = this.getTypeLabel(profile.didMethod);
         this.tableData.push(profile);
