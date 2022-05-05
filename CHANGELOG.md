@@ -1,5 +1,11 @@
 # bedrock-vue-wallet ChangeLog
 
+## 9.0.0 - 2022-05-xx
+
+### Changed
+- **BREAKING**: Update peer dependencies:
+  - `@bedrock/web-wallet@7`.
+
 ## 8.0.0 - 2022-04-18
 
 ### Changed
