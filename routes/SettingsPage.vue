@@ -215,7 +215,7 @@ export default {
       event.waitUntil(this.$router.replace(event.route));
     });
     try {
-      const profiles = await profileManager.getProfiles();
+      const profiles = await profileManager.getProfiles({useCache: true});
       profiles.sort(({name: nameA}, {name: nameB}) =>
         nameA.toLowerCase().localeCompare(nameB.toLowerCase()));
       this.profiles = profiles;

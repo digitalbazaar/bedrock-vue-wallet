@@ -213,7 +213,7 @@ export default {
     profiles: {
       async get() {
         try {
-          return await profileManager.getProfiles();
+          return await profileManager.getProfiles({useCache: true});
         } catch(e) {
           // TODO: Properly handle error. Retry fetching profiles or set a flag
           // that notifies wallet account holder that they cannot continue.

@@ -75,7 +75,7 @@ export default {
         const {account: accountId} = this;
         if(accountId) {
           try {
-            const profiles = await profileManager.getProfiles();
+            const profiles = await profileManager.getProfiles({useCache: true});
             this.errorText = '';
             return profiles;
           } catch(e) {
