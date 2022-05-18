@@ -124,7 +124,7 @@ export default {
   asyncComputed: {
     profiles: {
       async get() {
-        return profileManager.getProfiles();
+        return profileManager.getProfiles({useCache: true});
       },
       default() {
         return [];

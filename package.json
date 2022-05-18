@@ -16,7 +16,7 @@
     "@bedrock/quasar": "^6.0.0",
     "@bedrock/vue-credential-card": "^4.0.0",
     "@bedrock/web-fontawesome": "^2.0.0",
-    "@bedrock/web-wallet": "^7.0.0",
+    "@bedrock/web-wallet": "^7.1.0",
     "@digitalbazaar/vue-extendable-event": "^2.0.0",
     "vue": "^2.6.12",
     "vue-async-computed": "^3.9.0",

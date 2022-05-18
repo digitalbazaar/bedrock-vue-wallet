@@ -152,7 +152,7 @@ export default {
     }
   },
   async created() {
-    this.tableData = await profileManager.getProfiles();
+    this.tableData = await profileManager.getProfiles({useCache: true});
     this.tableData.forEach(x => {
       x.created = this.getDate(x.created);
       x.didMethod = this.getTypeLabel(x.didMethod);

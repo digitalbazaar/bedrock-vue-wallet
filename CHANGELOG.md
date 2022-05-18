@@ -1,5 +1,11 @@
 # bedrock-vue-wallet ChangeLog
 
+## 9.1.0 - 2022-05-xx
+
+### Changed
+- Use profile cache, if available, when processing inbox. Update
+  `@bedrock/web-wallet@7.1` peer dep to get profile cache feature.
+
 ## 9.0.0 - 2022-05-05
 
 ### Changed
