@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 9.1.0 - 2022-05-xx
+## 9.1.0 - 2022-05-17
 
 ### Changed
 - Use profile cache, if available, when processing inbox. Update
