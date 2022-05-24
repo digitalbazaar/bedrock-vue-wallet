@@ -90,7 +90,8 @@
 /*!
  * Copyright (c) 2020-2022 Digital Bazaar, Inc. All rights reserved.
  */
-import {required, requiredIf, minLength} from 'vuelidate/lib/validators';
+import {required, requiredIf, minLength} from '@vuelidate/validators';
+import useVuelidate from '@vuelidate/core';
 
 export default {
   name: 'ProfileForm',
@@ -104,6 +105,11 @@ export default {
       type: Object,
       required: true
     }
+  },
+  setup() {
+    return {
+      v$: useVuelidate()
+    };
   },
   data() {
     return {

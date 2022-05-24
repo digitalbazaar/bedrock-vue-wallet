@@ -73,7 +73,8 @@
 /*!
  * Copyright (c) 2020-2022 Digital Bazaar, Inc. All rights reserved.
  */
-import {required, email} from 'vuelidate/lib/validators';
+import {required, email} from '@vuelidate/validators';
+import useVuelidate from '@vuelidate/core';
 
 export default {
   name: 'UserForm',
@@ -82,6 +83,11 @@ export default {
       type: Object,
       required: true
     }
+  },
+  setup() {
+    return {
+      v$: useVuelidate()
+    };
   },
   data() {
     return {

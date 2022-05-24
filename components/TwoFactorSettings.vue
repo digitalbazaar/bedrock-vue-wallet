@@ -88,14 +88,20 @@
 /*!
  * Copyright (c) 2018-2022 Digital Bazaar, Inc. All rights reserved.
  */
-import {email} from 'vuelidate/lib/validators';
+import {email} from '@vuelidate/validators';
 import {AccountService} from '@bedrock/web-account';
 import {session} from '@bedrock/web-session';
 import {TokenService} from '@bedrock/web-authn-token';
+import useVuelidate from '@vuelidate/core';
 
 export default {
   name: 'TwoFactorSettings',
   props: {},
+  setup() {
+    return {
+      v$: useVuelidate()
+    };
+  },
   data() {
     return {
       hasTwoFactor: false,

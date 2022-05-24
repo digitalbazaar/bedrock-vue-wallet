@@ -187,15 +187,21 @@ import {AccountService} from '@bedrock/web-account';
 import {BrQTitleCard} from '@bedrock/quasar-components';
 import CodeInput from './CodeInput.vue';
 import {config} from '@bedrock/web';
-import {email} from 'vuelidate/lib/validators';
+import {email} from '@vuelidate/validators';
 import {getTwoFactorCodes} from '../mocks/twoFactorCodes.js';
 import QrCode from './QrCode.vue';
 import {session} from '@bedrock/web-session';
 import {TokenService} from '@bedrock/web-authn-token';
+import useVuelidate from '@vuelidate/core';
 
 export default {
   name: 'TwoFactorStepper',
   components: {BrQTitleCard, CodeInput, QrCode},
+  setup() {
+    return {
+      v$: useVuelidate()
+    };
+  },
   data() {
     return {
       recoveryEmail: '',
