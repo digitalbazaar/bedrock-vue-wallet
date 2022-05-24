@@ -18,9 +18,9 @@
     "@bedrock/web-fontawesome": "^2.0.0",
     "@bedrock/web-wallet": "^7.1.0",
     "@digitalbazaar/vue-extendable-event": "^2.0.0",
-    "vue": "^2.6.12",
+    "vue": "^3.2.36",
     "vue-async-computed": "^3.9.0",
-    "vue-router": "^3.5.0",
+    "vue-router": "^4.0.15",
     "vuelidate": "^0.7.6"
   },
   "devDependencies": {
