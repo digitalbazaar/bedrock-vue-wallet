@@ -20,7 +20,8 @@
 /*!
  * Copyright (c) 2018-2022 Digital Bazaar, Inc. All rights reserved.
  */
-import {required, minLength, maxLength} from 'vuelidate/lib/validators';
+import {required, minLength, maxLength} from '@vuelidate/validators';
+import useVuelidate from '@vuelidate/core';
 
 export default {
   name: 'CodeInput',
@@ -46,6 +47,11 @@ export default {
       required: false,
       default: Infinity
     }
+  },
+  setup() {
+    return {
+      v$: useVuelidate()
+    };
   },
   data() {
     return {

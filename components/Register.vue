@@ -128,9 +128,10 @@ import {AccountService, RegisterController} from '@bedrock/web-account';
 import {BrQTitleCard} from '@bedrock/quasar-components';
 import {helpers} from '@bedrock/web-wallet';
 import {randomColor} from 'randomcolor';
-import {required, email, minLength} from 'vuelidate/lib/validators';
+import {required, email, minLength} from '@vuelidate/validators';
 import {session} from '@bedrock/web-session';
 import {TokenService} from '@bedrock/web-authn-token';
+import useVuelidate from '@vuelidate/core';
 
 const {createProfile} = helpers;
 
@@ -143,6 +144,11 @@ export default {
       default: false,
       required: false
     }
+  },
+  setup() {
+    return {
+      v$: useVuelidate()
+    };
   },
   data() {
     return {

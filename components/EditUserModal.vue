@@ -19,8 +19,9 @@
  * Copyright (c) 2019-2022 Digital Bazaar, Inc. All rights reserved.
  */
 import {BrQModal} from '@bedrock/quasar-components';
-import {required, email} from 'vuelidate/lib/validators';
+import {required, email} from '@vuelidate/validators';
 import UserForm from './UserForm.vue';
+import useVuelidate from '@vuelidate/core';
 
 export default {
   name: 'EditUserModal',
@@ -39,6 +40,11 @@ export default {
       type: Boolean,
       required: true
     }
+  },
+  setup() {
+    return {
+      v$: useVuelidate()
+    };
   },
   data() {
     return {

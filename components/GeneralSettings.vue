@@ -48,11 +48,17 @@
  * Copyright (c) 2018-2022 Digital Bazaar, Inc. All rights reserved.
  */
 import {getPrimaryEmail} from '@bedrock/web-wallet';
-import {required, email} from 'vuelidate/lib/validators';
+import {required, email} from '@vuelidate/validators';
+import useVuelidate from '@vuelidate/core';
 
 export default {
   name: 'GeneralSettings',
   props: {},
+  setup() {
+    return {
+      v$: useVuelidate()
+    };
+  },
   data() {
     return {
       form: {
