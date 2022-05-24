@@ -1,5 +1,12 @@
 # bedrock-vue-wallet ChangeLog
 
+## 9.2.0 - 2022-05-xx
+
+### Changed
+- Revert use of profile cache when fetching all profiles. The current profile
+  cache implementation fails to handle data invalidation, thus resulting in data
+  inconsistencies.
+
 ## 9.1.0 - 2022-05-17
 
 ### Changed
