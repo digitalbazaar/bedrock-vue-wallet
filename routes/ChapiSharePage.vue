@@ -176,7 +176,7 @@ export default {
     this.domain = domain;
     this.loading = false;
   },
-  async beforeDestroy() {
+  async beforeUnmount() {
     // clean up session listener
     this.removeSessionListener();
   },
