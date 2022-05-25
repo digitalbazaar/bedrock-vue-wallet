@@ -14,10 +14,9 @@
         type="text"
         label="Email Address"
         hint="Update your email address."
-        :error="$v.form.email.$error"
+        :error="vuelidate.form.email.$error"
         :error-message="errorMessage"
-        @input="handleEmailChange()"
-        @blur="$v.form.email.$touch" />
+        @blur="vuelidate.form.email.$touch" />
       <!-- <p>
         For extra security, you may enter a PIN which will allow your wallet to
         be locked due to inactivity. This will help prevent unauthorized access
@@ -38,7 +37,7 @@
         class="full-width"
         style="max-width: 250px"
         :loading="loading"
-        :disable="loading || $v.form.$invalid || disabled" />
+        :disable="loading || vuelidate.form.$invalid || disabled" />
     </form>
   </div>
 </template>
@@ -47,6 +46,7 @@
 /*!
  * Copyright (c) 2018-2022 Digital Bazaar, Inc. All rights reserved.
  */
+import {computed, ref} from 'vue';
 import {getPrimaryEmail} from '@bedrock/web-wallet';
 import {required, email} from '@vuelidate/validators';
 import useVuelidate from '@vuelidate/core';
@@ -55,31 +55,39 @@ export default {
   name: 'GeneralSettings',
   props: {},
   setup() {
+    const vuelidate = useVuelidate();
+
+    const errorMessage = computed(() => {
+      const {email} = vuelidate.value.form;
+      if(email.required.$invalid) {
+        return 'An email address is required.';
+      }
+      if(email.email.$invalid) {
+        return 'The email entered is invalid.';
+      }
+      return 'The value is invalid.';
+    });
+
+    const form = ref({email: '', pin: ''});
+
+    const initialEmail = ref('');
+
+    const disabled = computed(() => {
+      return form.value.email === initialEmail.value;
+    });
+
     return {
-      $v: useVuelidate()
+      disabled,
+      initialEmail,
+      form,
+      errorMessage,
+      vuelidate
     };
   },
   data() {
     return {
-      form: {
-        email: '',
-        pin: ''
-      },
-      initialEmail: '',
-      loading: false,
-      disabled: true
+      loading: false
     };
-  },
-  computed: {
-    errorMessage() {
-      if(!this.$v.form.email.required) {
-        return 'An email address is required.';
-      }
-      if(!this.$v.form.email.email) {
-        return 'The email entered is invalid.';
-      }
-      return 'The value is invalid.';
-    }
   },
   async created() {
     const email = await getPrimaryEmail();
@@ -104,19 +112,11 @@ export default {
           position: 'bottom'
         });
         this.initialEmail = this.form.email;
-        this.disabled = true;
       } catch(e) {
         console.log('Error: ', e);
       } finally {
         this.loading = false;
       }
-    },
-    handleEmailChange() {
-      if(this.form.email !== this.initialEmail) {
-        this.disabled = false;
-        return;
-      }
-      this.disabled = true;
     }
   }
 };
