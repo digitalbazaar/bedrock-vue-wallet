@@ -56,7 +56,7 @@ export default {
   props: {},
   setup() {
     return {
-      v$: useVuelidate()
+      $v: useVuelidate()
     };
   },
   data() {

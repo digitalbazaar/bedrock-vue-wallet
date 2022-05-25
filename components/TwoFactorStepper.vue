@@ -199,7 +199,7 @@ export default {
   components: {BrQTitleCard, CodeInput, QrCode},
   setup() {
     return {
-      v$: useVuelidate()
+      $v: useVuelidate()
     };
   },
   data() {

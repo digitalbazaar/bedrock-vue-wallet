@@ -50,7 +50,7 @@ export default {
   },
   setup() {
     return {
-      v$: useVuelidate()
+      $v: useVuelidate()
     };
   },
   data() {
