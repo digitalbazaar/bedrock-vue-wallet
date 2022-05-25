@@ -47,6 +47,7 @@
  * Copyright (c) 2018-2022 Digital Bazaar, Inc. All rights reserved.
  */
 import {BrQTitleCard} from '@bedrock/quasar-components';
+import {computed, ref, toRef} from 'vue';
 import CredentialsList from './CredentialsList.vue';
 import SearchBox from './SearchBox.vue';
 
@@ -79,31 +80,44 @@ export default {
     }
   },
   emits: ['filtered-credentials-loading', 'filtered-profiles'],
+  setup(props, {emit}) {
+    console.log('setting up Credentials component');
+
+    const credentials = toRef(props, 'credentials');
+    const search = ref('');
+
+    const filteredCredentials = computed(() => {
+      console.log('XXXXXXXXXXXx computing filtered credentials',
+        'credentials are', credentials.value);
+      emit('filtered-credentials-loading', true);
+      const filteredCredentials = credentials.value.filter(({credential}) => {
+        if(credential) {
+          const credentialName = credential.name || credential.type[1];
+          return credentialName.toLowerCase().includes(
+            search.value.toLowerCase());
+        }
+      });
+      emit('filtered-credentials-loading', false);
+      console.log('filtered credentials', filteredCredentials);
+      return filteredCredentials;
+    });
+    console.log('computed filteredCredentials', filteredCredentials.value);
+
+    const noResults = computed(() => filteredCredentials.value.length === 0);
+    console.log('computed noResults', noResults.value);
+
+    return {
+      filteredCredentials,
+      noResults,
+      search
+    };
+  },
   data() {
     return {
       sortIcon: 'fas fa-sort-down',
-      search: '',
       filteredProfiles: [],
       loadingFilteredCredentials: true
     };
-  },
-  computed: {
-    filteredCredentials() {
-      this.$emit('filtered-credentials-loading', true);
-      const {search, credentials} = this;
-      const filteredCredentials = credentials.filter(({credential}) => {
-        if(credential) {
-          const credentialName = credential.name || credential.type[1];
-          return credentialName.toLowerCase()
-            .includes(search.toLowerCase());
-        }
-      });
-      this.$emit('filtered-credentials-loading', false);
-      return filteredCredentials;
-    },
-    noResults() {
-      return (this.filteredCredentials || []).length === 0;
-    }
   },
   watch: {
     filteredProfiles() {
@@ -112,8 +126,7 @@ export default {
   },
   created() {
     this.$emit('filtered-profiles', this.filteredProfiles);
-  },
-  methods: {}
+  }
 };
 </script>
 

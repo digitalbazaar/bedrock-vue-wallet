@@ -51,6 +51,7 @@ import {
   CredentialCardDetail,
   CredentialCard
 } from '@bedrock/vue-credential-card';
+import {emitExtendable} from '@digitalbazaar/vue-extendable-event';
 import {rootData} from '../lib/rootData.js';
 
 const {generateQrCodeDataUrl, reissue} = ageCredentialHelpers;
@@ -80,6 +81,7 @@ export default {
       required: false
     }
   },
+  emits: ['delete'],
   data() {
     return {
       card: false,
@@ -95,6 +97,10 @@ export default {
         message: 'Deleting your credential...'
       });
       const {id: profileId} = this.currentCardProfile;
+
+      // FIXME: simply emit `delete` extendable event instead
+      // emitExtendable('delete', {...});
+
       // FIXME: this should be parameterized and/or use events, only pages
       // should interact with lower level application code
       const credentialStore = await getCredentialStore({
@@ -106,6 +112,7 @@ export default {
       try {
         // delete credential
         await credentialStore.delete({id});
+        // FIXME: emit `delete` event instead
         // start updating the latest set of credentials on screen
         rootData.updateCredentials = true;
         // provide user feedback denoting success

@@ -11,13 +11,14 @@
 </template>
 
 <script>
+import {computedAsync} from '@vueuse/core';
+import {computed, ref, toRef, watch} from 'vue';
 import Credentials from '../components/Credentials.vue';
 import {
   ageCredentialHelpers,
   getCredentialStore,
   profileManager
 } from '@bedrock/web-wallet';
-import {rootData} from '../lib/rootData.js';
 
 export default {
   name: 'HomePage',
@@ -30,80 +31,47 @@ export default {
       default: undefined
     }
   },
-  data() {
-    return {
-      rootData: undefined,
-      loadingFilteredCredentials: true,
-      errorText: '',
-      filteredProfiles: [],
-      credentials: [],
-      loadingCredentials: true
-    };
-  },
-  computed: {
-    loading() {
-      return this.loadingFilteredCredentials ||
-        this.loadingCredentials ||
-        this.$asyncComputed.profiles.updating;
-    }
-  },
-  watch: {
-    profiles() {
-      if(this.profiles && this.profiles.length > 0) {
-        this.getCredentials();
+  setup(props) {
+    const accountId = toRef(props, 'account');
+
+    const errorText = ref('');
+
+    const loadingProfiles = ref(true);
+    const profiles = computedAsync(async() => {
+      if(accountId.value) {
+        try {
+          const profiles = await profileManager.getProfiles({useCache: true});
+          errorText.value = '';
+          return profiles;
+        } catch(e) {
+          console.log('Error: ', e);
+          errorText.value = 'Could not retrieve your profile. Please ' +
+            'refresh the page to try again.';
+        }
       }
-    },
-    filteredProfiles() {
-      this.getCredentials();
-    },
-    'rootData.updateCredentials': {
-      handler(val) {
-        if(val) {
-          this.getCredentials();
-        }
-      },
-      deep: true
-    }
-  },
-  created() {
-    this.rootData = rootData;
-    this.rootData.updateCredentials = false;
-  },
-  asyncComputed: {
-    profiles: {
-      async get() {
-        const {account: accountId} = this;
-        if(accountId) {
-          try {
-            const profiles = await profileManager.getProfiles({useCache: true});
-            this.errorText = '';
-            return profiles;
-          } catch(e) {
-            console.log('Error: ', e);
-            this.errorText = 'Could not retrieve your profile. Please ' +
-              'refresh the page to try again.';
-          }
-          return [];
-        }
-      },
-      default() {
-        return [];
-      },
-      watch: ['$route']
-    }
-  },
-  methods: {
-    async getCredentials() {
+      return [];
+    }, [], loadingProfiles);
+
+    const filteredProfiles = ref([]);
+    const loadingFilteredCredentials = ref(true);
+
+    const shownProfiles = computed(() =>
+      filteredProfiles.value.length === 0 ?
+        profiles.value : filteredProfiles.value);
+
+    const credentials = ref([]);
+    const loadingCredentials = ref(true);
+
+    const getCredentials = async () => {
+      console.log('getting credentials');
       try {
-        this.loadingCredentials = true;
-        const profiles = this.filteredProfiles.length === 0 ?
-          this.profiles : this.filteredProfiles;
+        loadingCredentials.value = true;
         // FIXME: do not get ALL of a user's credentials when they load
         // their home page; figure out how to simplify this and not pull down
         // unnecessary data (this behavior was preserved during refactoring
         // but it should be changed)
-        const credentials = [];
-        for(const {id: profileId} of profiles) {
+        const vcs = [];
+        for(const {id: profileId} of shownProfiles.value) {
           // FIXME: determine how password will be provided / set; currently
           // set to `profileId`
           const credentialStore = await getCredentialStore({
@@ -115,23 +83,48 @@ export default {
             ageCredentialHelpers.ensureLocalCredentials({credentialStore})
           ]);
           for(const doc of localResults.documents) {
-            credentials.push({credential: doc.content, meta: doc.meta});
+            vcs.push({credential: doc.content, meta: doc.meta});
           }
           for(const doc of remoteResults.documents) {
-            credentials.push({credential: doc.content, meta: doc.meta});
+            vcs.push({credential: doc.content, meta: doc.meta});
           }
         }
-        this.credentials = credentials;
-        this.errorText = '';
+        credentials.value = vcs;
+        errorText.value = '';
+        console.log('credentials set to', credentials.value);
       } catch(e) {
         console.log('Error: ', e);
-        this.errorText = 'Could not retrieve your credentials. Please ' +
-          'refresh the page to try again.';
+        errorText.value =
+          'Could not retrieve your credentials. Please refresh the page to ' +
+          'try again.';
       } finally {
-        this.loadingCredentials = false;
-        this.rootData.updateCredentials = false;
+        loadingCredentials.value = false;
       }
-    }
+    };
+
+    watch(
+      () => shownProfiles.value,
+      () => getCredentials());
+
+    // FIXME: remove this once `delete` event is used instead
+    /*watch(
+      () => rootData.updateCredentials,
+      value => value && getCredentials());*/
+
+    const loading = computed(() =>
+      loadingFilteredCredentials.value ||
+      loadingCredentials.value ||
+      loadingProfiles.value);
+
+    return {
+      credentials,
+      errorText,
+      filteredProfiles,
+      loading,
+      loadingCredentials,
+      loadingFilteredCredentials,
+      profiles
+    };
   }
 };
 </script>
