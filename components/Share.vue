@@ -148,13 +148,12 @@ export default {
     const query = toRef(props, 'query');
 
     const credentialQuery = computed(() => {
-      const type = 'QueryByExample';
       if(!query.value) {
         return {};
       }
       if(Array.isArray(query.value)) {
         // FIXME: This does not support multiple credential queries
-        const [first] = query.value.filter(q => q.type === type);
+        const [first] = query.value.filter(q => q.type === 'QueryByExample');
         if(!first) {
           return {};
         }
@@ -224,6 +223,7 @@ export default {
       icon,
       loading,
       profiles,
+      profilesUpdating,
       relyingPartyManifest,
       selectedProfile,
       selectedProfileId,
@@ -234,8 +234,6 @@ export default {
   data() {
     return {
       presentation: null,
-      profiles: undefined,
-      loadingProfiles: true,
       displayableCredentials: []
     };
   },
