@@ -12,19 +12,19 @@
             outlined
             stack-label
             hint="Please enter your name."
-            :error="$v.name.$error"
+            :error="vuelidate.name.$error"
             error-message="Your name must be at least 1 character."
             label="Name"
             autofocus
             bottom-slots
-            @blur="$v.name.$touch" />
+            @blur="vuelidate.name.$touch" />
           <q-input
             v-model="ctrl.email"
             outlined
             stack-label
             hint="Please enter your email address."
-            :error="$v.ctrl.email.$error ||
-              ($v.ctrl.email.$dirty && !isEmailUnique && !checkingEmail)"
+            :error="vuelidate.ctrl.email.$error ||
+              (vuelidate.ctrl.email.$dirty && !isEmailUnique && !checkingEmail)"
             :error-message="emailErrorMessage"
             :helper="emailAvailable"
             type="email"
@@ -32,7 +32,7 @@
             class="q-mt-md"
             bottom-slots
             :loading="checkingEmail"
-            @blur="$v.ctrl.email.$touch" />
+            @blur="vuelidate.ctrl.email.$touch" />
         </form>
         <div class="row">
           <q-checkbox
@@ -90,8 +90,9 @@
           </q-card>
         </q-dialog>
         <q-btn
-          :disable="$v.ctrl.$invalid || $v.tosAgree.$invalid ||
-            $v.name.$invalid || checkingEmail || !isEmailUnique || loading"
+          :disable="vuelidate.ctrl.$invalid || vuelidate.tosAgree.$invalid ||
+            vuelidate.name.$invalid || checkingEmail || !isEmailUnique ||
+            loading"
           size="form"
           color="primary"
           icon="fa fa-sign-in-alt"
@@ -167,7 +168,8 @@ export default {
       return this.ctrl.email;
     },
     emailAvailable() {
-      if(!this.$v.ctrl.email.$dirty || this.$v.ctrl.email.$error) {
+      if(!this.vuelidate.ctrl.email.$dirty ||
+        this.vuelidate.ctrl.email.$error) {
         return '';
       }
       if(this.checkingEmail) {
@@ -176,7 +178,7 @@ export default {
       return 'Account is available!';
     },
     emailErrorMessage() {
-      return (this.$v.ctrl.email.$dirty && !this.isEmailUnique) ?
+      return (this.vuelidate.ctrl.email.$dirty && !this.isEmailUnique) ?
         'The email address you entered is already in use.' :
         'Please enter a valid email address.';
     },
@@ -193,8 +195,8 @@ export default {
         return;
       }
       this.checkingEmail = true;
-      if(!this.$v.ctrl.email.$dirty) {
-        this.$v.ctrl.email.$touch();
+      if(!this.vuelidate.ctrl.email.$dirty) {
+        this.vuelidate.ctrl.email.$touch();
       }
       try {
         const exists = await this._ctrl.exists();

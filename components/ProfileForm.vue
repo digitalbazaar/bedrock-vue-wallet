@@ -6,11 +6,11 @@
       stack-label
       type="text"
       label="Profile Name"
-      :error="$v.value.profile.name.$error"
+      :error="vuelidate.value.profile.name.$error"
       error-message="Your profile name must be at least 1 character."
       hint="Example: School, Family, Company Inc., etc."
       class="q-mb-md"
-      @blur="$v.value.profile.name.$touch" />
+      @blur="vuelidate.value.profile.name.$touch" />
     <q-field
       label="Profile Color"
       stack-label
@@ -78,7 +78,7 @@
       stack-label
       label="Initial Manager"
       :options="profileOptions"
-      :error="$v.value.managingProfile.$error"
+      :error="vuelidate.value.managingProfile.$error"
       emit-value
       map-options
       class="q-mb-md" />
@@ -108,7 +108,7 @@ export default {
   },
   setup() {
     return {
-      $v: useVuelidate()
+      vuelidate: useVuelidate()
     };
   },
   data() {
@@ -117,12 +117,12 @@ export default {
     };
   },
   watch: {
-    '$v.$invalid'(val) {
+    'vuelidate.$invalid'(val) {
       this.$emit('invalid', val);
     }
   },
   created() {
-    this.$emit('invalid', this.$v.$invalid);
+    this.$emit('invalid', this.vuelidate.$invalid);
   },
   validations: {
     value: {

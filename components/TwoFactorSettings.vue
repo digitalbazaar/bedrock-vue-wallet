@@ -43,16 +43,16 @@
         type="text"
         label="Secondary Recovery Email (Optional)"
         hint="Update your secondary recovery email."
-        :error="$v.recoveryEmail.$error"
+        :error="vuelidate.recoveryEmail.$error"
         error-message="The email entered is invalid."
-        @input="handleEmailChange()"
-        @blur="$v.recoveryEmail.$touch" />
+        @update:model-value="handleEmailChange()"
+        @blur="vuelidate.recoveryEmail.$touch" />
       <q-btn
         label="Save"
         color="primary"
         class="full-width"
         style="max-width: 250px"
-        :disable="loading || $v.recoveryEmail.$invalid || disabled"
+        :disable="loading || vuelidate.recoveryEmail.$invalid || disabled"
         :loading="loading"
         @click="save" />
 
@@ -99,7 +99,7 @@ export default {
   props: {},
   setup() {
     return {
-      $v: useVuelidate()
+      vuelidate: useVuelidate()
     };
   },
   data() {
@@ -202,6 +202,8 @@ export default {
       });
       this.hasTwoFactor = false;
     },
+    // FIXME: change this to stop listening for `@update:modelValue` and
+    // use computed/watch as in GeneralSettings.vue
     handleEmailChange() {
       if(this.recoveryEmail !== this.initialRecoveryEmail) {
         this.disabled = false;

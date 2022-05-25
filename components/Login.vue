@@ -65,7 +65,7 @@
               stack-label
               autocomplete="email"
               hint="Please enter your email address."
-              :error="$v.ctrl.email.$error"
+              :error="vuelidate.ctrl.email.$error"
               error-message="Please enter the email address you registered
                 with."
               type="email"
@@ -73,11 +73,11 @@
               autofocus
               bottom-slots
               clearable
-              @blur="$v.ctrl.email.$touch" />
+              @blur="vuelidate.ctrl.email.$touch" />
           </form>
           <q-btn
             v-if="showSendEmail"
-            :disable="loading.emailCode || $v.ctrl.email.$invalid"
+            :disable="loading.emailCode || vuelidate.ctrl.email.$invalid"
             size="form"
             color="primary"
             label="Send Email Code"
@@ -86,7 +86,7 @@
             @click="sendEmail" />
           <q-btn
             v-if="showResendEmail"
-            :disable="loading.emailCode || $v.ctrl.email.$invalid"
+            :disable="loading.emailCode || vuelidate.ctrl.email.$invalid"
             size="form"
             color="primary"
             label="Resend Email Code"
@@ -218,7 +218,7 @@ export default {
   components: {CodeInput, BrQTitleCard},
   setup() {
     return {
-      $v: useVuelidate()
+      vuelidate: useVuelidate()
     };
   },
   data() {
