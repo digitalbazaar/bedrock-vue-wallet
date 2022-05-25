@@ -9,10 +9,10 @@
       color="info"
       icon="fa fa-bars"
       class="toggle-drawer-btn lt-md"
-      @click.native="toggleDrawer()" />
+      @click="toggleDrawer()" />
     <q-toolbar-title
       class="row cursor-pointer"
-      @click.native="home()">
+      @click="home()">
       <img
         v-if="branding.logo"
         :src="branding.logo"
@@ -33,7 +33,7 @@
         {label: 'Credentials', value: 'home'},
         {label: 'Profiles', value: 'profiles'}
       ]"
-      @click.native="handleNav()" />
+      @click="handleNav()" />
     <div v-if="account">
       <q-btn
         v-if="$q.screen.lt.md"
@@ -41,7 +41,7 @@
         no-wrap
         dense
         class="persona-btn q-mr-sm"
-        @click.native="interact()">
+        @click="interact()">
         <interact-icon
           :fill="branding.brand.info" />
       </q-btn>
@@ -66,7 +66,7 @@
             <q-item
               v-close-popup
               clickable
-              @click.native="settings()">
+              @click="settings()">
               <q-item
                 avatar
                 class="items-center">
@@ -83,7 +83,7 @@
             <q-item
               v-close-popup
               clickable
-              @click.native="logout()">
+              @click="logout()">
               <q-item
                 avatar
                 class="items-center">
@@ -108,7 +108,7 @@
       color="info"
       icon="fa fa-sign-in-alt"
       label="Log in"
-      @click.native="login()" />
+      @click="login()" />
   </q-toolbar>
 </template>
 

@@ -31,7 +31,7 @@ export default {
   setup(props, {emit}) {
     const show = computed({
       get: () => props.modelValue,
-      set: emit('update:modelValue', value)
+      set: value => emit('update:modelValue', value)
     });
     return {
       show

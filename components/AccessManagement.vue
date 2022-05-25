@@ -14,7 +14,7 @@
           color="primary"
           class="full-width"
           style="height: 40px"
-          @click.native="showAddModal = true" />
+          @click="showAddModal = true" />
       </div>
       <div
         class="q-pl-md lt-md"
@@ -25,7 +25,7 @@
           color="primary"
           class="full-width"
           style="height: 40px"
-          @click.native="showAddModal = true" />
+          @click="showAddModal = true" />
       </div>
     </div>
     <q-separator />

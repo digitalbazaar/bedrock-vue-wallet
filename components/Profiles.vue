@@ -14,7 +14,7 @@
           color="primary"
           class="full-width"
           style="height: 40px"
-          @click.native="showAddProfileModal = true" />
+          @click="showAddProfileModal = true" />
       </div>
       <div
         class="q-pl-md lt-md"
@@ -25,7 +25,7 @@
           color="primary"
           class="full-width"
           style="height: 40px"
-          @click.native="showAddProfileModal = true" />
+          @click="showAddProfileModal = true" />
       </div>
     </div>
     <q-separator />
@@ -51,9 +51,10 @@ import AddProfileModal from './AddProfileModal.vue';
 import {BrQTable} from '@bedrock/quasar-components';
 import {helpers, getPrimaryEmail, profileManager} from '@bedrock/web-wallet';
 import SearchBox from './SearchBox.vue';
-import {utils} from 'quasar';
+import {date} from 'quasar';
 
 const {createProfile} = helpers;
+const {formatDate} = date;
 
 const columns = [
   {
@@ -211,7 +212,7 @@ export default {
       }
     },
     getDate(dateString) {
-      return utils.date.formatDate(dateString, 'YYYY-MM-DD');
+      return formatDate(dateString, 'YYYY-MM-DD');
     },
     getTypeLabel(type) {
       if(type === 'key') {

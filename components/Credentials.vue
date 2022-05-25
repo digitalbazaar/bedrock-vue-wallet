@@ -5,8 +5,7 @@
       <br-q-title-card
         title="Credentials"
         class="full-width">
-        <div
-          slot="body">
+        <template #body>
           <div class="q-pl-md q-pb-md row">
             <div class="q-pt-md q-pr-md col-md-8 col-xs-12 row items-center">
               <search-box
@@ -36,7 +35,7 @@
             :search="search"
             :loading="loading"
             :error-text="errorText" />
-        </div>
+        </template>
       </br-q-title-card>
     </div>
   </q-page>
@@ -47,7 +46,7 @@
  * Copyright (c) 2018-2022 Digital Bazaar, Inc. All rights reserved.
  */
 import {BrQTitleCard} from '@bedrock/quasar-components';
-import {computed, ref, toRef} from 'vue';
+import {computed, ref, toRef, watch} from 'vue';
 import CredentialsList from './CredentialsList.vue';
 import SearchBox from './SearchBox.vue';
 
@@ -81,14 +80,10 @@ export default {
   },
   emits: ['filtered-credentials-loading', 'filtered-profiles'],
   setup(props, {emit}) {
-    console.log('setting up Credentials component');
-
     const credentials = toRef(props, 'credentials');
     const search = ref('');
 
     const filteredCredentials = computed(() => {
-      console.log('XXXXXXXXXXXx computing filtered credentials',
-        'credentials are', credentials.value);
       emit('filtered-credentials-loading', true);
       const filteredCredentials = credentials.value.filter(({credential}) => {
         if(credential) {
@@ -98,13 +93,10 @@ export default {
         }
       });
       emit('filtered-credentials-loading', false);
-      console.log('filtered credentials', filteredCredentials);
       return filteredCredentials;
     });
-    console.log('computed filteredCredentials', filteredCredentials.value);
 
     const noResults = computed(() => filteredCredentials.value.length === 0);
-    console.log('computed noResults', noResults.value);
 
     return {
       filteredCredentials,
@@ -115,8 +107,7 @@ export default {
   data() {
     return {
       sortIcon: 'fas fa-sort-down',
-      filteredProfiles: [],
-      loadingFilteredCredentials: true
+      filteredProfiles: []
     };
   },
   watch: {
@@ -125,6 +116,7 @@ export default {
     }
   },
   created() {
+    // FIXME: why is this being emitted? remove?
     this.$emit('filtered-profiles', this.filteredProfiles);
   }
 };

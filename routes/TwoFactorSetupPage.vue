@@ -8,8 +8,7 @@
       <br-q-title-card
         title="Two-Factor Authentication Setup"
         class="full-width">
-        <div
-          slot="body">
+        <template #body>
           <div class="column q-pa-md">
             <p class="text-left">
               Two-factor authentication adds an extra layer of security to your
@@ -61,7 +60,7 @@
               </div>
             </div>
           </div>
-        </div>
+        </template>
       </br-q-title-card>
     </div>
     <div

@@ -129,6 +129,8 @@ export default {
     value: {
       managingProfile: {
         required: requiredIf(function() {
+          console.log('this', this);
+          console.log('this.value', this.value);
           return this.value.profile.shared;
         })
       },

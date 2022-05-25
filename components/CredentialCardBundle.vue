@@ -8,7 +8,7 @@
         :schema="schemaMap[credentialRecord.credential.type[1]] || {}"
         :field-quantity="0"
         :clickable="true"
-        @click.native="expandCredential(credentialRecord)" />
+        @click="expandCredential(credentialRecord)" />
     </div>
     <q-dialog
       v-model="card"

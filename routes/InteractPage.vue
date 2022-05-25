@@ -5,25 +5,23 @@
       <br-q-title-card
         title="Interact"
         class="full-width">
-        <div
-          slot="body">
+        <template #body>
           <interact />
-        </div>
-        <div
-          slot="icon">
+        </template>
+        <template #icon>
           <q-btn
             flat
             round
             dense
             class="absolute-right q-ma-xs"
             style="height: 34px"
-            @click.native="help = true">
+            @click="help = true">
             <q-icon
               name="far fa-question-circle"
               size="xs"
               color="grey-8" />
           </q-btn>
-        </div>
+        </template>
       </br-q-title-card>
     </div>
     <br-q-modal

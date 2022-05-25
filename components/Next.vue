@@ -3,48 +3,48 @@
     v-if="!awaitingAuthorization"
     :title="title"
     class="full-width">
-    <div
-      slot="body"
-      class="q-pa-md">
-      <div>
-        <p
-          class="text-left q-mb-md">
-          {{text}}
-        </p>
-      </div>
-      <div
-        class="column">
-        <q-btn
-          v-if="isRegistered"
-          size="form"
-          color="primary"
-          label="Next"
-          @click.stop.prevent="next()" />
-        <q-btn
-          v-else
-          size="form"
-          color="primary"
-          label="Register"
-          @click.stop.prevent="register()" />
-        <q-banner
-          v-if="error"
-          class="bg-red q-mt-md">
-          {{errorText}}
-        </q-banner>
-      </div>
-      <div
-        v-if="loginLink">
-        <div class="q-mt-sm">
-          <small>
-            Already registered?
-            <a
-              href=""
-              @click.stop.prevent="login">
-              Login</a>.
-          </small>
+    <template #body>
+      <div class="q-pa-md">
+        <div>
+          <p
+            class="text-left q-mb-md">
+            {{text}}
+          </p>
+        </div>
+        <div
+          class="column">
+          <q-btn
+            v-if="isRegistered"
+            size="form"
+            color="primary"
+            label="Next"
+            @click.stop.prevent="next()" />
+          <q-btn
+            v-else
+            size="form"
+            color="primary"
+            label="Register"
+            @click.stop.prevent="register()" />
+          <q-banner
+            v-if="error"
+            class="bg-red q-mt-md">
+            {{errorText}}
+          </q-banner>
+        </div>
+        <div
+          v-if="loginLink">
+          <div class="q-mt-sm">
+            <small>
+              Already registered?
+              <a
+                href=""
+                @click.stop.prevent="login">
+                Login</a>.
+            </small>
+          </div>
         </div>
       </div>
-    </div>
+    </template>
   </br-q-title-card>
 </template>
 
