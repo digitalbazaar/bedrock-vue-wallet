@@ -25,8 +25,7 @@
             option-label="name"
             emit-value
             map-options
-            :options="settingList"
-            @input="handleSelect()" />
+            :options="settingList" />
         </settings-module>
       </div>
     </div>
@@ -119,11 +118,13 @@
  * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
  */
 import AccessManagement from '../components/AccessManagement.vue';
+import {computed, ref, watch} from 'vue';
 import GeneralSettings from '../components/GeneralSettings.vue';
 import {profileManager} from '@bedrock/web-wallet';
 import ProfileSettings from '../components/ProfileSettings.vue';
 import SettingsModule from '../components/SettingsModule.vue';
 import TwoFactorSettings from '../components/TwoFactorSettings.vue';
+import {useRoute, useRouter} from 'vue-router'
 
 export default {
   name: 'SettingsPage',
@@ -140,80 +141,86 @@ export default {
       default: undefined
     }
   },
-  data() {
-    return {
-      profiles: [],
-      loading: false,
-      settingList: [],
-      settingsSelection: ''
-    };
-  },
-  asyncComputed: {
-    activeProfile: {
-      async get() {
-        const {profiles} = this;
-        if(!profiles || (Array.isArray(profiles) && profiles.length === 0)) {
-          return {};
-        }
-        const {settingsPageMode, $route} = this;
-        const {profileId} = $route.params;
-        if(settingsPageMode === 'profile-settings') {
-          const profile = profiles.find(profile => profile.id === profileId);
-          if(!profile) {
-            // if a profile is not found, we will change the route to account
-            // settings
-            return this.$emitExtendable('redirect', {
-              route: {name: 'settings'}
-            });
-          }
-          return profile;
-        }
+  setup() {
+    const route = useRoute();
+    const router = useRouter();
+
+    const settingsPageMode = computed(() => {
+      return route.name === 'settings-profile' ?
+        'profile-settings' : 'account-settings';
+    });
+
+    // active profile is set if `profile-settings` is used and the profile ID
+    // in the route matches a profile, otherwise it is empty
+    const profiles = ref([]);
+    const activeProfile = computed(() => {
+      if(profiles.value.length === 0 ||
+        settingsPageMode.value !== 'profile-settings') {
         return {};
+      }
+      const {profileId} = route.params;
+      return profiles.value.find(p => p.id === profileId);
+    });
+
+    // when the active profile changes, update the selection value
+    const settingsSelection = ref('');
+    watch(
+      () => activeProfile.value,
+      profile => {
+        settingsSelection.value = profile?.id ?? 'account'
+        if(!profile) {
+          // if no profile is set, change the route to account settings
+          router.replace({name: 'settings'});
+        }
       },
-      default() {
-        return {};
+      {immediate: true});
+
+    // used to navigate to the appropriate settings route
+    const navigateTo = async (location, profileId) => {
+      if(location === 'account-settings') {
+        await router.push({name: 'settings'});
+      } else if(location === 'profile-settings') {
+        await router.push({name: 'settings-profile', params: {profileId}});
       }
-    }
-  },
-  computed: {
-    label() {
-      const {settingsPageMode} = this;
-      if(settingsPageMode === 'profile-settings') {
-        return 'Profile Settings';
-      }
-      return 'Account Settings';
-    },
-    settingsPageMode() {
-      const {name} = this.$route;
-      if(name === 'settings-profile') {
-        return 'profile-settings';
-      }
-      // default to account settings
-      return 'account-settings';
-    },
-    showAccessManagement() {
-      return this.settingsPageMode === 'profile-settings' &&
-        (this.activeProfile || {}).shared;
-    }
-  },
-  watch: {
-    activeProfile: {
-      handler(profile) {
-        if(profile && profile.id) {
-          this.settingsSelection = profile.id;
+    };
+
+    // when a different selection is made, navigate to the appropriate
+    // settings page
+    watch(
+      () => settingsSelection.value,
+      selection => {
+        if(selection === 'account') {
+          navigateTo('account-settings');
           return;
         }
-        this.settingsSelection = 'account';
-      },
-      immediate: true
-    }
+        navigateTo('profile-settings', selection);
+      });
+
+    const label = computed(() => settingsPageMode.value === 'profile-settings' ?
+      'Profile Settings' : 'Account Settings');
+
+    const showAccessManagement = computed(() =>
+      settingsPageMode.value === 'profile-settings' &&
+      activeProfile.value?.shared);
+
+    return {
+      activeProfile,
+      label,
+      profiles,
+      navigateTo,
+      settingsPageMode,
+      settingsSelection,
+      showAccessManagement
+    };
+  },
+  data() {
+    return {
+      loading: false,
+      settingList: []
+    };
   },
   async created() {
     this.loading = true;
-    // redirect to the specified page
-    this.$on('redirect', event => {
-      event.waitUntil(this.$router.replace(event.route));
-    });
     try {
       const profiles = await profileManager.getProfiles({useCache: true});
       profiles.sort(({name: nameA}, {name: nameB}) =>
@@ -235,26 +242,6 @@ export default {
       console.log('Error: ', e);
     } finally {
       this.loading = false;
-    }
-  },
-  methods: {
-    async navigateTo(location, profileId) {
-      if(location === 'account-settings') {
-        await this.$router.push({name: 'settings'});
-      } else if(location === 'profile-settings') {
-        await this.$router.push({
-          name: 'settings-profile',
-          params: {profileId}
-        });
-      }
-    },
-    async handleSelect() {
-      if(this.settingsSelection === 'account') {
-        this.navigateTo('account-settings');
-        return;
-      }
-      const id = this.settingsSelection;
-      this.navigateTo('profile-settings', id);
     }
   }
 };
