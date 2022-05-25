@@ -7,24 +7,24 @@
       stack-label
       type="text"
       label="Name"
-      :error="$v.value.name.$error"
+      :error="vuelidate.value.name.$error"
       error-message="A name is required."
       hint="Enter the name of the person you are giving access to."
       class="q-mb-md"
-      @input="$v.value.name.$touch"
-      @blur="$v.value.name.$touch" />
+      @update:model-value="vuelidate.value.name.$touch"
+      @blur="vuelidate.value.name.$touch" />
     <q-input
       v-model="form.email"
       outlined
       stack-label
       type="text"
       label="Email"
-      :error="$v.value.email.$error"
+      :error="vuelidate.value.email.$error"
       error-message="You must enter a valid email."
       hint="Enter the email of the person you are giving access to."
       class="q-mb-md"
-      @input="$v.value.name.$touch"
-      @blur="$v.value.email.$touch" />
+      @update:model-value="vuelidate.value.name.$touch"
+      @blur="vuelidate.value.email.$touch" />
     <q-field
       label="Access"
       class="q-mb-md"
@@ -41,7 +41,7 @@
               :val="accessOption.value"
               color="primary"
               :size="$q.screen.gt.sm ? 'md' : 'sm'"
-              @input="$v.value.access.$touch" />
+              @input="vuelidate.value.access.$touch" />
           </div>
           <div class="col-grow q-pr-lg">
             <q-item-label>{{accessOption.label}}</q-item-label>
@@ -75,6 +75,7 @@
  */
 import {required, email} from '@vuelidate/validators';
 import useVuelidate from '@vuelidate/core';
+import {watch} from 'vue';
 
 export default {
   name: 'UserForm',
@@ -84,9 +85,21 @@ export default {
       required: true
     }
   },
-  setup() {
+  emits: ['dirty', 'invalid'],
+  setup(props, {emit}) {
+    const vuelidate = useVuelidate();
+
+    watch(
+      () => vuelidate.value?.value?.$anyDirty,
+      anyDirty => emit('dirty', anyDirty),
+      {immediate: true});
+    watch(
+      () => vuelidate.value?.value?.$invalid,
+      invalid => emit('invalid', invalid),
+      {immediate: true});
+
     return {
-      $v: useVuelidate()
+      vuelidate
     };
   },
   data() {
@@ -108,20 +121,6 @@ export default {
         }
       ]
     };
-  },
-  watch: {
-    '$v.value.$invalid': {
-      handler() {
-        this.$emit('invalid', this.$v.value.$invalid);
-      },
-      immediate: true
-    },
-    '$v.value.$anyDirty': {
-      handler() {
-        this.$emit('dirty', this.$v.value.$anyDirty);
-      },
-      immediate: true
-    },
   },
   validations: {
     value: {

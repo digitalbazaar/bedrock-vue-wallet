@@ -1,13 +1,12 @@
 <template>
   <br-q-modal
     ref="modal"
-    :value="value"
+    v-model="show"
     :title="title"
     accept-label="Remove"
     accept-color="negative"
     cancel-color="primary"
     min-width="350px"
-    @input="$emit('input', $event)"
     @accept="$event.waitUntil($emitExtendable('remove', {item}))">
     <form @submit.prevent>
       <div class="q-mb-md">
@@ -40,7 +39,7 @@ export default {
   name: 'RemoveItemModal',
   components: {BrQModal},
   props: {
-    value: {
+    modelValue: {
       type: Boolean,
       required: true
     },
@@ -64,6 +63,16 @@ export default {
       },
       required: true
     }
+  },
+  emits: ['remove', 'update:modelValue'],
+  setup(props, {emit}) {
+    const show = computed({
+      get: () => props.modelValue,
+      set: emit('update:modelValue', value)
+    });
+    return {
+      show
+    };
   },
   computed: {
     title() {

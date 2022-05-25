@@ -1,10 +1,9 @@
 <template>
   <br-q-modal
-    :value="value"
+    v-model="show"
     title="Add Access"
     accept-label="Create"
     :disable-accept-button="disableAcceptButton"
-    @input="$emit('input', $event)"
     @accept="$event.waitUntil($emitExtendable('create', {form}))">
     <user-form
       v-model="form"
@@ -23,10 +22,20 @@ export default {
   name: 'AddUserModal',
   components: {BrQModal, UserForm},
   props: {
-    value: {
+    modelValue: {
       type: Boolean,
       required: true
     }
+  },
+  emits: ['create', 'update:modelValue'],
+  setup(props, {emit}) {
+    const show = computed({
+      get: () => props.modelValue,
+      set: emit('update:modelValue', value)
+    });
+    return {
+      show
+    };
   },
   data() {
     return {
