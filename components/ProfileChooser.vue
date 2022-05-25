@@ -19,7 +19,7 @@
           class="row items-center"
           v-bind="scope.itemProps"
           v-on="scope.itemEvents"
-          @click.native="selectProfile(scope.opt)">
+          @click="selectProfile(scope.opt)">
           <q-icon
             :name="getIcon(scope.opt)"
             size="16px"

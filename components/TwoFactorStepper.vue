@@ -5,8 +5,7 @@
     <br-q-title-card
       :title="step + '. ' + title"
       class="full-width">
-      <div
-        slot="body">
+      <template #body>
         <div class="column">
           <div
             v-if="step === 1"
@@ -174,7 +173,7 @@
               @click="next" />
           </div>
         </div>
-      </div>
+      </template>
     </br-q-title-card>
   </div>
 </template>

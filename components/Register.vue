@@ -2,10 +2,8 @@
   <br-q-title-card
     title="Register"
     class="full-width">
-    <div
-      slot="body">
-      <div
-        class="column q-pa-md">
+    <template #body>
+      <div class="column q-pa-md">
         <form class="full-width">
           <q-input
             v-model="name"
@@ -117,7 +115,7 @@
           {{error}}
         </q-banner>
       </div>
-    </div>
+    </template>
   </br-q-title-card>
 </template>
 

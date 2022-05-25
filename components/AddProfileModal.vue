@@ -18,6 +18,7 @@
  * Copyright (c) 2018-2022 Digital Bazaar, Inc. All rights reserved.
  */
 import {BrQModal} from '@bedrock/quasar-components';
+import {computed} from 'vue';
 import ProfileForm from './ProfileForm.vue';
 import {randomColor} from 'randomcolor';
 
@@ -44,7 +45,7 @@ export default {
   setup(props, {emit}) {
     const show = computed({
       get: () => props.modelValue,
-      set: emit('update:modelValue', value)
+      set: value => emit('update:modelValue', value)
     });
     return {
       show

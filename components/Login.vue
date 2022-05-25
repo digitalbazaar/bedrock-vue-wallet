@@ -3,198 +3,198 @@
     v-if="!awaitingAuthorization"
     :title="title"
     class="full-width">
-    <div
-      slot="body"
-      class="column q-pa-md">
-      <div v-if="showDeviceAlreadyRegistered">
-        <p class="text-left q-mb-none">
-          We detected that your device was already registered. Either you
-          registered your device in another browser tab or you may have been
-          on a website that was pretending to be <strong>{{domain}}</strong>.
-        </p>
-        <p class="text-left q-mt-md">
-          Make sure to check your browser's URL bar on any other tabs that
-          may have directed you here to ensure you are on the correct website
-          and then try to
-          <a
-            href=""
-            @click.stop.prevent="reset">
-            login again</a>.
-        </p>
-      </div>
-
-      <div v-else-if="showRegisterDevice">
-        <p class="text-left q-mb-none">
-          Your device has not been registered with {{branding.name}} yet.
-          To continue logging in, you must click on the link that was sent
-          to your email to register your device.
-        </p>
-      </div>
-
-      <div v-else-if="showEmail">
-        <div>
-          <p
-            v-if="showDeviceRegistered"
-            class="text-left">
-            Your device has been registered! Now we are able to safely send
-            a login code to your email address. Please check your email for
-            a code that you can enter below to log into your wallet.
+    <template #body>
+      <div class="column q-pa-md">
+        <div v-if="showDeviceAlreadyRegistered">
+          <p class="text-left q-mb-none">
+            We detected that your device was already registered. Either you
+            registered your device in another browser tab or you may have been
+            on a website that was pretending to be <strong>{{domain}}</strong>.
           </p>
-          <p
-            v-if="deviceRegistered"
-            class="text-left">
-            We will email you a code so you can access your wallet. Please
-            enter the email address below associated with your wallet.
-          </p>
-          <p
-            v-if="!deviceRegistered"
-            class="text-left">
-            We could not find an account with the email you entered.
-            You can register
+          <p class="text-left q-mt-md">
+            Make sure to check your browser's URL bar on any other tabs that
+            may have directed you here to ensure you are on the correct website
+            and then try to
             <a
               href=""
-              @click.stop.prevent="register">
-              here</a>.
+              @click.stop.prevent="reset">
+              login again</a>.
           </p>
-          <form
-            class="full-width"
-            @submit.prevent>
-            <q-input
-              v-model="ctrl.email"
-              outlined
-              stack-label
-              autocomplete="email"
-              hint="Please enter your email address."
-              :error="vuelidate.ctrl.email.$error"
-              error-message="Please enter the email address you registered
-                with."
-              type="email"
-              label="Email"
-              autofocus
-              bottom-slots
-              clearable
-              @blur="vuelidate.ctrl.email.$touch" />
-          </form>
-          <q-btn
-            v-if="showSendEmail"
-            :disable="loading.emailCode || vuelidate.ctrl.email.$invalid"
-            size="form"
-            color="primary"
-            label="Send Email Code"
-            :loading="loading.emailCode"
-            class="q-mt-md full-width"
-            @click="sendEmail" />
-          <q-btn
-            v-if="showResendEmail"
-            :disable="loading.emailCode || vuelidate.ctrl.email.$invalid"
-            size="form"
-            color="primary"
-            label="Resend Email Code"
-            :loading="loading.emailCode"
-            class="q-mt-md full-width"
-            @click="sendEmail" />
         </div>
 
-        <div v-if="showRegisterLink">
-          <div class="q-mt-sm">
-            <small>
-              Not registered?
-              <span v-if="!checkedStorageAccess">Register</span>
+        <div v-else-if="showRegisterDevice">
+          <p class="text-left q-mb-none">
+            Your device has not been registered with {{branding.name}} yet.
+            To continue logging in, you must click on the link that was sent
+            to your email to register your device.
+          </p>
+        </div>
+
+        <div v-else-if="showEmail">
+          <div>
+            <p
+              v-if="showDeviceRegistered"
+              class="text-left">
+              Your device has been registered! Now we are able to safely send
+              a login code to your email address. Please check your email for
+              a code that you can enter below to log into your wallet.
+            </p>
+            <p
+              v-if="deviceRegistered"
+              class="text-left">
+              We will email you a code so you can access your wallet. Please
+              enter the email address below associated with your wallet.
+            </p>
+            <p
+              v-if="!deviceRegistered"
+              class="text-left">
+              We could not find an account with the email you entered.
+              You can register
               <a
-                v-else
                 href=""
-                @click.stop.prevent="register($event)">
-                Register</a>.
-            </small>
+                @click.stop.prevent="register">
+                here</a>.
+            </p>
+            <form
+              class="full-width"
+              @submit.prevent>
+              <q-input
+                v-model="ctrl.email"
+                outlined
+                stack-label
+                autocomplete="email"
+                hint="Please enter your email address."
+                :error="vuelidate.ctrl.email.$error"
+                error-message="Please enter the email address you registered
+                  with."
+                type="email"
+                label="Email"
+                autofocus
+                bottom-slots
+                clearable
+                @blur="vuelidate.ctrl.email.$touch" />
+            </form>
+            <q-btn
+              v-if="showSendEmail"
+              :disable="loading.emailCode || vuelidate.ctrl.email.$invalid"
+              size="form"
+              color="primary"
+              label="Send Email Code"
+              :loading="loading.emailCode"
+              class="q-mt-md full-width"
+              @click="sendEmail" />
+            <q-btn
+              v-if="showResendEmail"
+              :disable="loading.emailCode || vuelidate.ctrl.email.$invalid"
+              size="form"
+              color="primary"
+              label="Resend Email Code"
+              :loading="loading.emailCode"
+              class="q-mt-md full-width"
+              @click="sendEmail" />
+          </div>
+
+          <div v-if="showRegisterLink">
+            <div class="q-mt-sm">
+              <small>
+                Not registered?
+                <span v-if="!checkedStorageAccess">Register</span>
+                <a
+                  v-else
+                  href=""
+                  @click.stop.prevent="register($event)">
+                  Register</a>.
+              </small>
+            </div>
+          </div>
+
+          <div v-if="showEmailCode && deviceRegistered">
+            <p class="text-left q-mt-md">
+              Please enter the code that was sent to your above email.
+              <!-- FIXME -->
+              You may also click directly on the link sent to your email.
+            </p>
+            <code-input
+              hint="Please enter the 6 character code sent to your email address."
+              :min-length="6"
+              :max-length="6"
+              @code="emailCode = $event.code"
+              @invalid="invalidEmailCode = $event.invalid" />
+            <q-btn
+              :disable="loading.login || invalidEmailCode"
+              size="form"
+              color="primary"
+              label="Login"
+              :loading="loading.login"
+              class="q-mt-md full-width"
+              @click="emailCodeEntered" />
+          </div>
+
+          <div v-if="showEmailCodeAuthenticated">
+            <p class="text-left q-mt-md">
+              <q-icon name="fas fa-check" />
+              Email Code Authenticated.
+            </p>
           </div>
         </div>
 
-        <div v-if="showEmailCode && deviceRegistered">
+        <div v-else-if="showTotpCode">
           <p class="text-left q-mt-md">
-            Please enter the code that was sent to your above email.
-            <!-- FIXME -->
-            You may also click directly on the link sent to your email.
+            Your wallet has Two-Factor Authentication enabled. Please enter
+            the six digit code from your Two-Factor Authentication app.
+          </p>
+          <code-input
+            hint="Please enter the code from your two-factor app."
+            :min-length="6"
+            :max-length="6"
+            @code="totpCode = $event.code"
+            @invalid="invalidTotpCode = $event.invalid" />
+          <q-btn
+            :disable="loading.twoFactorLogin || invalidTotpCode"
+            size="form"
+            color="primary"
+            label="Login"
+            :loading="loading.twoFactorLogin"
+            class="q-mt-md full-width"
+            @click="totpCodeEntered" />
+          <div
+            v-if="hasRecoveryEmail">
+            <div class="q-mt-sm">
+              <small>
+                No longer have access to your authenticator? Click
+                <a
+                  href=""
+                  @click.stop.prevent="sendRecoveryEmail">
+                  here
+                </a>
+                to use your recovery email instead.
+              </small>
+            </div>
+          </div>
+        </div>
+
+        <div v-else-if="showRecoveryEmailCode">
+          <p class="text-left">
+            An email has been sent to the recovery email for your account.
+            Please enter the code from that email below.
           </p>
           <code-input
             hint="Please enter the 6 character code sent to your email address."
             :min-length="6"
             :max-length="6"
-            @code="emailCode = $event.code"
-            @invalid="invalidEmailCode = $event.invalid" />
+            @code="recoveryEmailCode = $event.code"
+            @invalid="invalidRecoveryEmailCode = $event.invalid" />
           <q-btn
-            :disable="loading.login || invalidEmailCode"
+            :disable="invalidRecoveryEmailCode || ctrl.loading"
             size="form"
             color="primary"
             label="Login"
-            :loading="loading.login"
+            :loading="ctrl.loading"
             class="q-mt-md full-width"
-            @click="emailCodeEntered" />
-        </div>
-
-        <div v-if="showEmailCodeAuthenticated">
-          <p class="text-left q-mt-md">
-            <q-icon name="fas fa-check" />
-            Email Code Authenticated.
-          </p>
+            @click="recoveryEmailCodeEntered" />
         </div>
       </div>
-
-      <div v-else-if="showTotpCode">
-        <p class="text-left q-mt-md">
-          Your wallet has Two-Factor Authentication enabled. Please enter
-          the six digit code from your Two-Factor Authentication app.
-        </p>
-        <code-input
-          hint="Please enter the code from your two-factor app."
-          :min-length="6"
-          :max-length="6"
-          @code="totpCode = $event.code"
-          @invalid="invalidTotpCode = $event.invalid" />
-        <q-btn
-          :disable="loading.twoFactorLogin || invalidTotpCode"
-          size="form"
-          color="primary"
-          label="Login"
-          :loading="loading.twoFactorLogin"
-          class="q-mt-md full-width"
-          @click="totpCodeEntered" />
-        <div
-          v-if="hasRecoveryEmail">
-          <div class="q-mt-sm">
-            <small>
-              No longer have access to your authenticator? Click
-              <a
-                href=""
-                @click.stop.prevent="sendRecoveryEmail">
-                here
-              </a>
-              to use your recovery email instead.
-            </small>
-          </div>
-        </div>
-      </div>
-
-      <div v-else-if="showRecoveryEmailCode">
-        <p class="text-left">
-          An email has been sent to the recovery email for your account.
-          Please enter the code from that email below.
-        </p>
-        <code-input
-          hint="Please enter the 6 character code sent to your email address."
-          :min-length="6"
-          :max-length="6"
-          @code="recoveryEmailCode = $event.code"
-          @invalid="invalidRecoveryEmailCode = $event.invalid" />
-        <q-btn
-          :disable="invalidRecoveryEmailCode || ctrl.loading"
-          size="form"
-          color="primary"
-          label="Login"
-          :loading="ctrl.loading"
-          class="q-mt-md full-width"
-          @click="recoveryEmailCodeEntered" />
-      </div>
-    </div>
+    </template>
   </br-q-title-card>
 </template>
 

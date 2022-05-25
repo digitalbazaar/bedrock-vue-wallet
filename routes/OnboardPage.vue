@@ -10,20 +10,20 @@
           <br-q-title-card
             title="Onboard"
             class="full-width">
-            <div
-              slot="body"
-              class="column q-pa-md">
-              <div
-                class="row justify-left">
-                <span class="text-left">
-                  <strong>{{profileName}}</strong> has invited you to join as
-                  <strong>{{email}}</strong>. Please login to complete the
-                  onboarding process. If your wallet account uses an email
-                  address that is different from the invite, you may enter
-                  it below.
-                </span>
+            <template #body>
+              <div class="column q-pa-md">
+                <div
+                  class="row justify-left">
+                  <span class="text-left">
+                    <strong>{{profileName}}</strong> has invited you to join as
+                    <strong>{{email}}</strong>. Please login to complete the
+                    onboarding process. If your wallet account uses an email
+                    address that is different from the invite, you may enter
+                    it below.
+                  </span>
+                </div>
               </div>
-            </div>
+            </template>
           </br-q-title-card>
         </div>
       </div>

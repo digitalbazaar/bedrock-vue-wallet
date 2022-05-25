@@ -91,7 +91,6 @@ export default {
         }
         credentials.value = vcs;
         errorText.value = '';
-        console.log('credentials set to', credentials.value);
       } catch(e) {
         console.log('Error: ', e);
         errorText.value =

@@ -1,7 +1,5 @@
 <template>
-  <div
-    slot="body"
-    class="q-my-md">
+  <div class="q-my-md">
     <div
       class="profile-image q-mb-md q-mx-auto">
       <div

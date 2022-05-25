@@ -5,10 +5,9 @@
       <br-q-title-card
         title="Profiles"
         class="full-width">
-        <div
-          slot="body">
+        <template #body>
           <profiles />
-        </div>
+        </template>
       </br-q-title-card>
     </div>
   </q-page>

@@ -53,7 +53,7 @@
         color="primary"
         label="View More"
         class="q-my-sm"
-        @click.native="toHomePage()" />
+        @click="toHomePage()" />
     </div>
   </div>
 </template>
