@@ -16,7 +16,7 @@
       <q-separator class="s-separator" />
       <div class="full-width">
         <profile-chooser
-          :loading="$asyncComputed.profiles.updating"
+          :loading="profilesUpdating"
           :profiles="profiles"
           :selected="selectedProfile"
           @select="$event.waitUntil(selectProfile($event.profile))" />
@@ -62,9 +62,11 @@
 /*!
  * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
  */
+import {computedAsync} from '@vueuse/core';
 import CredentialsList from './CredentialsList.vue';
 import {profileManager} from '@bedrock/web-wallet';
 import ProfileChooser from './ProfileChooser.vue';
+import {ref} from 'vue';
 
 export default {
   name: 'StoreCredentials',
@@ -90,6 +92,16 @@ export default {
       required: true,
       default: ''
     }
+  },
+  emits: ['store', 'cancel'],
+  setup() {
+    const profilesUpdating = ref(true);
+    const profiles = computedAsync(
+      async () => profileManager.getProfiles({useCache: true}),
+      [], profilesUpdating);
+    return {
+      profiles
+    };
   },
   data() {
     return {
@@ -119,16 +131,6 @@ export default {
         return this.profiles[0];
       }
       return profile;
-    }
-  },
-  asyncComputed: {
-    profiles: {
-      async get() {
-        return profileManager.getProfiles({useCache: true});
-      },
-      default() {
-        return [];
-      }
     }
   },
   methods: {

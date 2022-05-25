@@ -106,6 +106,7 @@ export default {
       required: true
     }
   },
+  emits: ['invalid'],
   setup() {
     return {
       vuelidate: useVuelidate()

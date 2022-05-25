@@ -83,6 +83,7 @@ export default {
       default: ''
     },
   },
+  emits: ['login', 'next'],
   data() {
     return {
       error: false,

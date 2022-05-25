@@ -17,7 +17,9 @@
 /*!
  * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
  */
+import {computedAsync} from '@vueuse/core';
 import {CredentialCardList} from '@bedrock/vue-credential-card';
+import {toRef} from 'vue';
 
 export default {
   name: 'CredentialsList',
@@ -39,21 +41,19 @@ export default {
       required: true
     }
   },
-  data() {
-    return {};
-  },
-  asyncComputed: {
-    filteredCredentials() {
-      const credentials = this.credentials;
-      if(this.store) {
-        return createCompactBundledCredentials({
-          credentials
-        });
+  setup(props) {
+    const credentials = toRef(props, 'credentials');
+    const store = toRef(props, 'store');
+    const filteredCredentials = computedAsync(async () => {
+      if(!store.value) {
+        return credentials.value;
       }
-      return credentials;
-    }
-  },
-  methods: {}
+      return createCompactBundledCredentials({credentials: credentials.value});
+    }, []);
+    return {
+      filteredCredentials
+    };
+  }
 };
 
 // FIXME: refactor and use config

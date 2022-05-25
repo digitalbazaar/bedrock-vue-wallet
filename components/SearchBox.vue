@@ -5,7 +5,7 @@
     dense
     :debounce="debounce"
     :placeholder="placeholder"
-    @input="search()">
+    @update:model-value="search()">
     <template #prepend>
       <q-icon
         name="fas fa-search"
@@ -41,6 +41,7 @@ export default {
       default: ''
     }
   },
+  emits: ['search'],
   data() {
     return {
       text: ''

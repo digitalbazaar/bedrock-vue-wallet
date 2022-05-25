@@ -12,7 +12,9 @@
 /*!
  * Copyright (c) 2020-2022 Digital Bazaar, Inc. All rights reserved.
  */
+import {computedAsync} from '@vueuse/core';
 import qrcode from 'qrcode';
+import {toRef} from 'vue';
 
 export default {
   name: 'QrCode',
@@ -37,12 +39,13 @@ export default {
       required: false
     },
   },
-  asyncComputed: {
-    async qrImage() {
-      const qrUrl = await qrcode.toDataURL(this.url);
-      return qrUrl;
-    }
-  },
+  setup(props) {
+    const url = toRef(props, 'url');
+    const qrImage = computedAsync(async () => qrcode.toDataURL(url.value));
+    return {
+      qrImage
+    };
+  }
 };
 </script>
 

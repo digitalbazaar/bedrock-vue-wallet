@@ -41,7 +41,7 @@
               :val="accessOption.value"
               color="primary"
               :size="$q.screen.gt.sm ? 'md' : 'sm'"
-              @input="vuelidate.value.access.$touch" />
+              @update:model-value="vuelidate.value.access.$touch" />
           </div>
           <div class="col-grow q-pr-lg">
             <q-item-label>{{accessOption.label}}</q-item-label>

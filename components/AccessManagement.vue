@@ -61,6 +61,8 @@
 /*!
  * Copyright (c) 2018-2022 Digital Bazaar, Inc. All rights reserved.
  */
+import {computed, ref, toRef} from 'vue';
+import {computedAsync} from '@vueuse/core';
 import AddUserModal from './AddUserModal.vue';
 import {BrQTable} from '@bedrock/quasar-components';
 import EditUserModal from './EditUserModal.vue';
@@ -142,6 +144,40 @@ export default {
       required: true
     }
   },
+  setup(props) {
+    const profileId = toRef(props, 'profileId');
+
+    const accessManagerLoading = ref(true);
+    const accessManager = computedAsync(async () => {
+      const {accessManager} = await profileManager.getAccessManager(
+        {profileId: profileId.value});
+      return accessManager;
+    });
+
+    const profileLoading = ref(true);
+    const profile = computedAsync(
+      async () => profileManager.getProfile({id: profileId.value}));
+
+    const usersLoading = ref(true);
+    const users = computedAsync(async () => {
+      if(!accessManager.value) {
+        return [];
+      }
+      return accessManager.value.getUsers();
+    }, []);
+
+    const loading = computed(() =>
+      accessManagerLoading.value ||
+      profileLoading.value ||
+      usersLoading.value);
+
+    return {
+      accessManager,
+      loading,
+      profile,
+      users
+    };
+  },
   data() {
     return {
       columns,
@@ -154,14 +190,6 @@ export default {
     };
   },
   computed: {
-    loading() {
-      if(!(this.$asyncComputed && this.$asyncComputed.users &&
-        this.$asyncComputed.accessManager)) {
-        return true;
-      }
-      return this.$asyncComputed.users.updating ||
-        this.$asyncComputed.accessManager.updating;
-    },
     removeAccessMessage() {
       const {name, email} = this.user;
       const username = `${name} (${email})`;
@@ -187,30 +215,6 @@ export default {
             access: format.capitalize(row.access)
           };
         });
-    }
-  },
-  asyncComputed: {
-    async accessManager() {
-      const {profileId} = this;
-      const {accessManager} = await profileManager.getAccessManager(
-        {profileId});
-      return accessManager;
-    },
-    async profile() {
-      // must declare property to ensure a watcher gets created for it
-      const {profileId} = this;
-      return profileManager.getProfile({id: profileId});
-    },
-    users: {
-      async get() {
-        if(!this.accessManager) {
-          return [];
-        }
-        return this.accessManager.getUsers();
-      },
-      default() {
-        return [];
-      }
     }
   },
   watch: {

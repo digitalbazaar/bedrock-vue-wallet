@@ -146,6 +146,7 @@ export default {
       required: false
     }
   },
+  emits: ['login', 'register'],
   setup() {
     return {
       v$: useVuelidate()
