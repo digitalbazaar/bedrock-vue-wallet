@@ -218,7 +218,7 @@ export default {
   components: {CodeInput, BrQTitleCard},
   setup() {
     return {
-      v$: useVuelidate()
+      $v: useVuelidate()
     };
   },
   data() {
