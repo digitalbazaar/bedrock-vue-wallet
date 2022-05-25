@@ -6,11 +6,11 @@
       stack-label
       type="text"
       label="Profile Name"
-      :error="vuelidate.value.profile.name.$error"
+      :error="vuelidate.modelValue.profile.name.$error"
       error-message="Your profile name must be at least 1 character."
       hint="Example: School, Family, Company Inc., etc."
       class="q-mb-md"
-      @blur="vuelidate.value.profile.name.$touch" />
+      @blur="vuelidate.modelValue.profile.name.$touch" />
     <q-field
       label="Profile Color"
       stack-label
@@ -78,7 +78,7 @@
       stack-label
       label="Initial Manager"
       :options="profileOptions"
-      :error="vuelidate.value.managingProfile.$error"
+      :error="vuelidate.modelValue.managingProfile.$error"
       emit-value
       map-options
       class="q-mb-md" />
@@ -90,31 +90,30 @@
 /*!
  * Copyright (c) 2020-2022 Digital Bazaar, Inc. All rights reserved.
  */
+import {computed, toRef} from 'vue';
 import {required, requiredIf, minLength} from '@vuelidate/validators';
 import useVuelidate from '@vuelidate/core';
 
 export default {
   name: 'ProfileForm',
   props: {
+    modelValue: {
+      type: Object,
+      required: true
+    },
     profileOptions: {
       type: Array,
       default: () => [],
       required: true
-    },
-    value: {
-      type: Object,
-      required: true
     }
   },
   emits: ['invalid'],
-  setup() {
+  setup(props) {
+    const modelValue = toRef(props, 'modelValue');
+    const form = computed(() => modelValue.value);
     return {
+      form,
       vuelidate: useVuelidate()
-    };
-  },
-  data() {
-    return {
-      form: this.value,
     };
   },
   watch: {
@@ -126,12 +125,12 @@ export default {
     this.$emit('invalid', this.vuelidate.$invalid);
   },
   validations: {
-    value: {
+    modelValue: {
       managingProfile: {
         required: requiredIf(function() {
           console.log('this', this);
-          console.log('this.value', this.value);
-          return this.value.profile.shared;
+          console.log('this.modelValue', this.modelValue);
+          return this.modelValue.profile.shared;
         })
       },
       profile: {
