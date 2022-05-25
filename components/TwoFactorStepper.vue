@@ -23,9 +23,9 @@
               type="text"
               label="Secondary Recovery Email (Optional)"
               hint="Add a secondary recovery email."
-              :error="$v.recoveryEmail.$error"
+              :error="vuelidate.recoveryEmail.$error"
               error-message="The email entered is invalid."
-              @blur="$v.recoveryEmail.$touch" />
+              @blur="vuelidate.recoveryEmail.$touch" />
           </div>
           <!-- <div v-if="step === 2">
             <p class="text-left q-pa-md q-mb-none">
@@ -199,7 +199,7 @@ export default {
   components: {BrQTitleCard, CodeInput, QrCode},
   setup() {
     return {
-      $v: useVuelidate()
+      vuelidate: useVuelidate()
     };
   },
   data() {
@@ -260,23 +260,18 @@ export default {
           value: this.otpInfo.step
         }
       ];
+    },
+    // TODO: Needs to generate real Two-Factor codes
+    recoveryCodes() {
+      return getTwoFactorCodes();
+    },
+    qrImageUrl() {
+      return this.otpInfo?.otpAuthUrl ?? '';
     }
   },
   beforeCreate() {
     this._accountService = new AccountService();
     this._tokenService = new TokenService();
-  },
-  asyncComputed: {
-    // TODO: Needs to generate real Two-Factor codes
-    async recoveryCodes() {
-      return getTwoFactorCodes();
-    },
-    async qrImageUrl() {
-      if(this.otpInfo) {
-        return this.otpInfo.otpAuthUrl;
-      }
-      return '';
-    }
   },
   validations: {
     recoveryEmail: {email}

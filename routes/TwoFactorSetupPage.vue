@@ -80,6 +80,8 @@ import {BrQTitleCard} from '@bedrock/quasar-components';
 import {config} from '@bedrock/web';
 import TwoFactorStepper from '../components/TwoFactorStepper.vue';
 
+import {emitExtendable} from '@digitalbazaar/vue-extendable-event';
+
 export default {
   name: 'TwoFactorSetupPage',
   components: {BrQTitleCard, TwoFactorStepper},

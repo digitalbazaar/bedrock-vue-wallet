@@ -7,13 +7,13 @@
     :maxlength="maxLength"
     autocomplete="code"
     :hint="hint"
-    :error="$v.code.$error"
+    :error="vuelidate.code.$error"
     :error-message="errorMessage"
     label="Code"
     autofocus
     bottom-slots
     @input="handleInput"
-    @blur="$v.code.$touch" />
+    @blur="vuelidate.code.$touch" />
 </template>
 
 <script>
@@ -50,7 +50,7 @@ export default {
   },
   setup() {
     return {
-      $v: useVuelidate()
+      vuelidate: useVuelidate()
     };
   },
   data() {
@@ -60,24 +60,24 @@ export default {
   },
   computed: {
     errorMessage() {
-      if(!this.$v.code.required) {
+      if(!this.vuelidate.code.required) {
         return 'A code is required.';
       }
       if(this.minLength === this.maxLength &&
-        (!this.$v.code.minLength || !this.$v.code.maxLength)) {
+        (!this.vuelidate.code.minLength || !this.vuelidate.code.maxLength)) {
         return `The code must be ${this.minLength} digits.`;
       }
-      if(!this.$v.code.minLength) {
+      if(!this.vuelidate.code.minLength) {
         return `The code must be at least ${this.minLength} digits.`;
       }
-      if(!this.$v.code.maxLength) {
+      if(!this.vuelidate.code.maxLength) {
         return `The code must be less than ${this.maxLength} digits.`;
       }
       return 'The code you entered is not correct.';
     }
   },
   async created() {
-    await this.emitInvalid(this.$v.code.$invalid);
+    await this.emitInvalid(this.vuelidate.code.$invalid);
   },
   validations() {
     return {
@@ -91,7 +91,7 @@ export default {
   methods: {
     async handleInput() {
       await this.$emitExtendable('code', {code: this.code});
-      await this.emitInvalid(this.$v.code.$invalid);
+      await this.emitInvalid(this.vuelidate.code.$invalid);
     },
     async emitInvalid(invalid) {
       await this.$emitExtendable('invalid', {invalid});
