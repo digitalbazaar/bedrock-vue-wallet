@@ -2,11 +2,10 @@
   <br-q-modal
     title="Add Profile"
     accept-label="Create"
-    :value="value"
+    v-model="show"
     :persistent="persistent"
     :disable-accept-button="disableAcceptButton"
-    @accept="$event.waitUntil($emitExtendable('create', {form}))"
-    @input="$emit('input', $event)">
+    @accept="$event.waitUntil($emitExtendable('create', {form}))">
     <profile-form
       v-model="form"
       :profile-options="profileOptions"
@@ -26,7 +25,7 @@ export default {
   name: 'AddProfileModal',
   components: {BrQModal, ProfileForm},
   props: {
-    value: {
+    modelValue: {
       type: Boolean,
       required: true
     },
@@ -40,6 +39,16 @@ export default {
       default: () => [],
       required: true
     }
+  },
+  emits: ['create', 'update:modelValue'],
+  setup(props, {emit}) {
+    const show = computed({
+      get: () => props.modelValue,
+      set: emit('update:modelValue', value)
+    });
+    return {
+      show
+    };
   },
   data() {
     return {

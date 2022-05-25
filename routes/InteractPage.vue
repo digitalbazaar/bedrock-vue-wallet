@@ -29,12 +29,11 @@
     <br-q-modal
       v-if="help"
       title="Interact Help"
-      :value="help"
+      v-model="help"
       bottom-separator
       full-width-buttons
       accept-label="Done"
-      @accept="help = false"
-      @input="help = $event">
+      @accept="help = false">
       <div class="column">
         <p class="text-left">
           Interact allows you to digitally interact with a place you are

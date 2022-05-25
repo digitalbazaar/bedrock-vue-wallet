@@ -1,11 +1,10 @@
 <template>
   <br-q-modal
-    :value="value"
+    v-model="show"
     :persistent="persistent"
     title="Edit Access"
     accept-label="Save"
     :disable-accept-button="disableAcceptButton"
-    @input="$emit('input', $event)"
     @accept="$event.waitUntil($emitExtendable('update', {user: form}))">
     <user-form
       v-model="form"
@@ -27,6 +26,10 @@ export default {
   name: 'EditUserModal',
   components: {BrQModal, UserForm},
   props: {
+    modelValue: {
+      type: Boolean,
+      required: true
+    },
     persistent: {
       type: Boolean,
       default: false,
@@ -36,14 +39,16 @@ export default {
       type: Object,
       required: true
     },
-    value: {
-      type: Boolean,
-      required: true
-    }
   },
-  setup() {
+  emits: ['update', 'update:modelValue'],
+  setup(props, {emit}) {
+    const show = computed({
+      get: () => props.modelValue,
+      set: emit('update:modelValue', value)
+    });
     return {
-      $v: useVuelidate()
+      show,
+      vuelidate: useVuelidate()
     };
   },
   data() {
