@@ -22,7 +22,7 @@
           :type="headerType" />
         <div class="full-width">
           <profile-chooser
-            :loading="$asyncComputed.profiles.updating"
+            :loading="profilesUpdating"
             :profiles="profiles"
             :selected="selectedProfile"
             @select="selectedProfileId = $event.profile" />
@@ -69,6 +69,8 @@
 import {
   ageCredentialHelpers, getCredentialStore, helpers, profileManager
 } from '@bedrock/web-wallet';
+import {computed, ref, toRef} from 'vue';
+import {computedAsync} from '@vueuse/core';
 import ProfileChooser from './ProfileChooser.vue';
 import ShareHeader from './ShareHeader.vue';
 import ShareReview from './ShareReview.vue';
@@ -102,40 +104,144 @@ export default {
       default: ''
     }
   },
+  emits: ['share', 'cancel'],
+  setup(props) {
+    const requestOrigin = toRef(props, 'requestOrigin');
+
+    const relyingPartyManifestUpdating = ref(true);
+    const relyingPartyManifest = computedAsync(async () => {
+      try {
+        const {value: origin} = requestOrigin;
+        if(origin) {
+          return await manifestClient.getManifest({origin});
+        }
+      } catch(e) {
+        console.error(e);
+        return undefined;
+      }
+    }, undefined, relyingPartyManifestUpdating);
+
+    const icon = computedAsync(async () => {
+      const {value: manifest} = relyingPartyManifest;
+      const {value: origin} = requestOrigin;
+      if(!(manifest && origin)) {
+        return '';
+      }
+      const icon = await manifestClient.getManifestIcon({
+        size: 48, manifest, origin
+      });
+      return icon ? icon.src : '';
+    }, '');
+
+    const profilesUpdating = ref(true);
+    const profiles = computedAsync(async () => {
+      try {
+        return await profileManager.getProfiles({useCache: true});
+      } catch(e) {
+        // TODO: Properly handle error. Retry fetching profiles or set a flag
+        // that notifies wallet account holder that they cannot continue.
+        console.error(e);
+      }
+      return [];
+    }, [], profilesUpdating);
+
+    const query = toRef(props, 'query');
+
+    const credentialQuery = computed(() => {
+      const type = 'QueryByExample';
+      if(!query.value) {
+        return {};
+      }
+      if(Array.isArray(query.value)) {
+        // FIXME: This does not support multiple credential queries
+        const [first] = query.value.filter(q => q.type === type);
+        if(!first) {
+          return {};
+        }
+        return first;
+      }
+      const {type} = query.value;
+      if(type === 'DIDAuth' || type === 'QueryByExample') {
+        return query.value;
+      }
+      // unrecognized query
+      return {};
+    });
+
+    const selectedProfileId = ref();
+
+    const selectedProfile = computed(() => {
+      if(!profiles.value) {
+        return undefined;
+      }
+      if(selectedProfileId.value === undefined) {
+        // default to first profile, ok to be undefined if zero profiles
+        return profiles.value[0];
+      }
+      return profiles.value.find(p => p.id === selectedProfileId.value);
+    });
+
+    const verifiableCredentialUpdating = ref(true);
+    const verifiableCredential = computedAsync(async () => {
+      if(!(query.value && selectedProfile.value)) {
+        return [];
+      }
+      const {id: profileId} = selectedProfile.value;
+      const {type} = credentialQuery.value;
+      if(type === 'DIDAuth' || type === undefined) {
+        return [];
+      }
+
+      // FIXME: event should be emitted to deal with the query at the page
+
+      // ensures local credentials are made present on the device
+      const credentialStore = await getCredentialStore({
+        // FIXME: determine how password will be provided / set; currently
+        // set to `profileId`
+        // FIXME: this code shouldn't be called in a component anyway
+        profileId, password: profileId
+      });
+      await ensureLocalCredentials({credentialStore});
+
+      const records = await getRecords(
+        {query: credentialQuery.value, profileId});
+      // creates container credentials for display only
+      this.displayableCredentials = await createContainers({records});
+      const credentials = records.map(r => r.content);
+      return credentials;
+    }, [], verifiableCredentialUpdating);
+
+    const sharing = ref(false);
+
+    const loading = computed(() =>
+      verifiableCredentialUpdating.value ||
+      relyingPartyManifestUpdating.value ||
+      profilesUpdating.value ||
+      sharing.value);
+
+    return {
+      credentialQuery,
+      icon,
+      loading,
+      profiles,
+      relyingPartyManifest,
+      selectedProfile,
+      selectedProfileId,
+      sharing,
+      verifiableCredential
+    };
+  },
   data() {
     return {
       presentation: null,
       profiles: undefined,
-      sharing: false,
       loadingProfiles: true,
-      selectedProfileId: undefined,
       displayableCredentials: []
     };
   },
   computed: {
     classObject() {
       return this.selectedProfile ? ['s-page'] : ['s-page-full'];
-    },
-    credentialQuery() {
-      const type = 'QueryByExample';
-      if(!this.query) {
-        return {};
-      }
-      if(Array.isArray(this.query)) {
-        // FIXME: This does not support multiple credential queries
-        const [credentialQuery] = this.query
-          .filter(query => query.type === type);
-        if(!credentialQuery) {
-          return {};
-        }
-        return credentialQuery;
-      }
-      if(this.query.type === 'DIDAuth' ||
-        this.query.type === 'QueryByExample') {
-        return this.query;
-      }
-      // unrecognized query
-      return {};
     },
     // FIXME: This needs to be removed in favor of actually checking a resposne
     // from a vp-request. The current implementation will say we have an empty
@@ -180,91 +286,6 @@ export default {
         return ocapQuery;
       }
       return this.query.type === type ? this.query : {};
-    },
-    selectedProfile() {
-      if(!this.profiles) {
-        return undefined;
-      }
-      if(this.selectedProfileId === undefined) {
-        // default to first profile, ok to be undefined if zero profiles
-        return this.profiles[0];
-      }
-      return this.profiles.find(p => p.id === this.selectedProfileId);
-    },
-    loading() {
-      return this.$asyncComputed.verifiableCredential.updating ||
-        this.$asyncComputed.relyingPartyManifest.updating ||
-        this.$asyncComputed.profiles.updating ||
-        this.sharing;
-    }
-  },
-  asyncComputed: {
-    async icon() {
-      const manifest = this.relyingPartyManifest;
-      const origin = this.requestOrigin;
-      if(!(manifest && origin)) {
-        return '';
-      }
-      const icon = await manifestClient.getManifestIcon({
-        size: 48, manifest, origin
-      });
-      return icon ? icon.src : '';
-    },
-    profiles: {
-      async get() {
-        try {
-          return await profileManager.getProfiles({useCache: true});
-        } catch(e) {
-          // TODO: Properly handle error. Retry fetching profiles or set a flag
-          // that notifies wallet account holder that they cannot continue.
-          console.error(e);
-        }
-      },
-      default() {
-        return [];
-      }
-    },
-    async relyingPartyManifest() {
-      try {
-        if(this.requestOrigin) {
-          return await manifestClient.getManifest({origin: this.requestOrigin});
-        }
-      } catch(e) {
-        console.error(e);
-        return undefined;
-      }
-    },
-    verifiableCredential: {
-      async get() {
-        if(!(this.query && this.selectedProfile)) {
-          return [];
-        }
-        const query = this.credentialQuery;
-        const {id: profileId} = this.selectedProfile;
-        if(query.type === 'DIDAuth' || query.type === undefined) {
-          return [];
-        }
-
-        // FIXME: event should be emitted to deal with the query at the page
-
-        // ensures local credentials are made present on the device
-        const credentialStore = await getCredentialStore({
-          // FIXME: determine how password will be provided / set; currently
-          // set to `profileId`
-          // FIXME: this code shouldn't be called in a component anyway
-          profileId, password: profileId
-        });
-        await ensureLocalCredentials({credentialStore});
-
-        const records = await getRecords({query, profileId});
-        // creates container credentials for display only
-        this.displayableCredentials = await createContainers({records});
-        const credentials = records.map(r => r.content);
-        return credentials;
-      },
-      default() {
-        return [];
-      }
     }
   },
   methods: {

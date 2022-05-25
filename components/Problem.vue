@@ -84,6 +84,7 @@ export default {
       default: true
     }
   },
+  emits: ['cancel'],
   data() {
     return {
       expanded: false

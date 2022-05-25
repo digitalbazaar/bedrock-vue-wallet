@@ -8,7 +8,7 @@
       :disable="loading"
       :label="loading ? 'Loading...' : 'Select a profile'"
       class="s-profile-select text-subtitle1"
-      @input="selectProfile">
+      @update:model-value="selectProfile">
       <template #prepend>
         <q-icon
           v-if="loading"
@@ -67,6 +67,7 @@ export default {
       required: false
     }
   },
+  emits: ['select'],
   data() {
     return {
       slide: 1

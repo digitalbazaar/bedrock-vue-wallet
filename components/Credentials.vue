@@ -78,6 +78,7 @@ export default {
       required: true
     }
   },
+  emits: ['filtered-credentials-loading', 'filtered-profiles'],
   data() {
     return {
       sortIcon: 'fas fa-sort-down',

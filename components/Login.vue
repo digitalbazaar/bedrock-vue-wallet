@@ -216,6 +216,7 @@ const {openFirstPartyWindow} = helpers;
 export default {
   name: 'Login',
   components: {CodeInput, BrQTitleCard},
+  emits: ['login', 'register', 'next'],
   setup() {
     return {
       vuelidate: useVuelidate()

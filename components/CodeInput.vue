@@ -12,7 +12,7 @@
     label="Code"
     autofocus
     bottom-slots
-    @input="handleInput"
+    @update:model-value="handleInput"
     @blur="vuelidate.code.$touch" />
 </template>
 
@@ -53,6 +53,7 @@ export default {
       vuelidate: useVuelidate()
     };
   },
+  emits: ['code', 'invalid'],
   data() {
     return {
       code: ''
