@@ -12,17 +12,14 @@
     </div>
     <q-dialog
       v-model="card"
-      :maximized="$q.screen.lt.sm"
-      @before-hide="handleClose({currentCard, currentCardProfile})">
+      :maximized="$q.screen.lt.sm">
       <q-card>
         <credential-card-detail
           :credential="currentCard.credential"
           :schema="currentCard.schema"
           :profile="currentCardProfile"
           :modal="true"
-          @delete="deleteCredential"
-          @presentation-view="handlePresentationView({
-            currentCard, currentCardProfile})">
+          @delete="deleteCredential">
           <template #qrcode>
             <div
               v-if="currentCard.credential.credentialSubject.qr.url"
@@ -51,8 +48,6 @@ import {
   CredentialCardDetail,
   CredentialCard
 } from '@bedrock/vue-credential-card';
-import {emitExtendable} from '@digitalbazaar/vue-extendable-event';
-import {rootData} from '../lib/rootData.js';
 
 const {generateQrCodeDataUrl, reissue} = ageCredentialHelpers;
 
@@ -98,28 +93,16 @@ export default {
       });
       const {id: profileId} = this.currentCardProfile;
 
-      // FIXME: simply emit `delete` extendable event instead
-      // emitExtendable('delete', {...});
-
-      // FIXME: this should be parameterized and/or use events, only pages
-      // should interact with lower level application code
-      const credentialStore = await getCredentialStore({
-        // FIXME: determine how password will be provided / set; currently
-        // set to `profileId`
-        // FIXME: this code shouldn't be called in a component anyway
-        profileId, password: profileId
-      });
       try {
-        // delete credential
-        await credentialStore.delete({id});
-        // FIXME: emit `delete` event instead
-        // start updating the latest set of credentials on screen
-        rootData.updateCredentials = true;
+        await this.$emitExtendable('delete', {profileId, credentialId: id});
+
         // provide user feedback denoting success
         this.$q.notify({
           type: 'positive',
           message: 'Credential successfully deleted.'
         });
+
+        this.card = false;
       } catch(e) {
         console.error('Delete credential error:', e);
         this.$q.notify({
@@ -161,33 +144,6 @@ export default {
         this.$q.loading.hide();
       }
     },
-    async handleClose({currentCard, currentCardProfile}) {
-      // FIXME: this emit an event to be handled by the page that uses this
-      // component; it should not be handled here
-      if(currentCard.credential.type
-        .includes('AgeVerificationContainerCredential')) {
-        const credentialId = currentCard.credential.id;
-        const profileId = currentCardProfile.id;
-        try {
-          const credentialStore = await getCredentialStore({
-            // FIXME: determine how password will be provided / set; currently
-            // set to `profileId`
-            // FIXME: this code shouldn't be called in a component anyway
-            profileId, password: profileId
-          });
-          await credentialStore.local.get({id: credentialId});
-        } catch(e) {
-          // If AgeVerificationContainerCredential was not found in local
-          // storage, then a refresh of the credential list is done in the
-          // wallet to load the newly created local
-          // AgeVerificationContainerCredential for the user.
-          if(e.name === 'NotFoundError') {
-            rootData.updateCredentials = true;
-            return;
-          }
-        }
-      }
-    },
     async getCardData(credentialRecord) {
       return {
         credential: await this.displayCredential(credentialRecord),
@@ -202,22 +158,6 @@ export default {
         credential = await createBundledCredential({credentialRecord});
       }
       return credential;
-    },
-    async handlePresentationView({currentCard, currentCardProfile}) {
-      // FIXME: should be parameterized and not determined by a component
-      if(currentCard.credential.type
-        .includes('AgeVerificationContainerCredential')) {
-        // handles deletion of tokens for age credential
-        const credentialId = currentCard.credential.credentialSubject.qr.id;
-        const profileId = currentCardProfile.id;
-        const credentialStore = await getCredentialStore({
-          // FIXME: determine how password will be provided / set; currently
-          // set to `profileId`
-          // FIXME: this code shouldn't be called in a component anyway
-          profileId, password: profileId
-        });
-        await credentialStore.local.delete({id: credentialId, force: true});
-      }
     }
   }
 };

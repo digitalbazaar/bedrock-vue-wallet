@@ -34,7 +34,8 @@
             :no-results="noResults"
             :search="search"
             :loading="loading"
-            :error-text="errorText" />
+            :error-text="errorText"
+            @delete-credential="$event.waitUntil(deleteCredential($event))" />
         </template>
       </br-q-title-card>
     </div>
@@ -47,6 +48,7 @@
  */
 import {BrQTitleCard} from '@bedrock/quasar-components';
 import {computed, ref, toRef, watch} from 'vue';
+import {createEmitExtendable} from '@digitalbazaar/vue-extendable-event';
 import CredentialsList from './CredentialsList.vue';
 import SearchBox from './SearchBox.vue';
 
@@ -78,7 +80,11 @@ export default {
       required: true
     }
   },
-  emits: ['filtered-credentials-loading', 'filtered-profiles'],
+  emits: [
+    'delete-credential',
+    'filtered-credentials-loading',
+    'filtered-profiles'
+  ],
   setup(props, {emit}) {
     const credentials = toRef(props, 'credentials');
     const search = ref('');
@@ -98,26 +104,26 @@ export default {
 
     const noResults = computed(() => filteredCredentials.value.length === 0);
 
+    const emitExtendable = createEmitExtendable();
+
+    const deleteCredential = async ({profileId, credentialId}) => {
+      // pass event up component chain
+      return emitExtendable('delete-credential', {profileId, credentialId});
+    };
+
+    const filteredProfiles = ref([]);
+    watch(
+      () => filteredProfiles,
+      () => emit('filtered-profiles', filteredProfiles),
+      {immediate: true});
+
     return {
+      deleteCredential,
       filteredCredentials,
+      filteredProfiles,
       noResults,
       search
     };
-  },
-  data() {
-    return {
-      sortIcon: 'fas fa-sort-down',
-      filteredProfiles: []
-    };
-  },
-  watch: {
-    filteredProfiles() {
-      this.$emit('filtered-profiles', this.filteredProfiles);
-    }
-  },
-  created() {
-    // FIXME: why is this being emitted? remove?
-    this.$emit('filtered-profiles', this.filteredProfiles);
   }
 };
 </script>

@@ -5,6 +5,7 @@
       :profiles="profiles"
       :loading="loading"
       :error-text="errorText"
+      @delete-credential="$event.waitUntil(deleteCredential($event))"
       @filtered-profiles="filteredProfiles = $event"
       @filtered-credentials-loading="loadingFilteredCredentials = $event" />
   </div>
@@ -100,14 +101,23 @@ export default {
       }
     };
 
+    const deleteCredential = async ({profileId, credentialId}) => {
+      const credentialStore = await getCredentialStore({
+        // FIXME: determine how password will be provided / set; currently
+        // set to `profileId`
+        profileId, password: profileId
+      });
+
+      // delete credential
+      await credentialStore.delete({id: credentialId});
+
+      // success, reload credentials
+      await getCredentials();
+    };
+
     watch(
       () => shownProfiles.value,
       () => getCredentials());
-
-    // FIXME: remove this once `delete` event is used instead
-    /*watch(
-      () => rootData.updateCredentials,
-      value => value && getCredentials());*/
 
     const loading = computed(() =>
       loadingFilteredCredentials.value ||
@@ -116,6 +126,7 @@ export default {
 
     return {
       credentials,
+      deleteCredential,
       errorText,
       filteredProfiles,
       loading,

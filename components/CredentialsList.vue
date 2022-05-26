@@ -43,7 +43,8 @@
               :credential-record="credentialRecord"
               :schema-map="schemaMap"
               :profile="profile"
-              :profile-options="profileOptions" />
+              :profile-options="profileOptions"
+              @delete="$event.waitUntil(deleteCredential($event))" />
           </div>
         </div>
       </div>
@@ -120,6 +121,7 @@ export default {
       required: false
     }
   },
+  emits: ['delete-credential'],
   data() {
     return {
       schemaMap: {}
@@ -147,6 +149,11 @@ export default {
     // component appears should handle this event
     toHomePage() {
       this.$router.push({path: '/'});
+    },
+    async deleteCredential({profileId, credentialId}) {
+      // pass event up component chain
+      return this.$emitExtendable(
+        'delete-credential', {profileId, credentialId});
     }
   }
 };
