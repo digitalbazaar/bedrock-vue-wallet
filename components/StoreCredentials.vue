@@ -117,7 +117,7 @@ export default {
       const holder = this.selectedProfileId || this.holder;
       const profile = this.profiles.find(p => p.id === holder);
       if(!profile) {
-        // TODO: add hueristics for selecting the best profile as a default
+        // TODO: add heuristics for selecting the best profile as a default
         for(const vc of this.verifiableCredential) {
           if(vc.credentialSubject && vc.credentialSubject.id) {
             const match = this.profiles.find(
