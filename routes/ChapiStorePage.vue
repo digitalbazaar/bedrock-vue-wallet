@@ -66,6 +66,7 @@ import Problem from '../components/Problem.vue';
 import {receiveCredentialEvent} from 'web-credential-handler';
 import Register from '../components/Register.vue';
 import StoreCredentials from '../components/StoreCredentials.vue';
+import {toRaw} from 'vue';
 
 const {prettify} = helpers;
 
@@ -134,9 +135,8 @@ export default {
       return;
     } finally {
       this.loading = false;
-      // TODO: implement
       event.respondWith(new Promise((resolve, reject) => {
-        self._store = () => resolve({
+        self._store = ({presentation}) => resolve({
           dataType: 'VerifiablePresentation',
           data: presentation
         });
@@ -155,6 +155,9 @@ export default {
       this.registering = false;
     },
     async store({holder, verifiableCredential}) {
+      holder = toRaw(holder);
+      verifiableCredential = toRaw(verifiableCredential);
+
       this.loading = true;
       try {
         if(!this.presentation) {
@@ -168,7 +171,11 @@ export default {
         });
         await credentialStore.add({credentials: verifiableCredential});
 
-        this._store();
+        const presentation = {
+          ...toRaw(this.presentation),
+          verifiableCredential
+        };
+        this._store({presentation});
       } catch(e) {
         if(e.name === 'DuplicateError') {
           this.$q.notify({
