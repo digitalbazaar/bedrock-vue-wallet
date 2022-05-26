@@ -63,7 +63,6 @@ export default {
     const loadingCredentials = ref(true);
 
     const getCredentials = async () => {
-      console.log('getting credentials');
       try {
         loadingCredentials.value = true;
         // FIXME: do not get ALL of a user's credentials when they load
