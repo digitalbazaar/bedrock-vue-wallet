@@ -32,7 +32,7 @@
     <br-q-table
       row-key="id"
       :columns="columns"
-      :data="profilesList"
+      :rows="profilesList"
       :loading="loading"
       @handleButton="handleButton($event)" />
     <add-profile-modal

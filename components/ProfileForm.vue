@@ -128,8 +128,6 @@ export default {
     modelValue: {
       managingProfile: {
         required: requiredIf(function() {
-          console.log('this', this);
-          console.log('this.modelValue', this.modelValue);
           return this.modelValue.profile.shared;
         })
       },
