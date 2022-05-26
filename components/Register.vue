@@ -187,7 +187,7 @@ export default {
   },
   watch: {
     async email(value) {
-      if(!value || !email(value)) {
+      if(!value || !email.$validator(value)) {
         // not a valid email, do not bother checking for uniqueness
         this.isEmailUnique = true;
         this.checkingEmail = false;
@@ -223,10 +223,7 @@ export default {
   },
   validations: {
     ctrl: {
-      email: {
-        required,
-        email
-      }
+      email: {required, email}
     },
     name: {
       required,
