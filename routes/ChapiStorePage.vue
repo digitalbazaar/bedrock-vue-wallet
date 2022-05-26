@@ -138,7 +138,7 @@ export default {
       event.respondWith(new Promise((resolve, reject) => {
         self._store = () => resolve({
           dataType: 'VerifiablePresentation',
-          data: self.presentation
+          data: presentation
         });
         self._cancel = () => resolve(null);
         self._error = err => reject(err);

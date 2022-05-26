@@ -18,7 +18,6 @@
         <q-item
           class="row items-center"
           v-bind="scope.itemProps"
-          v-on="scope.itemEvents"
           @click="selectProfile(scope.opt)">
           <q-icon
             :name="getIcon(scope.opt)"

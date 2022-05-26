@@ -100,7 +100,8 @@ export default {
       async () => profileManager.getProfiles({useCache: true}),
       [], profilesUpdating);
     return {
-      profiles
+      profiles,
+      profilesUpdating
     };
   },
   data() {
