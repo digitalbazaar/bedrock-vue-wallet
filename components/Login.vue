@@ -299,10 +299,7 @@ export default {
   },
   validations: {
     ctrl: {
-      email: {required, email},
-      // FIXME
-      //challenge: {required, minLength: minLength(8)}
-      //token: {required, minLength: minLength(11), maxLength: maxLength(11)}
+      email: {required, email}
     }
   },
   methods: {
