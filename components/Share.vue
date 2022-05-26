@@ -69,7 +69,7 @@
 import {
   ageCredentialHelpers, getCredentialStore, helpers, profileManager
 } from '@bedrock/web-wallet';
-import {computed, ref, toRef} from 'vue';
+import {computed, ref, toRaw, toRef} from 'vue';
 import {computedAsync} from '@vueuse/core';
 import ProfileChooser from './ProfileChooser.vue';
 import ShareHeader from './ShareHeader.vue';
@@ -180,6 +180,8 @@ export default {
       return profiles.value.find(p => p.id === selectedProfileId.value);
     });
 
+    const displayableCredentials = ref([]);
+
     const verifiableCredentialUpdating = ref(true);
     const verifiableCredential = computedAsync(async () => {
       if(!(query.value && selectedProfile.value)) {
@@ -205,7 +207,7 @@ export default {
       const records = await getRecords(
         {query: credentialQuery.value, profileId});
       // creates container credentials for display only
-      this.displayableCredentials = await createContainers({records});
+      displayableCredentials.value = await createContainers({records});
       const credentials = records.map(r => r.content);
       return credentials;
     }, [], verifiableCredentialUpdating);
@@ -220,6 +222,7 @@ export default {
 
     return {
       credentialQuery,
+      displayableCredentials,
       icon,
       loading,
       profiles,
@@ -233,8 +236,7 @@ export default {
   },
   data() {
     return {
-      presentation: null,
-      displayableCredentials: []
+      presentation: null
     };
   },
   computed: {
@@ -306,7 +308,7 @@ export default {
           holder: this.selectedProfile.id
         };
         if(verifiableCredential.length > 0) {
-          presentation.verifiableCredential = verifiableCredential;
+          presentation.verifiableCredential = toRaw(verifiableCredential);
         }
         const capabilities = await this.generateCapabilities();
         // Presentations with out capabilities will result

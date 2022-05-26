@@ -66,6 +66,7 @@ import {receiveCredentialEvent} from 'web-credential-handler';
 import Register from '../components/Register.vue';
 import {session} from '@bedrock/web-session';
 import Share from '../components/Share.vue';
+import {toRaw} from 'vue';
 
 const {prettify} = helpers;
 
@@ -141,10 +142,10 @@ export default {
     this.requestOrigin = event.credentialRequestOrigin;
     this.query = query || {};
     event.respondWith(new Promise((resolve, reject) => {
-      this._share = () => {
+      this._share = ({presentation}) => {
         resolve({
           dataType: 'VerifiablePresentation',
-          data: this.presentation
+          data: presentation
         });
       };
       this._cancel = () => resolve(null);
@@ -190,7 +191,9 @@ export default {
       this.registering = false;
     },
     async share(presentation) {
+      presentation = toRaw(presentation);
       const {holder, type} = presentation;
+      let signedPresentation;
       if(type === 'VerifiablePresentation') {
         const {
           // FIXME: Throw error if challenge not provided
@@ -198,13 +201,13 @@ export default {
           domain,
           acceptedProofTypes
         } = this;
-        const signedPresentation = await presentations.sign({
+        signedPresentation = await presentations.sign({
           challenge, domain, presentation, profileId: holder,
           acceptedProofTypes
         });
         this.presentation = signedPresentation;
       } else { // FIXME: Remove this branch of code for mock presentation
-        this.presentation = {
+        this.presentation = signedPresentation = {
           ...presentation,
           proof: {
             type: 'Ed25519Signature2020',
@@ -217,7 +220,7 @@ export default {
           }
         };
       }
-      this._share();
+      this._share({presentation: signedPresentation});
     },
     cancel(error) {
       if(error) {
