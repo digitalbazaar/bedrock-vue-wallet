@@ -1,14 +1,12 @@
 <template>
   <q-layout
-    v-show="!loadingSession"
     view="hHh LpR fFf"
     class="s-page">
     <q-header
-      v-if="!chapi && !loading"
+      v-if="!chapi"
       class="shadow-3">
       <wallet-header
         :account="account"
-        :loading-account="loadingAccount"
         :logout="logout"
         :toggle-drawer="toggleDrawer" />
     </q-header>
@@ -18,13 +16,9 @@
         v-model="showDrawer"
         class="lt-md"
         side="left">
-        <drawer
-          :account="account"
-          :loading-account="loadingAccount" />
+        <drawer :account="account" />
       </q-drawer>
-      <router-view
-        v-if="!loading"
-        :account="account" />
+      <router-view :account="account" />
     </q-page-container>
 
     <q-footer />
@@ -36,12 +30,12 @@
  * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
  */
 import {AccountService} from '@bedrock/web-account';
+import {computed} from 'vue';
 import {config} from '@bedrock/web';
 import Drawer from './Drawer.vue';
 import {installHandler} from 'web-credential-handler';
-import {rootData} from '../lib/rootData.js';
-import {session} from '@bedrock/web-session';
 import {TokenService} from '@bedrock/web-authn-token';
+import {session, sessionDataRef} from '../lib/session.js';
 import WalletHeader from './WalletHeader.vue';
 
 export default {
@@ -50,30 +44,23 @@ export default {
     Drawer,
     WalletHeader
   },
+  setup() {
+    const account = computed(() => {
+      return sessionDataRef.value?.account?.id ?? '';
+    });
+
+    return {
+      account
+    };
+  },
   data() {
     return {
-      loadingSession: true,
-      loadingAccount: true,
-      showDrawer: false,
-      rootData: null,
-      session: null
+      showDrawer: false
     };
   },
   computed: {
-    account() {
-      if(this.hasSessionAccount) {
-        return this.session.data.account.id;
-      }
-      return '';
-    },
     chapi() {
       return this.$route.meta.chapi;
-    },
-    hasSessionAccount() {
-      return !!((this.session || {}).data || {}).account;
-    },
-    loading() {
-      return this.loadingSession || this.loadingAccount;
     },
     displayDrawer() {
       return this.$q.screen.lt.md;
@@ -86,6 +73,8 @@ export default {
       }
     },
     async account(newVal) {
+      // FIXME: move this code into vanilla Web app layer (out of Vue layer)
+
       // if not in CHAPI and the user logs in, ensure the credential handler
       // gets installed
       const accountId = newVal;
@@ -118,39 +107,13 @@ export default {
     this._accountService = new AccountService();
     this._tokenService = new TokenService();
   },
-  async created() {
-    this.rootData = rootData;
-    await this.initializeSession();
-  },
   methods: {
     async cleanup() {
       this.showDrawer = false;
-      this.loadingSession = false;
-      this.loadingAccount = false;
-    },
-    async initializeSession() {
-      try {
-        this.loadingSession = true;
-        this.session = session;
-      } catch(e) {
-        const message =
-          'An error has occured. Please refresh the page to try again.';
-        this.$q.notify({
-          type: 'negative',
-          timeout: 0,
-          message,
-          actions: [{icon: 'fa fa-times', color: 'white'}]
-        });
-      } finally {
-        // ensures that loading always get sets to false, if not the
-        // site will fail to display
-        this.loadingSession = false;
-        this.loadingAccount = false;
-      }
     },
     async logout() {
       this.cleanup();
-      await this.session.end();
+      await session.end();
       if(this.$route.path !== '/') {
         this.$router.push({path: '/'});
       }
