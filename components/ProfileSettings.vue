@@ -124,7 +124,7 @@ export default {
 </script>
 
 <style scoped>
-.readonly >>> .q-field--outlined.q-field--readonly .q-field__control:before {
+.readonly :deep(.q-field--outlined.q-field--readonly .q-field__control:before) {
   border-style: solid;
 }
 </style>
