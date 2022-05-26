@@ -135,12 +135,11 @@ export default {
       return this.credentials;
     },
     showViewMore() {
-      return this.credentials && this.credentials.length > this.limit &&
-        this.limit > 0;
+      return this.credentials?.length > this.limit && this.limit > 0;
     },
     showNoCredentials() {
-      return !(this.credentials && this.credentials.length > 0) &&
-        !this.loading;
+      return !this.credentials?.length > 0 &&
+        !this.loading && this.search.length === 0;
     }
   },
   methods: {
