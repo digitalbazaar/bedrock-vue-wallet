@@ -33,7 +33,7 @@
     <br-q-table
       row-key="id"
       :columns="columns"
-      :data="searchFilter"
+      :rows="searchFilter"
       :loading="loading"
       @handleButton="handleButton($event)" />
     <!-- Modals -->
