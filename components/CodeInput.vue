@@ -12,7 +12,6 @@
     label="Code"
     autofocus
     bottom-slots
-    @update:model-value="handleInput"
     @blur="vuelidate.code.$touch" />
 </template>
 
@@ -20,6 +19,7 @@
 /*!
  * Copyright (c) 2018-2022 Digital Bazaar, Inc. All rights reserved.
  */
+import {computed, ref, watch} from 'vue';
 import {required, minLength, maxLength} from '@vuelidate/validators';
 import useVuelidate from '@vuelidate/core';
 
@@ -48,38 +48,41 @@ export default {
       default: Infinity
     }
   },
-  setup() {
+  setup(props, {emit}) {
+    const vuelidate = useVuelidate();
+
+    watch(
+      () => vuelidate.value?.code?.$invalid,
+      invalid => emit('invalid', {invalid}),
+      {immediate: true});
+
+    // FIXME: use `v-model` instead
+    const code = ref('');
+    watch(
+      () => code.value,
+      code => emit('code', {code}));
+
+    const errorMessage = computed(() => {
+      const {value: {code}} = vuelidate;
+      if(code.required.$invalid) {
+        return 'A code is required.';
+      }
+      if(code.minLength.$invalid) {
+        return `The code must have at least ${props.minLength} digits.`;
+      }
+      if(code.maxLength.$invalid) {
+        return `The code must have fewer than ${props.maxLength} digits.`;
+      }
+      return 'The code you entered is not correct.';
+    });
+
     return {
-      vuelidate: useVuelidate()
+      code,
+      errorMessage,
+      vuelidate
     };
   },
   emits: ['code', 'invalid'],
-  data() {
-    return {
-      code: ''
-    };
-  },
-  computed: {
-    errorMessage() {
-      if(!this.vuelidate.code.required) {
-        return 'A code is required.';
-      }
-      if(this.minLength === this.maxLength &&
-        (!this.vuelidate.code.minLength || !this.vuelidate.code.maxLength)) {
-        return `The code must be ${this.minLength} digits.`;
-      }
-      if(!this.vuelidate.code.minLength) {
-        return `The code must be at least ${this.minLength} digits.`;
-      }
-      if(!this.vuelidate.code.maxLength) {
-        return `The code must be less than ${this.maxLength} digits.`;
-      }
-      return 'The code you entered is not correct.';
-    }
-  },
-  async created() {
-    await this.emitInvalid(this.vuelidate.code.$invalid);
-  },
   validations() {
     return {
       code: {
@@ -88,15 +91,6 @@ export default {
         maxLength: maxLength(this.maxLength)
       }
     };
-  },
-  methods: {
-    async handleInput() {
-      await this.$emitExtendable('code', {code: this.code});
-      await this.emitInvalid(this.vuelidate.code.$invalid);
-    },
-    async emitInvalid(invalid) {
-      await this.$emitExtendable('invalid', {invalid});
-    }
   }
 };
 </script>

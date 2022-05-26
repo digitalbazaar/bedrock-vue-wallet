@@ -147,7 +147,7 @@ export default {
   emits: ['login', 'register'],
   setup() {
     return {
-      v$: useVuelidate()
+      vuelidate: useVuelidate()
     };
   },
   data() {
