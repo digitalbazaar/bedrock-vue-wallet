@@ -1,5 +1,13 @@
 # bedrock-vue-wallet ChangeLog
 
+## 10.2.0 - 2022-xx-xx
+
+### Added
+- Flattened VC embedded into the credential for more UI flexibility.
+
+### Fixed
+- Broken credential display due to not passing in a schema map.
+
 ## 10.1.1 - 2022-05-26
 
 ### Fixed
