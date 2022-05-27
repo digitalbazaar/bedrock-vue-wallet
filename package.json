@@ -13,8 +13,8 @@
     "randomcolor": "^0.6.2"
   },
   "peerDependencies": {
-    "@bedrock/quasar": "^6.0.0",
-    "@bedrock/vue-credential-card": "^4.0.0",
+    "@bedrock/quasar": "^8.0.1",
+    "@bedrock/vue-credential-card": "^5.0.0",
     "@bedrock/web-fontawesome": "^2.0.0",
     "@bedrock/web-wallet": "^7.1.0",
     "@digitalbazaar/vue-extendable-event": "^4.1.0",
