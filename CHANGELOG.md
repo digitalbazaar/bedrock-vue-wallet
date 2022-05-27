@@ -1,10 +1,16 @@
 # bedrock-vue-wallet ChangeLog
 
+## 10.0.1 - 2022-05-xx
+
+### Fixed
+- Remove erroneous and old Vue 2 async computed plugin.
+
 ## 10.0.0 - 2022-05-26
 
 ### Changed
 - **BREAKING**: Require Quasar 2 and Vue 3.
 - **BREAKING**: Require `@bedrock/quasar@8` and `@bedrock/vue@4`.
+- **BREAKING**: Use `@vueuse/core` for computed async properties.
 
 ## 9.1.0 - 2022-05-17
 
