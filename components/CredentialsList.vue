@@ -65,6 +65,7 @@
  */
 import CredentialCardBundle from './CredentialCardBundle.vue';
 import CredentialCompactBundle from './CredentialCompactBundle.vue';
+import flatten from 'flat';
 
 export default {
   name: 'CredentialsList',
@@ -128,10 +129,24 @@ export default {
   emits: ['delete-credential'],
   computed: {
     credentialsList() {
+      const credentials = this.credentials.map(credential => {
+        // allow access to all fields in a flat structure for a, credential card
+        // displayer. note that this duplicates data, thus incurring a 2x
+        // penalty in space per credential. In the future, an api that
+        // translates dot notation i.e. 'credentialSubject.address.zipCode'
+        // to the path found in the JS Object at execution time would be
+        // desirable.
+        const flattenedVc = {___vc___: flatten(credential)};
+        credential.credentialSubject = {
+          ...flatten(flattenedVc),
+          ...credential.credentialSubject
+        }
+        return credential;
+      });
       if(this.limit > 0) {
-        return this.credentials.slice(0, this.limit);
+        return credentials.slice(0, this.limit);
       }
-      return this.credentials;
+      return credentials;
     },
     showViewMore() {
       return this.credentials?.length > this.limit && this.limit > 0;
