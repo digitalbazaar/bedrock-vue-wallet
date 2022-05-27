@@ -35,6 +35,7 @@
             :search="search"
             :loading="loading"
             :error-text="errorText"
+            :schema-map="schemaMap"
             @delete-credential="$event.waitUntil(deleteCredential($event))" />
         </template>
       </br-q-title-card>
@@ -77,6 +78,10 @@ export default {
     errorText: {
       default: '',
       type: String,
+      required: true
+    },
+    schemaMap: {
+      type: Object,
       required: true
     }
   },

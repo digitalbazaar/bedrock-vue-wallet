@@ -1,7 +1,7 @@
 <template>
   <div v-if="compact">
     <credential-compact-bundle
-      :credentials="credentials"
+      :credentials="credentialsList"
       :schema-map="schemaMap"
       :store="store" />
   </div>
@@ -119,14 +119,13 @@ export default {
       default: '',
       type: String,
       required: false
+    },
+    schemaMap: {
+      type: Object,
+      required: true
     }
   },
   emits: ['delete-credential'],
-  data() {
-    return {
-      schemaMap: {}
-    };
-  },
   computed: {
     credentialsList() {
       if(this.limit > 0) {
