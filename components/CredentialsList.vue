@@ -118,12 +118,11 @@ export default {
       default: '',
       type: String,
       required: false
+    },
+    schemaMap: {
+      type: Object,
+      required: true
     }
-  },
-  data() {
-    return {
-      schemaMap: {}
-    };
   },
   computed: {
     credentialsList() {
