@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 10.0.0 - 2022-05-xx
+## 10.0.0 - 2022-05-26
 
 ### Changed
 - **BREAKING**: Require Quasar 2 and Vue 3.
