@@ -30,6 +30,7 @@
             :store="true"
             :loading="loading"
             :credentials="verifiableCredential"
+            :schema-map="rootData.schemaMap"
             :selected-profile-id="selectedProfileId" />
         </div>
       </div>
@@ -65,6 +66,7 @@
 import CredentialsList from './CredentialsList.vue';
 import {profileManager} from '@bedrock/web-wallet';
 import ProfileChooser from './ProfileChooser.vue';
+import {rootData} from '../lib/rootData.js';
 
 export default {
   name: 'StoreCredentials',
@@ -93,8 +95,12 @@ export default {
   },
   data() {
     return {
+      rootData: undefined,
       selectedProfileId: undefined
     };
+  },
+  created() {
+    this.rootData = rootData;
   },
   computed: {
     selectedProfile() {

@@ -5,6 +5,7 @@
       :profiles="profiles"
       :loading="loading"
       :error-text="errorText"
+      :schema-map="rootData.schemaMap"
       @filtered-profiles="filteredProfiles = $event"
       @filtered-credentials-loading="loadingFilteredCredentials = $event" />
   </div>

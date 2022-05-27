@@ -1,7 +1,7 @@
 <template>
   <div v-if="compact">
     <credential-compact-bundle
-      :credentials="credentials"
+      :credentials="credentialsList"
       :schema-map="schemaMap"
       :store="store" />
   </div>

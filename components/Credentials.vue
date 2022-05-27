@@ -35,7 +35,8 @@
             :no-results="noResults"
             :search="search"
             :loading="loading"
-            :error-text="errorText" />
+            :error-text="errorText"
+            :schema-map="schemaMap" />
         </div>
       </br-q-title-card>
     </div>
@@ -75,6 +76,10 @@ export default {
     errorText: {
       default: '',
       type: String,
+      required: true
+    },
+    schemaMap: {
+      type: Object,
       required: true
     }
   },
