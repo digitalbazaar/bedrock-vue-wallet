@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 10.0.1 - 2022-05-xx
+## 10.0.1 - 2022-05-26
 
 ### Fixed
 - Remove erroneous and old Vue 2 async computed plugin.
