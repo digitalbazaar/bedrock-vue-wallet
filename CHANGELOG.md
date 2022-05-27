@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 10.1.1 - 2022-05-xx
+## 10.1.1 - 2022-05-26
 
 ### Fixed
 - Handle case where session is undefined early.
