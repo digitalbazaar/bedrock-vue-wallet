@@ -1,5 +1,10 @@
 # bedrock-vue-wallet ChangeLog
 
+## 10.1.0 - 2022-05-xx
+
+### Added
+- Export `session` and `sessionDataRef`.
+
 ## 10.0.1 - 2022-05-26
 
 ### Fixed
