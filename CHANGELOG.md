@@ -1,5 +1,14 @@
 # bedrock-vue-wallet ChangeLog
 
+## 11.0.0 - 2022-05-xx
+
+### Changed
+- **BREAKING**: Do not automatically set authentication requirements when
+  an account is registered via `Register.vue`. This version of the module
+  should be combined with `@bedrock/authn-token@10.2` and a bedrock
+  configuration that sets the default authentication methods for new
+  accounts (to avoid the extra HTTP call to set them).
+
 ## 10.1.1 - 2022-05-26
 
 ### Fixed
