@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 11.0.0 - 2022-05-xx
+## 11.0.0 - 2022-05-28
 
 ### Changed
 - **BREAKING**: Do not automatically set authentication requirements when
