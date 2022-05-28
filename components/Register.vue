@@ -260,16 +260,7 @@ export default {
         await session.end();
 
         // create new account
-        const account = await this._ctrl.register();
-
-        // setup new account to require nonce based login
-        await this._tokenService.setAuthenticationRequirements({
-          account: account.id,
-          requiredAuthenticationMethods: [
-            'token-client-registration',
-            'login-email-challenge'
-          ]
-        });
+        await this._ctrl.register();
 
         // update session to get auto-login info for new account
         await session.refresh();
