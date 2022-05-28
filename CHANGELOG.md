@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 11.0.1 - 2022-05-xx
+## 11.0.1 - 2022-05-28
 
 ### Fixed
 - Remove obsolete `next` param from route guards.
