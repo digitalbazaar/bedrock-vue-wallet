@@ -1,5 +1,11 @@
 # bedrock-vue-wallet ChangeLog
 
+## 12.0.0 - 2022-05-xx
+
+### Changed
+- **BREAKING**: Update peer deps:
+  - Use `@bedrock/web-wallet@8`.
+
 ## 11.0.1 - 2022-05-28
 
 ### Fixed
