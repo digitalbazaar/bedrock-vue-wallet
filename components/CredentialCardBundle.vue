@@ -1,37 +1,55 @@
 <template>
   <div>
-    <div>
-      <credential-card
-        class="cursor-pointer"
+    <q-card>
+      <credential-switch
+        class="q-ma-xs"
         :credential="credentialRecord.credential"
-        :color="getColor(credentialRecord.meta.holder)"
-        :schema="schemaMap[credentialRecord.credential.type[1]] || {}"
-        :field-quantity="0"
-        :clickable="true"
-        @click="expandCredential(credentialRecord)" />
-    </div>
-    <q-dialog
-      v-model="card"
-      :maximized="$q.screen.lt.sm">
-      <q-card>
-        <credential-card-detail
-          :credential="currentCard.credential"
-          :schema="currentCard.schema"
-          :profile="currentCardProfile"
-          :modal="true"
-          @delete="deleteCredential">
-          <template #qrcode>
-            <div
-              v-if="currentCard.credential.credentialSubject.qr.url"
-              class="row justify-center q-pb-sm q-px-md">
-              <img
-                :src="currentCard.credential.credentialSubject.qr.url"
-                style="border: 1px solid #222">
+        :clickable="true">
+        <template #modalHeader>
+          <q-card-section class="q-pa-sm text-center s-card-title">
+            <div class="row">
+              <div class="col-2">
+                <div class="float-left">
+                  <q-btn
+                    flat
+                    round
+                    size="sm"
+                    color="negative"
+                    icon="far fa-trash-alt"
+                    @click.prevent="openDeleteConfirmationModal = true" />
+                </div>
+              </div>
+              <div class="col-8 q-my-auto">
+                Credential Details
+              </div>
+              <div class="col-2">
+                <div class="float-right">
+                  <q-btn
+                    v-close-popup
+                    flat
+                    round
+                    size="sm"
+                    color="black"
+                    icon="fas fa-times" />
+                </div>
+              </div>
             </div>
-          </template>
-        </credential-card-detail>
-      </q-card>
-    </q-dialog>
+          </q-card-section>
+          <q-separator />
+        </template>
+        <template #modalFooter>
+          <q-separator />
+          <q-card-section class="text-center sticky-bottom q-pa-sm">
+            <div class="text-caption text-grey-7">
+              Issued for
+            </div>
+            <div class="text-body2">
+              {{getProfile(credentialRecord.meta.holder).name}}
+            </div>
+          </q-card-section>
+        </template>
+      </credential-switch>
+    </q-card>
   </div>
 </template>
 
@@ -45,8 +63,7 @@ import {
   getCredentialStore
 } from '@bedrock/web-wallet';
 import {
-  CredentialCardDetail,
-  CredentialCard
+  CredentialSwitch
 } from '@bedrock/vue-credential-card';
 
 const {generateQrCodeDataUrl, reissue} = ageCredentialHelpers;
@@ -54,8 +71,7 @@ const {generateQrCodeDataUrl, reissue} = ageCredentialHelpers;
 export default {
   name: 'CredentialsList',
   components: {
-    CredentialCardDetail,
-    CredentialCard
+    CredentialSwitch
   },
   props: {
     credentialRecord: {
