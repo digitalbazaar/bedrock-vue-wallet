@@ -61,29 +61,11 @@
               </q-btn>
             </q-toolbar>
             <q-card-section>
-              <h4>Terms of Service</h4>
-              <p>These are the terms of service.</p>
-              <p>These are the terms of service.</p>
-              <p>These are the terms of service.</p>
-              <p>These are the terms of service.</p>
-              <p>These are the terms of service.</p>
-              <p>These are the terms of service.</p>
-              <p>These are the terms of service.</p>
-              <p>These are the terms of service.</p>
-              <p>These are the terms of service.</p>
-              <p>These are the terms of service.</p>
-              <p>These are the terms of service.</p>
-              <p>These are the terms of service.</p>
-              <p>These are the terms of service.</p>
-              <p>These are the terms of service.</p>
-              <p>These are the terms of service.</p>
-              <p>These are the terms of service.</p>
-              <p>These are the terms of service.</p>
-              <p>These are the terms of service.</p>
-              <p>These are the terms of service.</p>
-              <p>These are the terms of service.</p>
-              <p>These are the terms of service.</p>
-              <p>These are the terms of service.</p>
+              <p
+                v-for="(line, index) in tos"
+                :key="index">
+                {{line}}
+              </p>
             </q-card-section>
           </q-card>
         </q-dialog>
@@ -125,6 +107,7 @@
  */
 import {AccountService, RegisterController} from '@bedrock/web-account';
 import {BrQTitleCard} from '@bedrock/quasar-components';
+import {config} from '@bedrock/web';
 import {helpers} from '@bedrock/web-wallet';
 import {randomColor} from 'randomcolor';
 import {required, email, minLength} from '@vuelidate/validators';
@@ -183,6 +166,13 @@ export default {
     },
     maximizeModal() {
       return this.$q.screen.lt.md;
+    },
+    tos() {
+      const {vueWallet: {terms}} = config;
+      if(terms.length === 0) {
+        return ['These are the terms of service.'];
+      }
+      return terms.split(/\r\n|\r|\n/);
     }
   },
   watch: {
