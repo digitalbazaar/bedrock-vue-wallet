@@ -16,7 +16,7 @@
                     size="sm"
                     color="negative"
                     icon="far fa-trash-alt"
-                    @click.prevent="openDeleteConfirmationModal = true" />
+                    @click="deleteCredential" />
                 </div>
               </div>
               <div class="col-8 q-my-auto">
