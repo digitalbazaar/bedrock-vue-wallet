@@ -16,7 +16,7 @@
                     size="sm"
                     color="negative"
                     icon="far fa-trash-alt"
-                    @click="deleteCredential" />
+                    @click="deleteCredential(credentialRecord)" />
                 </div>
               </div>
               <div class="col-8 q-my-auto">
@@ -102,15 +102,23 @@ export default {
     };
   },
   methods: {
-    async deleteCredential(id) {
+    async deleteCredential(credentialRecord) {
       this.$q.loading.show({
         delay: 300,
         message: 'Deleting your credential...'
       });
-      const {id: profileId} = this.currentCardProfile;
-
       try {
-        await this.$emitExtendable('delete', {profileId, credentialId: id});
+        this.currentCard = await this.getCardData(credentialRecord);
+        this.currentCardProfile = this.getProfile(credentialRecord.meta.holder);
+        this.card = true;
+      } catch(e) {
+        if(e.response.status !== 404) {
+          console.error(e); // log unexpected error
+        }
+      }
+      const {id: profileId} = this.currentCardProfile;
+      try {
+        await this.$emitExtendable('delete', {profileId, credentialId: credentialRecord.credential.id});
 
         // provide user feedback denoting success
         this.$q.notify({
