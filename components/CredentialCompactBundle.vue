@@ -5,9 +5,10 @@
         v-for="credential in filteredCredentials"
         :key="credential.id"
         class="q-my-none row s-card-list">
-        <credential-card-list
-          :credential="credential"
-          :schema="schemaMap[credential.type[1]] || {}" />
+        <credential-switch
+          class="q-ma-xs"
+          :dense="true"
+          :credential="credential" />
       </div>
     </div>
   </div>
@@ -18,13 +19,15 @@
  * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
  */
 import {computedAsync} from '@vueuse/core';
-import {CredentialCardList} from '@bedrock/vue-credential-card';
+import {
+  CredentialSwitch
+} from '@bedrock/vue-credential-card';
 import {toRef} from 'vue';
 
 export default {
   name: 'CredentialsList',
   components: {
-    CredentialCardList,
+    CredentialSwitch,
   },
   props: {
     credentials: {
