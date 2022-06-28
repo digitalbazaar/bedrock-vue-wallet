@@ -1,15 +1,14 @@
 <template>
   <div>
-    <div>
-      <div
-        v-for="credential in filteredCredentials"
-        :key="credential.id"
-        class="q-my-none row s-card-list">
-        <credential-switch
-          class="q-ma-xs"
-          :dense="true"
-          :credential="credential" />
-      </div>
+    <div
+      v-for="credential in filteredCredentials"
+      :key="credential.id"
+      style="max-width: 400px"
+      class="q-my-sm q-gutter-y-sm column">
+      <credential-switch
+        class="q-ma-xs col"
+        :expandable="true"
+        :credential="credential" />
     </div>
   </div>
 </template>
