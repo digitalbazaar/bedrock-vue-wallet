@@ -168,7 +168,7 @@ export default {
       return this.$q.screen.lt.md;
     },
     tos() {
-      const {vueWallet: {terms}} = config;
+      const {vueWallet: {terms = ''}} = config;
       if(terms.length === 0) {
         return ['These are the terms of service.'];
       }
