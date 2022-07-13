@@ -118,7 +118,9 @@ export default {
       }
       const {id: profileId} = this.currentCardProfile;
       try {
-        await this.$emitExtendable('delete', {profileId, credentialId: credentialRecord.credential.id});
+        await this.$emitExtendable('delete', {
+          profileId, credentialId: credentialRecord.credential.id
+        });
 
         // provide user feedback denoting success
         this.$q.notify({
