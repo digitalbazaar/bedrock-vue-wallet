@@ -170,7 +170,7 @@ export default {
     tos() {
       const {vueWallet: {terms = ''}} = config;
       if(terms.length === 0) {
-        return ['These are the terms of service.'];
+        return ['Please contact us for the terms of service.'];
       }
       return terms.split(/\r\n|\r|\n/);
     }
