@@ -1,5 +1,12 @@
 # bedrock-vue-wallet ChangeLog
 
+## 13.0.0 - 2022-xx-xx
+
+### Changed
+- **BREAKING**: Switch to using generic credential display functionality
+  through the `credential-switch` component. See `@bedrock/vue-vc` for more
+  information on the `credential-switch` component.
+
 ## 12.0.0 - 2022-05-30
 
 ### Changed
