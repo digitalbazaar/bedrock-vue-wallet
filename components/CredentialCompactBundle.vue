@@ -20,7 +20,7 @@
 import {computedAsync} from '@vueuse/core';
 import {
   CredentialSwitch
-} from '@bedrock/vue-credential-card';
+} from '@bedrock/vue-vc';
 import {toRef} from 'vue';
 
 export default {
