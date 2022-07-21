@@ -64,7 +64,7 @@ import {
 } from '@bedrock/web-wallet';
 import {
   CredentialSwitch
-} from '@bedrock/vue-credential-card';
+} from '@bedrock/vue-vc';
 
 const {generateQrCodeDataUrl, reissue} = ageCredentialHelpers;
 

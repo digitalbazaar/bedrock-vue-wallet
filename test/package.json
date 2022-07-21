@@ -19,7 +19,7 @@
     "@bedrock/server": "^5.0.0",
     "@bedrock/test": "^8.0.0",
     "@bedrock/vue": "^4.0.0",
-    "@bedrock/vue-credential-card": "^5.0.0",
+    "@bedrock/vue-vc": "^1.0.0",
     "@bedrock/vue-wallet": "file:..",
     "@bedrock/web": "^2.0.1",
     "@bedrock/web-account": "^3.0.2",
