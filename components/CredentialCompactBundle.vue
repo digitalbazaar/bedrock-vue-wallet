@@ -29,6 +29,8 @@ export default {
     CredentialSwitch,
   },
   props: {
+    // FIXME: without passing full credential records, credentials without
+    // IDs may not be rendered properly by this component
     credentials: {
       default: () => [],
       type: Array,

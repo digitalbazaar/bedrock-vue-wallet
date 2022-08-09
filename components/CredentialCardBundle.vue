@@ -119,7 +119,9 @@ export default {
       const {id: profileId} = this.currentCardProfile;
       try {
         await this.$emitExtendable('delete', {
-          profileId, credentialId: credentialRecord.credential.id
+          profileId,
+          credentialId: credentialRecord.credential.id ??
+            credentialRecord.meta.id
         });
 
         // provide user feedback denoting success
@@ -205,11 +207,11 @@ async function createBundledCredential({credentialRecord}) {
     // FIXME: it also re-fetches the container credential because its
     // original EDV doc has not been preserved / passed through
     const {allSubDocuments} = await credentialStore.local.getBundle({
-      id: credential.id
+      id: credential.id ?? credentialRecord.meta.id
     });
     credential.credentialSubject = await createAgeCredential({
       bundledCredentials: allSubDocuments.map(d => d.content),
-      credentialId: credential.id,
+      credentialId: credential.id ?? credentialRecord.meta.id,
       credentialStore
     });
   }
