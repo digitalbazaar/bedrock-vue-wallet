@@ -37,7 +37,7 @@
           class="row q-gutter-md justify-center">
           <div
             v-for="credentialRecord in credentialsList"
-            :key="credentialRecord.credential.id"
+            :key="credentialRecord.credential.id ?? credentialRecord.meta.id"
             class="row">
             <credential-card-bundle
               style="max-width: 300px;"
