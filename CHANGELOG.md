@@ -2,7 +2,7 @@
 
 ## 13.1.0 - 2022-08-xx
 
-### Changed
+### Added
 - Add partial support for rendering credentials without an `id` property.
 
 ## 13.0.0 - 2022-08-08
