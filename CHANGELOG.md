@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 13.1.0 - 2022-08-xx
+## 13.1.0 - 2022-08-12
 
 ### Added
 - Add partial support for rendering credentials without an `id` property.
