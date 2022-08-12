@@ -5,6 +5,10 @@
 ### Added
 - Add partial support for rendering credentials without an `id` property.
 
+### Changed
+- Require `@bedrock/web-wallet@8.2` to support credentials without an
+  `id` property.
+
 ## 13.0.0 - 2022-08-08
 
 ### Changed
