@@ -1,8 +1,8 @@
 <template>
   <div>
     <div
-      v-for="credential in filteredCredentials"
-      :key="credential.id"
+      v-for="(credential, index) in filteredCredentials"
+      :key="index"
       style="max-width: 400px"
       class="q-my-sm q-gutter-y-sm column">
       <credential-switch
@@ -18,9 +18,7 @@
  * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
  */
 import {computedAsync} from '@vueuse/core';
-import {
-  CredentialSwitch
-} from '@bedrock/vue-vc';
+import {CredentialSwitch} from '@bedrock/vue-vc';
 import {toRef} from 'vue';
 
 export default {
@@ -29,8 +27,9 @@ export default {
     CredentialSwitch,
   },
   props: {
-    // FIXME: without passing full credential records, credentials without
-    // IDs may not be rendered properly by this component
+    // FIXME: ideally the full credential record would be passed to this
+    // component in the future to enable access to `meta.id` for credentials
+    // that do not have a direct `id` property
     credentials: {
       default: () => [],
       type: Array,
