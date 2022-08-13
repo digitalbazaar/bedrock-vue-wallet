@@ -1,5 +1,10 @@
 # bedrock-vue-wallet ChangeLog
 
+## 14.0.0 - 2022-08-xx
+
+### Changed
+- **BREAKING**: Require `@vueuse/core@9` peer dependency.
+
 ## 13.1.0 - 2022-08-12
 
 ### Added
