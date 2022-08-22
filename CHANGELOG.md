@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 15.0.0 - 2022-08-xx
+## 15.0.0 - 2022-08-22
 
 ### Changed
 - **BREAKING**: Update peer deps:
