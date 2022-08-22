@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 15.0.2 - 2022-08-xx
+## 15.0.2 - 2022-08-22
 
 ### Fixed
 - Ensure components and routes are exported.
