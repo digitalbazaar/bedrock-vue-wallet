@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 15.0.1 - 2022-08-xx
+## 15.0.1 - 2022-08-22
 
 ### Fixed
 - Use `exports` in `package.json`.
