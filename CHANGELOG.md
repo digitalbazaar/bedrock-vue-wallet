@@ -1,5 +1,13 @@
 # bedrock-vue-wallet ChangeLog
 
+## 15.0.0 - 2022-08-xx
+
+### Changed
+- **BREAKING**: Update peer deps:
+  - `@bedrock/quasar@9`
+  - `@bedrock/vc-vue@2`
+  - `@bedrock/web-wallet@9`.
+
 ## 14.0.0 - 2022-08-13
 
 ### Changed
