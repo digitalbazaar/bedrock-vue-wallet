@@ -53,7 +53,7 @@
           class="g-button"
           no-caps
           color="primary"
-          :disable="loading || (emptyResponse && query.type !== 'DIDAuth')"
+          :disable="loading || (emptyResponse && query.type !== 'DIDAuthenticate')"
           :loading="loading"
           :label="headerType === 'authentication' ? 'Authenticate' : 'Share'"
           @click="share()" />
@@ -160,7 +160,7 @@ export default {
         return first;
       }
       const {type} = query.value;
-      if(type === 'DIDAuth' || type === 'QueryByExample') {
+      if(type === 'DIDAuthenticate' || type === 'QueryByExample') {
         return query.value;
       }
       // unrecognized query
@@ -189,7 +189,7 @@ export default {
       }
       const {id: profileId} = selectedProfile.value;
       const {type} = credentialQuery.value;
-      if(type === 'DIDAuth' || type === undefined) {
+      if(type === 'DIDAuthenticate' || type === undefined) {
         return [];
       }
 
@@ -245,8 +245,8 @@ export default {
     },
     // FIXME: This needs to be removed in favor of actually checking a resposne
     // from a vp-request. The current implementation will say we have an empty
-    // response in the case of DIDAuth which is okay. There may be other vp-reqs
-    // that don't require vcs or zcaps to be successful.
+    // response in the case of DIDAuthenticate which is okay. There may be 
+    // other vp-reqs that don't require vcs or zcaps to be successful.
     emptyResponse() {
       const vcs = this.verifiableCredential;
       const zcaps = this.capabilityQuery;
@@ -257,7 +257,7 @@ export default {
       return `${this.requestOrigin}/favicon.ico`;
     },
     headerType() {
-      return (this.query && this.query.type === 'DIDAuth') ?
+      return (this.query && this.query.type === 'DIDAuthenticate') ?
         'authentication' : 'query';
     },
     image() {
