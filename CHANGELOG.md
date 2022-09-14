@@ -1,9 +1,9 @@
 # bedrock-vue-wallet ChangeLog
 
-## 15.1.2 - 2022-09-xx
+## 15.1.0 - 2022-09-xx
 
 ### Added
-- Add minimal support for `DIDAuthentication` queries. Exisiting `DIDAuth`
+- Add minimal support for `DIDAuthentication` queries. Existing `DIDAuth`
   queries were unaffected.
 
 ## 15.0.2 - 2022-08-22
