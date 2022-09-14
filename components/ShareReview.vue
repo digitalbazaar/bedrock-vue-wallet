@@ -23,7 +23,7 @@
     </div>
     <div v-else>
       <q-card
-        v-if="type !== 'DIDAuthentication'"
+        v-if="type !== 'DIDAuthentication' && type !== 'DIDAuth'"
         class="my-card"
         flat>
         <q-card-section horizontal>

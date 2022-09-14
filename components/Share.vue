@@ -53,7 +53,7 @@
           class="g-button"
           no-caps
           color="primary"
-          :disable="loading || (emptyResponse && query.type !== 'DIDAuthentication')"
+          :disable="loading || (emptyResponse && headerType !== 'authentication')"
           :loading="loading"
           :label="headerType === 'authentication' ? 'Authenticate' : 'Share'"
           @click="share()" />
@@ -160,7 +160,8 @@ export default {
         return first;
       }
       const {type} = query.value;
-      if(type === 'DIDAuthentication' || type === 'QueryByExample') {
+      if(type === 'DIDAuthentication' || type === 'DIDAuth' ||
+        type === 'QueryByExample') {
         return query.value;
       }
       // unrecognized query
@@ -189,7 +190,8 @@ export default {
       }
       const {id: profileId} = selectedProfile.value;
       const {type} = credentialQuery.value;
-      if(type === 'DIDAuthentication' || type === undefined) {
+      if(type === 'DIDAuthentication' || type === 'DIDAuth' ||
+        type === undefined) {
         return [];
       }
 
@@ -257,8 +259,8 @@ export default {
       return `${this.requestOrigin}/favicon.ico`;
     },
     headerType() {
-      return (this.query && this.query.type === 'DIDAuthentication') ?
-        'authentication' : 'query';
+      return (this.query && (this.query.type === 'DIDAuthentication' ||
+        this.query.type === 'DIDAuth')) ? 'authentication' : 'query';
     },
     image() {
       return this.icon || this.favicon;
