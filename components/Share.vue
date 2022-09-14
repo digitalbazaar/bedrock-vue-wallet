@@ -53,7 +53,7 @@
           class="g-button"
           no-caps
           color="primary"
-          :disable="loading || (emptyResponse && query.type !== 'DIDAuthenticate')"
+          :disable="loading || (emptyResponse && query.type !== 'DIDAuthentication')"
           :loading="loading"
           :label="headerType === 'authentication' ? 'Authenticate' : 'Share'"
           @click="share()" />
@@ -160,7 +160,7 @@ export default {
         return first;
       }
       const {type} = query.value;
-      if(type === 'DIDAuthenticate' || type === 'QueryByExample') {
+      if(type === 'DIDAuthentication' || type === 'QueryByExample') {
         return query.value;
       }
       // unrecognized query
@@ -189,7 +189,7 @@ export default {
       }
       const {id: profileId} = selectedProfile.value;
       const {type} = credentialQuery.value;
-      if(type === 'DIDAuthenticate' || type === undefined) {
+      if(type === 'DIDAuthentication' || type === undefined) {
         return [];
       }
 
@@ -245,7 +245,7 @@ export default {
     },
     // FIXME: This needs to be removed in favor of actually checking a resposne
     // from a vp-request. The current implementation will say we have an empty
-    // response in the case of DIDAuthenticate which is okay. There may be 
+    // response in the case of DIDAuthentication which is okay. There may be 
     // other vp-reqs that don't require vcs or zcaps to be successful.
     emptyResponse() {
       const vcs = this.verifiableCredential;
@@ -257,7 +257,7 @@ export default {
       return `${this.requestOrigin}/favicon.ico`;
     },
     headerType() {
-      return (this.query && this.query.type === 'DIDAuthenticate') ?
+      return (this.query && this.query.type === 'DIDAuthentication') ?
         'authentication' : 'query';
     },
     image() {
