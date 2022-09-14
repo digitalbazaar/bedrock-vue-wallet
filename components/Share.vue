@@ -53,7 +53,9 @@
           class="g-button"
           no-caps
           color="primary"
-          :disable="loading || (emptyResponse && headerType !== 'authentication')"
+          :disable="
+            loading || (emptyResponse && headerType !== 'authentication')
+          "
           :loading="loading"
           :label="headerType === 'authentication' ? 'Authenticate' : 'Share'"
           @click="share()" />
@@ -247,7 +249,7 @@ export default {
     },
     // FIXME: This needs to be removed in favor of actually checking a resposne
     // from a vp-request. The current implementation will say we have an empty
-    // response in the case of DIDAuthentication which is okay. There may be 
+    // response in the case of DIDAuthentication which is okay. There may be
     // other vp-reqs that don't require vcs or zcaps to be successful.
     emptyResponse() {
       const vcs = this.verifiableCredential;
