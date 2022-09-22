@@ -13,7 +13,9 @@
         <span v-if="type === 'query'">
           would like some information from you.
         </span>
-        <span v-else>would like you to authenticate.</span>
+        <span v-else>
+          would like you to authenticate.
+        </span>
       </h6>
     </div>
   </div>
