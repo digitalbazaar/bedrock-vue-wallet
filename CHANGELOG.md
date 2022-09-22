@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 15.1.1 - 2022-09-xx
+## 15.1.1 - 2022-09-22
 
 ### Fixed
 - Fix share view text.
