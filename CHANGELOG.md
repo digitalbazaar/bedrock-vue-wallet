@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 16.0.0 - 2022-11-dd
+## 16.0.0 - 2022-11-13
 
 ### Changed
 - **BREAKING**: Use `@bedrock/web-wallet@10` to get better default safe
