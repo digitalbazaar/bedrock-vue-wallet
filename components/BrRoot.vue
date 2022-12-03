@@ -39,7 +39,7 @@ import {session, sessionDataRef} from '../lib/session.js';
 import WalletHeader from './WalletHeader.vue';
 
 export default {
-  name: 'BrRoot',
+  name: 'WalletLayout',
   components: {
     Drawer,
     WalletHeader
