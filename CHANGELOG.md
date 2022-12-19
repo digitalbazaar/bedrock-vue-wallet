@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 17.0.2 - 2022-12-dd
+## 17.0.2 - 2022-12-19
 
 ### Fixed
 - Do not call obsolete `hints` API on credential handler polyfill.
