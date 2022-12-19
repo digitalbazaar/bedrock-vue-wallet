@@ -5,6 +5,8 @@
 ### Changed
 - **BREAKING**: Rename `BrRoot` component to `WalletLayout`.
 - **BREAKING**: Require node >= 16.
+- **BREAKING**: Use `@digitalbazaar/web-app-manifest-utils@2` which
+  is now an ESM module.
 
 ## 16.0.0 - 2022-11-13
 
