@@ -4,6 +4,7 @@
 
 ### Changed
 - **BREAKING**: Rename `BrRoot` component to `WalletLayout`.
+- **BREAKING**: Require node >= 16.
 
 ## 16.0.0 - 2022-11-13
 
