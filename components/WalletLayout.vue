@@ -80,14 +80,8 @@ export default {
       const accountId = newVal;
       if(!this.$route.meta.chapi && accountId) {
         try {
-          // install credential handler and add a hint for this account
-          const registration = await installHandler(
-            {url: '/credential-handler'});
-          await registration.credentialManager.hints.set(
-            accountId, {
-              name: config.vueWallet.branding.shortName,
-              enabledTypes: ['VerifiablePresentation']
-            });
+          // install credential handler
+          await installHandler({url: '/credential-handler'});
         } catch(e) {
           // eslint-disable-line no-console
           console.error('CHAPI register error:', e);
