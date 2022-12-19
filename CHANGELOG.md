@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 17.0.0 - 2022-12-dd
+## 17.0.0 - 2022-12-19
 
 ### Changed
 - **BREAKING**: Rename `BrRoot` component to `WalletLayout`.
