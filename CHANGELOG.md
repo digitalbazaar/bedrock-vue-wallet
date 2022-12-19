@@ -1,5 +1,10 @@
 # bedrock-vue-wallet ChangeLog
 
+## 17.0.1 - 2022-12-dd
+
+### Fixed
+- Fix `BrRoot.vue` component file name (changed to `WalletLayout.vue`).
+
 ## 17.0.0 - 2022-12-19
 
 ### Changed
