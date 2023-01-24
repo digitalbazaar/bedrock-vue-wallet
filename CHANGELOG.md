@@ -1,5 +1,14 @@
 # bedrock-vue-wallet ChangeLog
 
+## 18.0.0 - 2023-01-dd
+
+### Changed
+- **BREAKING**: Update peer deps:
+  - `@bedrock/web-wallet@11`.
+  - This change requires `@bedrock/account@9` as an indirect peer dependency,
+    which includes database layout and record format changes that are
+    incompatible with previous releases.
+
 ## 17.0.2 - 2022-12-19
 
 ### Fixed
