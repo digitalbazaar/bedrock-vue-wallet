@@ -5,10 +5,14 @@
       :key="index"
       style="max-width: 400px"
       class="q-my-sm q-gutter-y-sm column">
-      <credential-switch
-        class="q-ma-xs col"
-        :expandable="true"
-        :credential="credential" />
+      <q-checkbox
+        v-model="filteredCredentials"
+        val="credential">
+        <credential-switch
+          class="q-ma-xs col"
+          :expandable="true"
+          :credential="credential" />
+      </q-checkbox>
     </div>
   </div>
 </template>
