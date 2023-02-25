@@ -6,8 +6,8 @@
       style="max-width: 400px"
       class="q-my-sm q-gutter-y-sm column">
       <q-checkbox
-        v-model="filteredCredentials"
-        val="credential">
+        v-model="selected"
+        val="credential.id">
         <credential-switch
           class="q-ma-xs col"
           :expandable="true"
@@ -21,9 +21,9 @@
 /*!
  * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
  */
+import {reactive, toRef} from 'vue';
 import {computedAsync} from '@vueuse/core';
 import {CredentialSwitch} from '@bedrock/vue-vc';
-import {toRef} from 'vue';
 
 export default {
   name: 'CredentialsList',
@@ -58,6 +58,7 @@ export default {
       return createCompactBundledCredentials({credentials: credentials.value});
     }, []);
     return {
+      selected: reactive(props.credentials.map(vc => vc.id)),
       filteredCredentials
     };
   }
