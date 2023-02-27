@@ -5,14 +5,12 @@
       :key="index"
       style="max-width: 400px"
       class="q-my-sm q-gutter-y-sm column">
-      <q-checkbox
-        v-model="selected"
-        val="credential.id">
+      <credential-select>
         <credential-switch
           class="q-ma-xs col"
           :expandable="true"
           :credential="credential" />
-      </q-checkbox>
+      </credential-select>
     </div>
   </div>
 </template>
@@ -21,13 +19,15 @@
 /*!
  * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
  */
-import {reactive, toRef} from 'vue';
 import {computedAsync} from '@vueuse/core';
+import CredentialSelect from './CredentialSelect.vue';
 import {CredentialSwitch} from '@bedrock/vue-vc';
+import {toRef} from 'vue';
 
 export default {
   name: 'CredentialsList',
   components: {
+    CredentialSelect,
     CredentialSwitch,
   },
   props: {
@@ -58,10 +58,10 @@ export default {
       return createCompactBundledCredentials({credentials: credentials.value});
     }, []);
     return {
-      selected: reactive(props.credentials.map(vc => vc.id)),
+      selectedCredentials: new Set(props.credentials.map(vc => vc.id)),
       filteredCredentials
     };
-  }
+  },
 };
 
 // FIXME: refactor and use config
