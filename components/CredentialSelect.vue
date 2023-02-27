@@ -1,21 +1,35 @@
 <template>
   <q-checkbox
-    val="true"
+    :val="id"
+    :model-value="selections"
     @click="toggleSelect(id)">
     <slot />
   </q-checkbox>
 </template>
 
 <script>
+import {toRaw} from 'vue';
+
 export default {
   name: 'CredentialSelect',
+  props: {
+    selections: {
+      required: true,
+      type: Array
+    },
+    id: {
+      required: true,
+      type: String
+    }
+  },
   methods: {
     toggleSelect(id) {
-      if(this.selected.has(id)) {
-        this.selected.delete(id);
+      const selections = new Set(toRaw(this.selections));
+      if(selections.has(id)) {
+        this.$emit('selectVc', {remove: id});
         return;
       }
-      this.selected.add(id);
+      this.$emit('selectVc', {select: id});
     }
   }
 };

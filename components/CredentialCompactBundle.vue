@@ -5,7 +5,10 @@
       :key="index"
       style="max-width: 400px"
       class="q-my-sm q-gutter-y-sm column">
-      <credential-select>
+      <credential-select
+        :id="credential.id"
+        :selections="selectedCredentials"
+        @selectVc="handleSelect">
         <credential-switch
           class="q-ma-xs col"
           :expandable="true"
@@ -22,7 +25,7 @@
 import {computedAsync} from '@vueuse/core';
 import CredentialSelect from './CredentialSelect.vue';
 import {CredentialSwitch} from '@bedrock/vue-vc';
-import {toRef} from 'vue';
+import {ref, toRef} from 'vue';
 
 export default {
   name: 'CredentialsList',
@@ -58,10 +61,16 @@ export default {
       return createCompactBundledCredentials({credentials: credentials.value});
     }, []);
     return {
-      selectedCredentials: new Set(props.credentials.map(vc => vc.id)),
+      selectedCredentials: ref(props.credentials.map(vc => vc.id)),
       filteredCredentials
     };
   },
+  methods: {
+    handleSelect(action) {
+      console.log('select action', action);
+      console.log('selectedCredentials', this.selectedCredentials);
+    }
+  }
 };
 
 // FIXME: refactor and use config
