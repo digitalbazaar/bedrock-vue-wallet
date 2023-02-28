@@ -146,6 +146,10 @@ export default {
         !this.loading && this.search.length === 0;
     }
   },
+  created() {
+    // all VCs are selected by default
+    this.selectedCredentials = this.credentialsList.map(vc => vc.id);
+  },
   methods: {
     // FIXME: this should be emitting an event; it should not require
     // knowledge of how the routes are setup -- the top-level page this
