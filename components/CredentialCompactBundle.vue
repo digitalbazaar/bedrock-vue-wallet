@@ -8,7 +8,7 @@
       <credential-select
         :id="credential.id"
         :selections="selectedCredentials"
-        @selectVc="handleSelect">
+        @update-selections="handleSelect">
         <credential-switch
           class="q-ma-xs col"
           :expandable="true"
@@ -66,9 +66,8 @@ export default {
     };
   },
   methods: {
-    handleSelect(action) {
-      console.log('select action', action);
-      console.log('selectedCredentials', this.selectedCredentials);
+    handleSelect({selections}) {
+      this.selectedCredentials = [...selections];
     }
   }
 };
