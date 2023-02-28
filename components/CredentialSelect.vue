@@ -22,6 +22,7 @@ export default {
       type: String
     }
   },
+  emits: ['update-selections'],
   methods: {
     toggleSelect(id) {
       const selections = new Set(toRaw(this.selections));

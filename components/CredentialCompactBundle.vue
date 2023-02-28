@@ -25,7 +25,7 @@
 import {computedAsync} from '@vueuse/core';
 import CredentialSelect from './CredentialSelect.vue';
 import {CredentialSwitch} from '@bedrock/vue-vc';
-import {ref, toRef} from 'vue';
+import {toRef} from 'vue';
 
 export default {
   name: 'CredentialsList',
@@ -42,6 +42,11 @@ export default {
       type: Array,
       required: false
     },
+    selectedCredentials: {
+      default: () => [],
+      type: Array,
+      required: false
+    },
     schemaMap: {
       type: Object,
       required: true
@@ -51,6 +56,7 @@ export default {
       required: true
     }
   },
+  emits: ['update-selections'],
   setup(props) {
     const credentials = toRef(props, 'credentials');
     const store = toRef(props, 'store');
@@ -61,13 +67,12 @@ export default {
       return createCompactBundledCredentials({credentials: credentials.value});
     }, []);
     return {
-      selectedCredentials: ref(props.credentials.map(vc => vc.id)),
       filteredCredentials
     };
   },
   methods: {
     handleSelect({selections}) {
-      this.selectedCredentials = [...selections];
+      this.$emit('update-selections', {selections});
     }
   }
 };
