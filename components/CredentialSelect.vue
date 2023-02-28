@@ -26,10 +26,12 @@ export default {
     toggleSelect(id) {
       const selections = new Set(toRaw(this.selections));
       if(selections.has(id)) {
-        this.$emit('selectVc', {remove: id});
+        selections.delete(id);
+        this.$emit('update-selections', {selections});
         return;
       }
-      this.$emit('selectVc', {select: id});
+      selections.add(id);
+      this.$emit('update-selections', {selections});
     }
   }
 };
