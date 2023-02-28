@@ -3,7 +3,9 @@
     <credential-compact-bundle
       :credentials="credentials"
       :schema-map="schemaMap"
-      :store="store" />
+      :store="store"
+      :selected-credentials="selectedCredentials"
+      @update-selections="handleSelect" />
   </div>
   <div v-else>
     <div
@@ -125,7 +127,8 @@ export default {
   emits: ['delete-credential'],
   data() {
     return {
-      schemaMap: {}
+      schemaMap: {},
+      selectedCredentials: []
     };
   },
   computed: {
@@ -154,6 +157,9 @@ export default {
       // pass event up component chain
       return this.$emitExtendable(
         'delete-credential', {profileId, credentialId});
+    },
+    handleSelect({selections}) {
+      this.selectedCredentials = [...selections];
     }
   }
 };
