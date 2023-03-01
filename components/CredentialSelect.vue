@@ -22,17 +22,17 @@ export default {
       type: String
     }
   },
-  emits: ['update-selections'],
+  emits: ['select-credentials'],
   methods: {
     toggleSelect(id) {
       const selections = new Set(toRaw(this.selections));
       if(selections.has(id)) {
         selections.delete(id);
-        this.$emit('update-selections', {selections});
+        this.$emit('select-credentials', {selections});
         return;
       }
       selections.add(id);
-      this.$emit('update-selections', {selections});
+      this.$emit('select-credentials', {selections});
     }
   }
 };

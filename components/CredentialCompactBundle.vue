@@ -8,7 +8,7 @@
       <credential-select
         :id="credential.id"
         :selections="selectedCredentials"
-        @update-selections="handleSelect">
+        @select-credentials="handleSelect">
         <credential-switch
           class="q-ma-xs col"
           :expandable="true"
@@ -56,7 +56,7 @@ export default {
       required: true
     }
   },
-  emits: ['update-selections'],
+  emits: ['select-credentials'],
   setup(props) {
     const credentials = toRef(props, 'credentials');
     const store = toRef(props, 'store');
@@ -72,7 +72,7 @@ export default {
   },
   methods: {
     handleSelect({selections}) {
-      this.$emit('update-selections', {selections});
+      this.$emit('select-credentials', {selections});
     }
   }
 };
