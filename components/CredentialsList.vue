@@ -5,7 +5,7 @@
       :schema-map="schemaMap"
       :store="store"
       :selected-credentials="selectedCredentials"
-      @update-selections="handleSelect" />
+      @select-credentials="handleSelect" />
   </div>
   <div v-else>
     <div
@@ -124,7 +124,7 @@ export default {
       required: false
     }
   },
-  emits: ['delete-credential'],
+  emits: ['delete-credential', 'select-credentials'],
   data() {
     return {
       schemaMap: {},
@@ -163,7 +163,10 @@ export default {
         'delete-credential', {profileId, credentialId});
     },
     handleSelect({selections}) {
+      // set the view logic
       this.selectedCredentials = [...selections];
+      // pass up to share
+      this.$emit('select-credentials', {selections});
     }
   }
 };
