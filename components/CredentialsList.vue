@@ -3,9 +3,7 @@
     <credential-compact-bundle
       :credentials="credentials"
       :schema-map="schemaMap"
-      :store="store"
-      :selected-credentials="selectedCredentials"
-      @select-credentials="handleSelect" />
+      :store="store" />
   </div>
   <div v-else>
     <div
@@ -124,11 +122,10 @@ export default {
       required: false
     }
   },
-  emits: ['delete-credential', 'select-credentials'],
+  emits: ['delete-credential'],
   data() {
     return {
       schemaMap: {},
-      selectedCredentials: []
     };
   },
   computed: {
@@ -146,10 +143,6 @@ export default {
         !this.loading && this.search.length === 0;
     }
   },
-  created() {
-    // all VCs are selected by default
-    this.selectedCredentials = this.credentialsList.map(vc => vc.id);
-  },
   methods: {
     // FIXME: this should be emitting an event; it should not require
     // knowledge of how the routes are setup -- the top-level page this
@@ -161,12 +154,6 @@ export default {
       // pass event up component chain
       return this.$emitExtendable(
         'delete-credential', {profileId, credentialId});
-    },
-    handleSelect({selections}) {
-      // set the view logic
-      this.selectedCredentials = [...selections];
-      // pass up to share
-      this.$emit('select-credentials', {selections});
     }
   }
 };

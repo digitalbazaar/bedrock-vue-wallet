@@ -5,10 +5,7 @@
       :key="index"
       style="max-width: 400px"
       class="q-my-sm q-gutter-y-sm column">
-      <credential-select
-        :id="credential.id"
-        :selections="selectedCredentials"
-        @select-credentials="handleSelect">
+      <credential-select :id="credential.id">
         <credential-switch
           class="q-ma-xs col"
           :expandable="true"
@@ -42,11 +39,6 @@ export default {
       type: Array,
       required: false
     },
-    selectedCredentials: {
-      default: () => [],
-      type: Array,
-      required: false
-    },
     schemaMap: {
       type: Object,
       required: true
@@ -56,7 +48,6 @@ export default {
       required: true
     }
   },
-  emits: ['select-credentials'],
   setup(props) {
     const credentials = toRef(props, 'credentials');
     const store = toRef(props, 'store');
@@ -69,11 +60,6 @@ export default {
     return {
       filteredCredentials
     };
-  },
-  methods: {
-    handleSelect({selections}) {
-      this.$emit('select-credentials', {selections});
-    }
   }
 };
 

@@ -94,6 +94,13 @@ export default {
     ShareHeader,
     ShareReview
   },
+  provide() {
+    return {
+      selectedCredentials: computed(() => this.selectedCredentials),
+      selectCredential: ({selections}) =>
+        this.selectedCredentials = [...selections]
+    };
+  },
   props: {
     query: {
       type: [Object, Array],
@@ -184,6 +191,7 @@ export default {
     });
 
     const displayableCredentials = ref([]);
+    const selectedCredentials = ref([]);
 
     const verifiableCredentialUpdating = ref(true);
     const verifiableCredential = computedAsync(async () => {
@@ -210,8 +218,10 @@ export default {
 
       const records = await getRecords(
         {query: credentialQuery.value, profileId});
+      const displayContainers = await createContainers({records});
       // creates container credentials for display only
-      displayableCredentials.value = await createContainers({records});
+      displayableCredentials.value = displayContainers;
+      selectedCredentials.value = displayContainers.map(vc => vc.id);
       const credentials = records.map(r => r.content);
       return credentials;
     }, [], verifiableCredentialUpdating);
@@ -227,6 +237,7 @@ export default {
     return {
       credentialQuery,
       displayableCredentials,
+      selectedCredentials,
       icon,
       loading,
       profiles,
