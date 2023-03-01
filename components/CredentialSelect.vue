@@ -1,7 +1,7 @@
 <template>
   <q-checkbox
     :val="id"
-    :model-value="selections"
+    :model-value="selectedCredentials.value"
     @click="toggleSelect(id)">
     <slot />
   </q-checkbox>
@@ -12,27 +12,22 @@ import {toRaw} from 'vue';
 
 export default {
   name: 'CredentialSelect',
+  inject: ['selectedCredentials', 'selectCredential'],
   props: {
-    selections: {
-      required: true,
-      type: Array
-    },
     id: {
       required: true,
       type: String
     }
   },
-  emits: ['select-credentials'],
   methods: {
     toggleSelect(id) {
-      const selections = new Set(toRaw(this.selections));
+      const selections = new Set(toRaw(this.selectedCredentials.value));
       if(selections.has(id)) {
         selections.delete(id);
-        this.$emit('select-credentials', {selections});
-        return;
+        return this.selectCredential({selections});
       }
       selections.add(id);
-      this.$emit('select-credentials', {selections});
+      this.selectCredential({selections});
     }
   }
 };
