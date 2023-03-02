@@ -1,9 +1,15 @@
 <template>
   <div v-if="compact">
-    <credential-compact-bundle
+    <slot
+      name="compact-credentials"
       :credentials="credentials"
       :schema-map="schemaMap"
-      :store="store" />
+      :store="store">
+      <credential-compact-bundle
+        :credentials="credentials"
+        :schema-map="schemaMap"
+        :store="store" />
+    </slot>
   </div>
   <div v-else>
     <div

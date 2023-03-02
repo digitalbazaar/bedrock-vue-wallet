@@ -5,12 +5,14 @@
       :key="index"
       style="max-width: 400px"
       class="q-my-sm q-gutter-y-sm column">
-      <credential-select :id="credential.id">
+      <slot
+        name="credential-switch"
+        :credential="credential">
         <credential-switch
           class="q-ma-xs col"
           :expandable="true"
           :credential="credential" />
-      </credential-select>
+      </slot>
     </div>
   </div>
 </template>
@@ -20,14 +22,12 @@
  * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
  */
 import {computedAsync} from '@vueuse/core';
-import CredentialSelect from './CredentialSelect.vue';
 import {CredentialSwitch} from '@bedrock/vue-vc';
 import {toRef} from 'vue';
 
 export default {
   name: 'CredentialsList',
   components: {
-    CredentialSelect,
     CredentialSwitch,
   },
   props: {
