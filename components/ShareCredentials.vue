@@ -30,7 +30,13 @@
           :request-origin="requestOrigin"
           :type="query.type"
           :style="$q.screen.lt.sm ?
-            'border-bottom: 1px solid rgba(157, 157, 157, 0.75)' : ''" />
+            'border-bottom: 1px solid rgba(157, 157, 157, 0.75)' : ''">
+          <template #credentials-display="displayProps">
+            <credentials-list
+              :compact="true"
+              :credentials="displayProps.credentials" />
+          </template>
+        </share-review>
       </div>
       <div
         class="self-end row justify-between q-py-md q-px-lg"
@@ -68,6 +74,7 @@ import {
 } from '@bedrock/web-wallet';
 import {computed, ref, toRaw, toRef} from 'vue';
 import {computedAsync} from '@vueuse/core';
+import CredentialsList from './CredentialsList.vue';
 import ProfileChooser from './ProfileChooser.vue';
 import ShareReview from './ShareReview.vue';
 
@@ -80,7 +87,11 @@ const {ensureLocalCredentials} = ageCredentialHelpers;
  */
 export default {
   name: 'ShareCredentials',
-  components: {ProfileChooser, ShareReview},
+  components: {
+    CredentialsList,
+    ProfileChooser,
+    ShareReview
+  },
   provide() {
     return {
       selectedCredentials: computed(() => this.selectedCredentials),
