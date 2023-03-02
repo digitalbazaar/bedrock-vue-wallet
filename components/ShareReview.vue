@@ -16,9 +16,13 @@
       </div>
       <q-separator class="s-separator" />
       <div>
-        <credentials-list
-          :compact="true"
-          :credentials="credentials" />
+        <slot
+          name="credentials-display"
+          :credentials="credentials">
+          <credentials-list
+            :compact="true"
+            :credentials="credentials" />
+        </slot>
       </div>
     </div>
     <div v-else>
