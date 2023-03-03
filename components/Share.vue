@@ -352,7 +352,11 @@ export default {
           holder: this.selectedProfile.id
         };
         if(verifiableCredential.length > 0) {
-          presentation.verifiableCredential = toRaw(verifiableCredential);
+          const vcs = toRaw(verifiableCredential);
+          const selections = toRaw(this.selectedCredentials);
+          // only send the VCs selected
+          presentation.verifiableCredential = vcs.filter(
+            vc => selections.includes(vc.id));
         }
         const capabilities = await this.generateCapabilities();
         // Presentations with out capabilities will result
