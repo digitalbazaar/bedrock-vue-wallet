@@ -10,8 +10,8 @@
         :schema-map="schemaMap"
         :store="store">
         <template #credential-switch="switchProps">
-          <credential-select
-            v-if="allowSelection"
+          <component
+            :is="selectableComponent"
             :id="switchProps.credential.id"
             :selected-credentials="selectedCredentials"
             @select-credentials="relaySelection">
@@ -19,12 +19,7 @@
               class="q-ma-xs col"
               :expandable="true"
               :credential="switchProps.credential" />
-          </credential-select>
-          <credential-switch
-            v-else
-            class="q-ma-xs col"
-            :expandable="true"
-            :credential="switchProps.credential" />
+          </component>
         </template>
       </credential-compact-bundle>
     </slot>
@@ -66,13 +61,19 @@
             v-for="credentialRecord in credentialsList"
             :key="credentialRecord.credential.id ?? credentialRecord.meta.id"
             class="row">
-            <credential-card-bundle
-              style="max-width: 300px;"
-              :credential-record="credentialRecord"
-              :schema-map="schemaMap"
-              :profile="profile"
-              :profile-options="profileOptions"
-              @delete="$event.waitUntil(deleteCredential($event))" />
+            <component
+              :is="selectableComponent"
+              :id="switchProps.credential.id"
+              :selected-credentials="selectedCredentials"
+              @select-credentials="relaySelection">
+              <credential-card-bundle
+                style="max-width: 300px;"
+                :credential-record="credentialRecord"
+                :schema-map="schemaMap"
+                :profile="profile"
+                :profile-options="profileOptions"
+                @delete="$event.waitUntil(deleteCredential($event))" />
+            </component>
           </div>
         </div>
       </div>
@@ -183,6 +184,12 @@ export default {
     showNoCredentials() {
       return !this.credentials?.length > 0 &&
         !this.loading && this.search.length === 0;
+    },
+    selectableComponent() {
+      if(this.allowSelection) {
+        return CredentialSelect;
+      }
+      return 'span';
     }
   },
   methods: {
