@@ -8,7 +8,25 @@
       <credential-compact-bundle
         :credentials="credentials"
         :schema-map="schemaMap"
-        :store="store" />
+        :store="store">
+        <template #credential-switch="switchProps">
+          <credential-select
+            v-if="allowSelection"
+            :id="switchProps.credential.id"
+            :selected-credentials="selectedCredentials"
+            @select-credentials="relaySelection">
+            <credential-switch
+              class="q-ma-xs col"
+              :expandable="true"
+              :credential="switchProps.credential" />
+          </credential-select>
+          <credential-switch
+            v-else
+            class="q-ma-xs col"
+            :expandable="true"
+            :credential="switchProps.credential" />
+        </template>
+      </credential-compact-bundle>
     </slot>
     <q-toggle
       v-model="allowSelection"
@@ -75,12 +93,16 @@
  */
 import CredentialCardBundle from './CredentialCardBundle.vue';
 import CredentialCompactBundle from './CredentialCompactBundle.vue';
+import CredentialSelect from './CredentialSelect.vue';
+import {CredentialSwitch} from '@bedrock/vue-vc';
 
 export default {
   name: 'CredentialsList',
   components: {
     CredentialCardBundle,
-    CredentialCompactBundle
+    CredentialCompactBundle,
+    CredentialSelect,
+    CredentialSwitch
   },
   props: {
     credentials: {
@@ -134,6 +156,10 @@ export default {
       default: false,
       type: Boolean,
       required: false
+    },
+    selectedCredentials: {
+      type: Array,
+      default: () => []
     }
   },
   emits: ['delete-credential', 'select-credentials'],

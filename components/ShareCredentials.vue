@@ -34,26 +34,9 @@
           <template #credentials-display="displayProps">
             <credentials-list
               :compact="true"
-              :credentials="displayProps.credentials">
-              <template #compact-credentials="compactProps">
-                <credential-compact-bundle
-                  :credentials="compactProps.credentials"
-                  :schema-map="compactProps.schemaMap"
-                  :store="compactProps.store">
-                  <template #credential-switch="switchProps">
-                    <credential-select
-                      :id="switchProps.credential.id"
-                      :selected-credentials="selectedCredentials"
-                      @select-credentials="selectCredentials">
-                      <credential-switch
-                        class="q-ma-xs col"
-                        :expandable="true"
-                        :credential="switchProps.credential" />
-                    </credential-select>
-                  </template>
-                </credential-compact-bundle>
-              </template>
-            </credentials-list>
+              :selected-credentials="selectedCredentials"
+              :credentials="displayProps.credentials"
+              @select-credentials="selectCredentials" />
           </template>
         </share-review>
       </div>
@@ -93,10 +76,7 @@ import {
 } from '@bedrock/web-wallet';
 import {computed, ref, toRaw, toRef} from 'vue';
 import {computedAsync} from '@vueuse/core';
-import CredentialCompactBundle from './CredentialCompactBundle.vue';
-import CredentialSelect from './CredentialSelect.vue';
 import CredentialsList from './CredentialsList.vue';
-import {CredentialSwitch} from '@bedrock/vue-vc';
 import ProfileChooser from './ProfileChooser.vue';
 import ShareReview from './ShareReview.vue';
 
@@ -110,10 +90,7 @@ const {ensureLocalCredentials} = ageCredentialHelpers;
 export default {
   name: 'ShareCredentials',
   components: {
-    CredentialCompactBundle,
     CredentialsList,
-    CredentialSelect,
-    CredentialSwitch,
     ProfileChooser,
     ShareReview
   },
