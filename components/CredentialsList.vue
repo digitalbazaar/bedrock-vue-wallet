@@ -10,6 +10,9 @@
         :schema-map="schemaMap"
         :store="store" />
     </slot>
+    <q-toggle
+      v-model="allowSelection"
+      label="Manual Selection" />
   </div>
   <div v-else>
     <div
@@ -126,12 +129,19 @@ export default {
       default: '',
       type: String,
       required: false
+    },
+    manualCredentialSelection: {
+      default: false,
+      type: Boolean,
+      required: false
     }
   },
-  emits: ['delete-credential'],
+  emits: ['delete-credential', 'select-credentials'],
   data() {
     return {
       schemaMap: {},
+      // init credentialSelection to prop
+      allowSelection: this.manualCredentialSelection
     };
   },
   computed: {
@@ -160,6 +170,9 @@ export default {
       // pass event up component chain
       return this.$emitExtendable(
         'delete-credential', {profileId, credentialId});
+    },
+    relaySelection({selections}) {
+      this.$emit('select-credentials', {selections});
     }
   }
 };
