@@ -1,28 +1,22 @@
 <template>
   <div v-if="compact">
-    <slot
-      name="compact-credentials"
+    <credential-compact-bundle
       :credentials="credentials"
       :schema-map="schemaMap"
       :store="store">
-      <credential-compact-bundle
-        :credentials="credentials"
-        :schema-map="schemaMap"
-        :store="store">
-        <template #credential-switch="switchProps">
-          <component
-            :is="selectableComponent"
-            :id="switchProps.credential.id"
-            :selected-credentials="selectedCredentials"
-            @select-credentials="relaySelection">
-            <credential-switch
-              class="q-ma-xs col"
-              :expandable="true"
-              :credential="switchProps.credential" />
-          </component>
-        </template>
-      </credential-compact-bundle>
-    </slot>
+      <template #credential-switch="switchProps">
+        <component
+          :is="selectableComponent"
+          :id="switchProps.credential.id"
+          :selected-credentials="selectedCredentials"
+          @select-credentials="relaySelection">
+          <credential-switch
+            class="q-ma-xs col"
+            :expandable="true"
+            :credential="switchProps.credential" />
+        </component>
+      </template>
+    </credential-compact-bundle>
     <q-toggle
       v-model="allowSelection"
       label="Manual Selection" />
@@ -63,7 +57,7 @@
             class="row">
             <component
               :is="selectableComponent"
-              :id="switchProps.credential.id"
+              :id="credentialRecord.id"
               :selected-credentials="selectedCredentials"
               @select-credentials="relaySelection">
               <credential-card-bundle
@@ -75,6 +69,9 @@
                 @delete="$event.waitUntil(deleteCredential($event))" />
             </component>
           </div>
+          <q-toggle
+            v-model="allowSelection"
+            label="Manual Selection" />
         </div>
       </div>
       <q-btn
