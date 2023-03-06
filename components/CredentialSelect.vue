@@ -24,6 +24,11 @@ export default {
   },
   emit: ['select-credentials'],
   methods: {
+    /**
+     * Takes in an id and emits a set of selected credentials.
+     *
+     * @param {string} id - A credential id.
+    */
     toggleSelect(id) {
       const selections = new Set(toRaw(this.selectedCredentials));
       if(selections.has(id)) {

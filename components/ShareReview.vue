@@ -6,8 +6,12 @@
       </div>
       <q-separator class="s-separator" />
       <div>
-        <capabilities-list
-          :capabilities="capabilities" />
+        <slot
+          name="capabilities-display"
+          :capabilities="capabilities">
+          <capabilities-list
+            :capabilities="capabilities" />
+        </slot>
       </div>
     </div>
     <div v-if="credentials.length > 0">
