@@ -189,6 +189,22 @@ export default {
       return 'span';
     }
   },
+  watch: {
+    allowSelection(newAllow, oldAllow) {
+      // if the new value is the old value
+      // don't retrigger
+      if(newAllow === oldAllow) {
+        return;
+      }
+      // if they are turning off manual selection then select all VCs again
+      if(newAllow === false) {
+        this.$emit(
+          'select-credentials',
+          {selections: this.credentials.map(vc => vc.id)}
+        );
+      }
+    }
+  },
   methods: {
     // FIXME: this should be emitting an event; it should not require
     // knowledge of how the routes are setup -- the top-level page this
