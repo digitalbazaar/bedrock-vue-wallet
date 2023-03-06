@@ -1,5 +1,12 @@
 # bedrock-vue-wallet ChangeLog
 
+## 18.1.0 -
+
+### Added
+- `CredentialsList.vue` now contains an option to select the VCs shared.
+- `ShareReview.vue` now contains slots allowing templates for Capabilities and Credentials List.
+- `CredentialSelect.vue` is a new component that adds a selection box to VCs.
+
 ## 18.0.0 - 2023-01-24
 
 ### Changed
