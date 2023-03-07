@@ -18,6 +18,7 @@
       </template>
     </credential-compact-bundle>
     <q-toggle
+      v-if="selectable"
       v-model="allowSelection"
       label="Manual Selection" />
   </div>
@@ -57,7 +58,7 @@
             class="row">
             <component
               :is="selectableComponent"
-              :id="credentialRecord.id"
+              :id="credentialRecord.credential.id ?? credentialRecord.meta.id"
               :selected-credentials="selectedCredentials"
               @select-credentials="relaySelection">
               <credential-card-bundle
@@ -70,6 +71,7 @@
             </component>
           </div>
           <q-toggle
+            v-if="selectable"
             v-model="allowSelection"
             label="Manual Selection" />
         </div>
@@ -150,7 +152,7 @@ export default {
       type: String,
       required: false
     },
-    manualCredentialSelection: {
+    selectable: {
       default: false,
       type: Boolean,
       required: false
@@ -165,7 +167,7 @@ export default {
     return {
       schemaMap: {},
       // init credentialSelection to prop
-      allowSelection: this.manualCredentialSelection
+      allowSelection: this.selectable
     };
   },
   computed: {
@@ -183,7 +185,8 @@ export default {
         !this.loading && this.search.length === 0;
     },
     selectableComponent() {
-      if(this.allowSelection) {
+      const selectable = this.selectable && this.allowSelection;
+      if(selectable) {
         return CredentialSelect;
       }
       return 'span';
