@@ -4,8 +4,11 @@
 
 ### Added
 - `CredentialsList.vue` now contains an option to select the VCs shared.
-- `ShareReview.vue` now contains slots allowing templates for Capabilities and Credentials List.
 - `CredentialSelect.vue` is a new component that adds a selection box to VCs.
+
+### Changed
+- `ShareReview.vue` now contains slots allowing templates for Capabilities and Credentials List.
+- `CredentialCompactBundle.vue` has a slot for replacing `CredentialSwitch.vue`.
 
 ## 18.0.0 - 2023-01-24
 
