@@ -88,7 +88,6 @@ export default {
   setup(props, {emit}) {
     const credentials = toRef(props, 'credentials');
     const search = ref('');
-
     const filteredCredentials = computed(() => {
       emit('filtered-credentials-loading', true);
       const filteredCredentials = credentials.value.filter(({credential}) => {
@@ -101,7 +100,6 @@ export default {
       emit('filtered-credentials-loading', false);
       return filteredCredentials;
     });
-
     const noResults = computed(() => filteredCredentials.value.length === 0);
 
     const emitExtendable = createEmitExtendable();

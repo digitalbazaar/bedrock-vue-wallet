@@ -39,6 +39,7 @@
           <template #credentials-display="displayProps">
             <credentials-list
               :compact="true"
+              :selectable="true"
               :selected-credentials="selectedCredentials"
               :credentials="displayProps.credentials"
               @select-credentials="selectCredentials" />
