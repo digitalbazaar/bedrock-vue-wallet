@@ -29,13 +29,12 @@
 /*!
  * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
  */
+import {session, sessionDataRef} from '../lib/session.js';
 import {AccountService} from '@bedrock/web-account';
 import {computed} from 'vue';
-import {config} from '@bedrock/web';
 import Drawer from './Drawer.vue';
 import {installHandler} from 'web-credential-handler';
 import {TokenService} from '@bedrock/web-authn-token';
-import {session, sessionDataRef} from '../lib/session.js';
 import WalletHeader from './WalletHeader.vue';
 
 export default {
@@ -43,6 +42,12 @@ export default {
   components: {
     Drawer,
     WalletHeader
+  },
+  props: {
+    installHandler: {
+      type: Boolean,
+      default: true
+    }
   },
   setup() {
     const account = computed(() => {
@@ -80,6 +85,10 @@ export default {
       const accountId = newVal;
       if(!this.$route.meta.chapi && accountId) {
         try {
+          // if the prop installHandler is false don't install
+          if(this.installHandler === false) {
+            return;
+          }
           // install credential handler
           await installHandler({url: '/credential-handler'});
         } catch(e) {
