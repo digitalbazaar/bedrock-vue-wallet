@@ -1,5 +1,10 @@
 # bedrock-vue-wallet ChangeLog
 
+## 18.1.0 -
+
+### Added
+- `WalletLayout.vue` has a new prop `install-handler` that allows skipping the credential handler.
+
 ## 18.0.0 - 2023-01-24
 
 ### Changed
