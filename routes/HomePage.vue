@@ -8,23 +8,26 @@
       @delete-credential="$event.waitUntil(deleteCredential($event))"
       @filtered-profiles="filteredProfiles = $event"
       @filtered-credentials-loading="loadingFilteredCredentials = $event" />
+    <install-handler-btn />
   </div>
 </template>
 
 <script>
-import {computedAsync} from '@vueuse/core';
-import {computed, ref, toRef, watch} from 'vue';
-import Credentials from '../components/Credentials.vue';
 import {
   ageCredentialHelpers,
   getCredentialStore,
   profileManager
 } from '@bedrock/web-wallet';
+import {computed, ref, toRef, watch} from 'vue';
+import {computedAsync} from '@vueuse/core';
+import Credentials from '../components/Credentials.vue';
+import InstallHandlerBtn from '../components/InstallHandlerBtn.vue';
 
 export default {
   name: 'HomePage',
   components: {
-    Credentials
+    Credentials,
+    InstallHandlerBtn
   },
   props: {
     account: {
@@ -38,7 +41,7 @@ export default {
     const errorText = ref('');
 
     const loadingProfiles = ref(true);
-    const profiles = computedAsync(async() => {
+    const profiles = computedAsync(async () => {
       if(accountId.value) {
         try {
           const profiles = await profileManager.getProfiles({useCache: true});
