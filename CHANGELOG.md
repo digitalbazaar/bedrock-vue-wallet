@@ -6,7 +6,7 @@
 - **BREAKING**: `WalletLayout.vue` no longer ensures credential handler is installed on account change.
 
 ### Added
-- `InstallHandlerBtn.vue` now installs the credential handler.
+- `InstallHandlerButton.vue` now installs the credential handler.
 
 ## 18.0.0 - 2023-01-24
 
