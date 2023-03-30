@@ -8,7 +8,7 @@
       @delete-credential="$event.waitUntil(deleteCredential($event))"
       @filtered-profiles="filteredProfiles = $event"
       @filtered-credentials-loading="loadingFilteredCredentials = $event" />
-    <install-handler-btn />
+    <install-credential-handler-btn />
   </div>
 </template>
 
@@ -21,13 +21,13 @@ import {
 import {computed, ref, toRef, watch} from 'vue';
 import {computedAsync} from '@vueuse/core';
 import Credentials from '../components/Credentials.vue';
-import InstallHandlerBtn from '../components/InstallHandlerBtn.vue';
+import InstallCredentialHandlerBtn from '../components/InstallHandlerBtn.vue';
 
 export default {
   name: 'HomePage',
   components: {
     Credentials,
-    InstallHandlerBtn
+    InstallCredentialHandlerBtn
   },
   props: {
     account: {

@@ -1,6 +1,9 @@
 <template>
   <q-btn
     label="Manage Credentials"
+    :loading="loading"
+    color="primary"
+    v-bind="options"
     @click="installHandler" />
 </template>
 
@@ -12,9 +15,23 @@ import {installHandler} from 'web-credential-handler';
 
 export default {
   name: 'InstallHandlerButton',
+  props: {
+    // can be used to pass options to the q-btn
+    // @see https://quasar.dev/vue-components/button
+    options: {
+      type: Object,
+      default: () => ({})
+    }
+  },
+  data() {
+    return {
+      loading: false
+    };
+  },
   methods: {
     async installHandler() {
       try {
+        this.loading = true;
         // install credential handler
         await installHandler({url: '/credential-handler'});
       } catch(e) {
@@ -28,6 +45,8 @@ export default {
             'select "Accept" to change this.',
           actions: [{icon: 'fa fa-times'}]
         });
+      } finally {
+        this.loading = false;
       }
     }
   }
