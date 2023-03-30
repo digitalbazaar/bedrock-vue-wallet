@@ -8,7 +8,7 @@
       @delete-credential="$event.waitUntil(deleteCredential($event))"
       @filtered-profiles="filteredProfiles = $event"
       @filtered-credentials-loading="loadingFilteredCredentials = $event" />
-    <install-credential-handler-btn />
+    <allow-wallet-button />
   </div>
 </template>
 
@@ -19,15 +19,15 @@ import {
   profileManager
 } from '@bedrock/web-wallet';
 import {computed, ref, toRef, watch} from 'vue';
+import AllowWalletButton from '../components/AllowWalletButton.vue';
 import {computedAsync} from '@vueuse/core';
 import Credentials from '../components/Credentials.vue';
-import InstallCredentialHandlerBtn from '../components/InstallHandlerBtn.vue';
 
 export default {
   name: 'HomePage',
   components: {
     Credentials,
-    InstallCredentialHandlerBtn
+    AllowWalletButton
   },
   props: {
     account: {
