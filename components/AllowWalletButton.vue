@@ -1,6 +1,6 @@
 <template>
   <q-btn
-    label="Manage Credentials"
+    label="Allow Wallet"
     :loading="loading"
     color="primary"
     v-bind="options"
@@ -12,6 +12,7 @@
  * Copyright (c) 2018-2023 Digital Bazaar, Inc. All rights reserved.
  */
 import {installHandler} from 'web-credential-handler';
+import {ref} from 'vue';
 
 export default {
   name: 'InstallHandlerButton',
@@ -23,9 +24,10 @@ export default {
       default: () => ({})
     }
   },
-  data() {
+  setup() {
+    const loading = ref(false);
     return {
-      loading: false
+      loading
     };
   },
   methods: {
@@ -41,8 +43,8 @@ export default {
           type: 'negative',
           message:
             'Your wallet will not be shown to you as an option for using ' +
-            'credentials on other websites. Please reload the page and ' +
-            'select "Accept" to change this.',
+            'credentials on other websites. Please click the button and ' +
+            'select "Allow" to change this.',
           actions: [{icon: 'fa fa-times'}]
         });
       } finally {
