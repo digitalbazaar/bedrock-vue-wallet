@@ -1,5 +1,16 @@
 <template>
   <div>
+    <q-banner
+      v-if="!mobileWebView"
+      class="bg-warning q-ma-xs">
+      <template #action>
+        <allow-wallet-button />
+        <q-btn
+          color="indigo-10"
+          class="text-white"
+          label="Dismiss" />
+      </template>
+    </q-banner>
     <credentials
       :credentials="credentials"
       :profiles="profiles"
@@ -8,7 +19,6 @@
       @delete-credential="$event.waitUntil(deleteCredential($event))"
       @filtered-profiles="filteredProfiles = $event"
       @filtered-credentials-loading="loadingFilteredCredentials = $event" />
-    <allow-wallet-button v-if="!mobileWebView" />
   </div>
 </template>
 
