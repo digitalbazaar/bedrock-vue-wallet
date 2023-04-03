@@ -8,7 +8,7 @@
       @delete-credential="$event.waitUntil(deleteCredential($event))"
       @filtered-profiles="filteredProfiles = $event"
       @filtered-credentials-loading="loadingFilteredCredentials = $event" />
-    <allow-wallet-button />
+    <allow-wallet-button v-if="!mobileWebView" />
   </div>
 </template>
 
@@ -20,6 +20,7 @@ import {
 } from '@bedrock/web-wallet';
 import {computed, ref, toRef, watch} from 'vue';
 import AllowWalletButton from '../components/AllowWalletButton.vue';
+import assertWebView from 'is-ua-webview';
 import {computedAsync} from '@vueuse/core';
 import Credentials from '../components/Credentials.vue';
 
@@ -41,6 +42,7 @@ export default {
     const errorText = ref('');
 
     const loadingProfiles = ref(true);
+    const mobileWebView = assertWebView(navigator?.userAgent);
     const profiles = computedAsync(async () => {
       if(accountId.value) {
         try {
@@ -135,6 +137,7 @@ export default {
       loading,
       loadingCredentials,
       loadingFilteredCredentials,
+      mobileWebView,
       profiles
     };
   }
