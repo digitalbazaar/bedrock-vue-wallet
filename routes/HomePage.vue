@@ -1,16 +1,19 @@
 <template>
   <div>
-    <q-banner
-      v-if="!mobileWebView"
-      class="bg-warning q-ma-xs">
-      <template #action>
-        <allow-wallet-button />
-        <q-btn
-          color="indigo-10"
-          class="text-white"
-          label="Dismiss" />
-      </template>
-    </q-banner>
+    <div class="row justify-center">
+      <q-banner
+        v-if="!mobileWebView"
+        class="col-md-9 col-xs-12 bg-red-14 q-mt-xs text-white">
+        You might need to Allow your Wallet to manage credentials for you.
+        <template #action>
+          <allow-wallet-button />
+          <q-btn
+            color="indigo-10"
+            class="text-white"
+            label="Dismiss" />
+        </template>
+      </q-banner>
+    </div>
     <credentials
       :credentials="credentials"
       :profiles="profiles"
