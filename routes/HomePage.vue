@@ -1,19 +1,6 @@
 <template>
   <div>
-    <div class="row justify-center">
-      <q-banner
-        v-if="!mobileWebView"
-        class="col-md-9 col-xs-12 bg-red-14 q-mt-xs text-white">
-        You might need to Allow your Wallet to manage credentials for you.
-        <template #action>
-          <allow-wallet-button />
-          <q-btn
-            color="indigo-10"
-            class="text-white"
-            label="Dismiss" />
-        </template>
-      </q-banner>
-    </div>
+    <allow-wallet-banner />
     <credentials
       :credentials="credentials"
       :profiles="profiles"
@@ -32,8 +19,7 @@ import {
   profileManager
 } from '@bedrock/web-wallet';
 import {computed, ref, toRef, watch} from 'vue';
-import AllowWalletButton from '../components/AllowWalletButton.vue';
-import assertWebView from 'is-ua-webview';
+import AllowWalletBanner from '../components/AllowWalletBanner.vue';
 import {computedAsync} from '@vueuse/core';
 import Credentials from '../components/Credentials.vue';
 
@@ -41,7 +27,7 @@ export default {
   name: 'HomePage',
   components: {
     Credentials,
-    AllowWalletButton
+    AllowWalletBanner
   },
   props: {
     account: {
@@ -55,7 +41,6 @@ export default {
     const errorText = ref('');
 
     const loadingProfiles = ref(true);
-    const mobileWebView = assertWebView(navigator?.userAgent);
     const profiles = computedAsync(async () => {
       if(accountId.value) {
         try {
@@ -150,7 +135,6 @@ export default {
       loading,
       loadingCredentials,
       loadingFilteredCredentials,
-      mobileWebView,
       profiles
     };
   }

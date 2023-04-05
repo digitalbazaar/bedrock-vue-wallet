@@ -25,13 +25,14 @@ export default {
       default: () => ({})
     }
   },
-  setup() {
+  setup(props, {emit}) {
     const loading = ref(false);
     const _installHandler = async () => {
       try {
         loading.value = true;
         // install credential handler
         await installHandler({url: '/credential-handler'});
+        emit('wallet-registration', {success: true});
       } catch(e) {
         // eslint-disable-line no-console
         console.error('CHAPI register error:', e);
@@ -43,6 +44,7 @@ export default {
             'select "Allow" to change this.',
           actions: [{icon: 'fa fa-times'}]
         });
+        emit('wallet-registration', {success: false, error: e});
       } finally {
         loading.value = false;
       }
