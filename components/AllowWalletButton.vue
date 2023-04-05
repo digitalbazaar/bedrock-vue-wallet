@@ -12,6 +12,7 @@
  * Copyright (c) 2018-2023 Digital Bazaar, Inc. All rights reserved.
  */
 import {installHandler} from 'web-credential-handler';
+import {Notify} from 'quasar';
 import {ref} from 'vue';
 
 export default {
@@ -26,20 +27,15 @@ export default {
   },
   setup() {
     const loading = ref(false);
-    return {
-      loading
-    };
-  },
-  methods: {
-    async installHandler() {
+    const _installHandler = async () => {
       try {
-        this.loading = true;
+        loading.value = true;
         // install credential handler
         await installHandler({url: '/credential-handler'});
       } catch(e) {
         // eslint-disable-line no-console
         console.error('CHAPI register error:', e);
-        this.$q.notify({
+        Notify.create({
           type: 'negative',
           message:
             'Your wallet will not be shown to you as an option for using ' +
@@ -48,9 +44,13 @@ export default {
           actions: [{icon: 'fa fa-times'}]
         });
       } finally {
-        this.loading = false;
+        loading.value = false;
       }
-    }
+    };
+    return {
+      loading,
+      installHandler: _installHandler
+    };
   }
 };
 </script>
