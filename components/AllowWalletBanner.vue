@@ -4,7 +4,7 @@
     class="row justify-center q-pl-md q-pr-md q-pt-md">
     <q-banner
       class="col-md-9 col-xs-12 bg-red-14 text-white text-center">
-      You might need to Allow your Wallet to manage credentials for you.
+      You might need to allow your wallet to manage credentials for you.
       <template #action>
         <allow-wallet-button @wallet-registration="handleRegistration" />
         <q-btn
