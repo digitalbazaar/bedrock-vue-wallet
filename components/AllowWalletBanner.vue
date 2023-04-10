@@ -5,13 +5,22 @@
     <q-banner
       class="col-md-9 col-xs-12 bg-red-14 text-white text-center">
       You might need to allow your wallet to manage credentials for you.
+      <template #avatar>
+        <q-btn
+          v-close-popup
+          round
+          dense
+          class="q-ma-xs"
+          color="red-5"
+          style="height: 34px"
+          @click="dismiss">
+          <q-icon
+            name="fas fa-times"
+            size="sm" />
+        </q-btn>
+      </template>
       <template #action>
         <allow-wallet-button @wallet-registration="handleRegistration" />
-        <q-btn
-          color="indigo-10"
-          class="text-white"
-          label="Dismiss"
-          @click="dismiss" />
       </template>
     </q-banner>
   </div>
