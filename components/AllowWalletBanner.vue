@@ -3,25 +3,26 @@
     v-if="show"
     class="row justify-center q-pl-md q-pr-md q-pt-md">
     <q-banner
-      class="col-md-9 col-xs-12 bg-red-14 text-white text-center">
-      You might need to allow your wallet to manage credentials for you.
-      <template #avatar>
-        <q-btn
-          v-close-popup
-          round
-          dense
-          class="q-ma-xs"
-          color="red-5"
-          style="height: 34px"
-          @click="dismiss">
-          <q-icon
-            name="fas fa-times"
-            size="sm" />
-        </q-btn>
-      </template>
-      <template #action>
-        <allow-wallet-button @wallet-registration="handleRegistration" />
-      </template>
+      class="col-md-9 col-xs-12 bg-indigo-10 text-white text-center q-pa-none q-ma-none">
+      <div class="row">
+        <div class="col-xs-6">
+          You might need to allow your wallet to manage credentials for you.
+        </div>
+        <div class="col-xs-6">
+          <q-btn
+            v-close-popup
+            round
+            dense
+            class="q-ma-xs"
+            style="height: 34px"
+            @click="dismiss">
+            <q-icon
+              name="fas fa-times"
+              size="sm" />
+          </q-btn>
+          <allow-wallet-button @wallet-registration="handleRegistration" />
+        </div>
+      </div>
     </q-banner>
   </div>
 </template>
