@@ -1,8 +1,9 @@
 <template>
   <q-btn
-    label="Allow Wallet"
+    label="ALLOW"
     :loading="loading"
-    color="primary"
+    color="green-10"
+    unelevated
     v-bind="options"
     @click="installHandler" />
 </template>
