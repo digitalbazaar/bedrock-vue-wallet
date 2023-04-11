@@ -5,11 +5,11 @@
     <q-banner
       class="col-md-9 col-xs-12 bg-indigo-10 q-pt-none q-pr-none">
       <div class="row">
-        <div class="col-xs-6">
+        <h6 class="col-xs-6">
           You might need to allow your wallet to manage credentials for you.
-        </div>
+        </h6>
         <div class="col-xs-6">
-          <div class="row">
+          <div class="row full-height">
             <div class="col-xs-12">
               <q-btn
                 v-close-popup
@@ -24,10 +24,8 @@
               </q-btn>
             </div>
             <div class="col-xs-12">
-              <div class="relative-position float-right q-mr-xs">
-                <allow-wallet-button
-                  @wallet-registration="handleRegistration" />
-              </div>
+              <allow-wallet-button
+                @wallet-registration="handleRegistration" />
             </div>
           </div>
         </div>
