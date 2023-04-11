@@ -3,31 +3,27 @@
     v-if="show"
     class="row justify-center q-pl-md q-pr-md q-pt-md text-white text-center">
     <q-banner
-      class="col-md-9 col-xs-12 bg-indigo-10 q-pt-none q-pr-none">
-      <div class="row">
-        <h6 class="col-xs-6">
+      class="col-md-9 col-xs-12 bg-indigo-10 q-pr-none">
+      <div class="row items-center">
+        <div class="col-xs-6 text-bold">
           You might need to allow your wallet to manage credentials for you.
-        </h6>
-        <div class="col-xs-6">
-          <div class="row full-height">
-            <div class="col-xs-12">
-              <q-btn
-                v-close-popup
-                round
-                dense
-                class="q-ma-xs relative-position float-right"
-                style="height: 34px"
-                @click="dismiss">
-                <q-icon
-                  name="fas fa-times"
-                  size="sm" />
-              </q-btn>
-            </div>
-            <div class="col-xs-12">
-              <allow-wallet-button
-                @wallet-registration="handleRegistration" />
-            </div>
-          </div>
+        </div>
+        <div class="col-xs-4">
+          <allow-wallet-button
+            @wallet-registration="handleRegistration" />
+        </div>
+        <div class="col-xs-2">
+          <q-btn
+            v-close-popup
+            round
+            dense
+            class="q-ma-xs relative-position float-right"
+            style="height: 34px"
+            @click="dismiss">
+            <q-icon
+              name="fas fa-times"
+              size="sm" />
+          </q-btn>
         </div>
       </div>
     </q-banner>
