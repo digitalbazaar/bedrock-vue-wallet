@@ -3,18 +3,20 @@
     v-if="show"
     class="row justify-center q-pl-md q-pr-md q-pt-md text-white text-center">
     <q-banner
-      class="col-md-9 col-xs-12 bg-indigo-10 q-pr-none">
+      class="col-md-6 col-xs-9 bg-green-10 q-pr-none">
       <div class="row items-center">
-        <div class="col-xs-6 text-bold">
+        <div class="col-xs-8 text-bold">
           You might need to allow your wallet to manage credentials for you.
         </div>
-        <div class="col-xs-4">
+        <div class="col-xs-3">
           <allow-wallet-button
+            class="relative-position float-right"
             @wallet-registration="handleRegistration" />
         </div>
-        <div class="col-xs-2">
+        <div class="col-xs-1">
           <q-btn
             v-close-popup
+            unelevated
             round
             dense
             class="q-ma-xs relative-position float-right"
