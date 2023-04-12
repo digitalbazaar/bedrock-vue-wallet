@@ -1,6 +1,5 @@
 <template>
   <div>
-    <allow-wallet-banner />
     <credentials
       :credentials="credentials"
       :profiles="profiles"
@@ -19,7 +18,6 @@ import {
   profileManager
 } from '@bedrock/web-wallet';
 import {computed, ref, toRef, watch} from 'vue';
-import AllowWalletBanner from '../components/AllowWalletBanner.vue';
 import {computedAsync} from '@vueuse/core';
 import Credentials from '../components/Credentials.vue';
 
@@ -27,7 +25,6 @@ export default {
   name: 'HomePage',
   components: {
     Credentials,
-    AllowWalletBanner
   },
   props: {
     account: {
