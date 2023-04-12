@@ -15,7 +15,9 @@
 /*!
  * Copyright (c) 2018-2022 Digital Bazaar, Inc. All rights reserved.
  */
+import {installHandler} from 'web-credential-handler';
 import Login from '../components/Login.vue';
+import {Notify} from 'quasar';
 
 export default {
   name: 'LoginPage',
@@ -38,6 +40,39 @@ export default {
     async login() {
       // redirect home
       this.$router.push({name: 'home'});
+      this.$q.notify({
+        message: 'Allow Wallet',
+        color: 'secondary',
+        // show the message for 15 seconds
+        timeout: 15000,
+        actions: [{
+          label: 'Allow',
+          color: 'white',
+          async handler() {
+            try {
+              // install credential handler
+              await installHandler({url: '/credential-handler'});
+            } catch(e) {
+              // eslint-disable-line no-console
+              console.error('CHAPI register error:', e);
+              Notify.create({
+                type: 'negative',
+                message:
+                  'Your wallet will not be shown to you as an option for using ' +
+                  'credentials on other websites. Please click the button and ' +
+                  'select "Allow" to change this.',
+                actions: [{icon: 'fa fa-times'}]
+              });
+            }
+          }
+        }, {
+          label: 'Dismiss',
+          color: 'white',
+          handler() {
+            console.log('dismiss');
+          }
+        }]
+      });
     },
     async register() {
       // redirect to register
