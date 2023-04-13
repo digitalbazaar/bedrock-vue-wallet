@@ -2,11 +2,11 @@
 
 ## 19.0.0 -
 
-### Changed
-- **BREAKING**: `WalletLayout.vue` no longer ensures credential handler is installed on account change.
-
 ### Added
-- `AllowWalletButton.vue` now installs the credential handler.
+- A new notification asks the user if they want their wallet to manage credentials.
+
+### Removed
+- **BREAKING**: Credential Management prompt no longer occurs after registration.
 
 ## 18.0.0 - 2023-01-24
 
