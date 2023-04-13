@@ -16,7 +16,6 @@
  * Copyright (c) 2018-2022 Digital Bazaar, Inc. All rights reserved.
  */
 import Login from '../components/Login.vue';
-import {notifyAllowWallet} from '../lib/notifications.js';
 
 export default {
   name: 'LoginPage',
@@ -39,7 +38,6 @@ export default {
     async login() {
       // redirect home
       this.$router.push({name: 'home'});
-      await notifyAllowWallet();
     },
     async register() {
       // redirect to register
