@@ -27,7 +27,7 @@
 
 <script>
 /*!
- * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2015-2023 Digital Bazaar, Inc. All rights reserved.
  */
 import {session, sessionDataRef} from '../lib/session.js';
 import {computed} from 'vue';
