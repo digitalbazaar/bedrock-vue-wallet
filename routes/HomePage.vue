@@ -24,7 +24,7 @@ import Credentials from '../components/Credentials.vue';
 export default {
   name: 'HomePage',
   components: {
-    Credentials,
+    Credentials
   },
   props: {
     account: {
