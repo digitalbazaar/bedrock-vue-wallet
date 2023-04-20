@@ -20,6 +20,7 @@ import {
 import {computed, ref, toRef, watch} from 'vue';
 import {computedAsync} from '@vueuse/core';
 import Credentials from '../components/Credentials.vue';
+import {notifyAllowWallet} from '../lib/helpers.js';
 
 export default {
   name: 'HomePage',
@@ -34,7 +35,6 @@ export default {
   },
   setup(props) {
     const accountId = toRef(props, 'account');
-
     const errorText = ref('');
 
     const loadingProfiles = ref(true);
@@ -125,6 +125,7 @@ export default {
       loadingProfiles.value);
 
     return {
+      accountId,
       credentials,
       deleteCredential,
       errorText,
@@ -134,6 +135,9 @@ export default {
       loadingFilteredCredentials,
       profiles
     };
+  },
+  mounted() {
+    notifyAllowWallet({account: this.accountId, preventRenotify: true});
   }
 };
 </script>
