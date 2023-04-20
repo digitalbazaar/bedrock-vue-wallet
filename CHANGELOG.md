@@ -1,5 +1,10 @@
 # bedrock-vue-wallet ChangeLog
 
+## 19.0.0 - 2023-TBD
+
+### Changed
+- **BREAKING**: Update peer dep `@bedrock/web-wallet` to v11.1.
+
 ## 18.0.0 - 2023-01-24
 
 ### Changed
