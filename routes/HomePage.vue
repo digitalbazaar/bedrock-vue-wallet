@@ -17,7 +17,7 @@ import {
   getCredentialStore,
   profileManager
 } from '@bedrock/web-wallet';
-import {computed, ref, toRef, watch} from 'vue';
+import {computed, onMounted, ref, toRef, watch} from 'vue';
 import {computedAsync} from '@vueuse/core';
 import Credentials from '../components/Credentials.vue';
 import {notifyAllowWallet} from '../lib/helpers.js';
@@ -123,9 +123,13 @@ export default {
       loadingFilteredCredentials.value ||
       loadingCredentials.value ||
       loadingProfiles.value);
+    // on mount possibly show the wallet authorization notification
+    onMounted(() => notifyAllowWallet({
+      account: accountId.value,
+      preventRenotify: true
+    }));
 
     return {
-      accountId,
       credentials,
       deleteCredential,
       errorText,
@@ -135,9 +139,6 @@ export default {
       loadingFilteredCredentials,
       profiles
     };
-  },
-  mounted() {
-    notifyAllowWallet({account: this.accountId, preventRenotify: true});
   }
 };
 </script>
