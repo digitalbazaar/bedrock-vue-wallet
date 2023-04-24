@@ -1,12 +1,15 @@
 # bedrock-vue-wallet ChangeLog
 
-## 19.0.0 -
+## 19.0.0 - 2023-04-dd
 
 ### Added
-- A new notification asks the user if they want their wallet to manage credentials.
+- A new notification asks the user if they want their wallet to manage credentials
+  on the home page.
 
 ### Removed
-- **BREAKING**: Credential Management prompt no longer occurs after registration.
+- **BREAKING**: Credential Management prompt no longer occurs after registration
+  automatically, instead, a notification message is shown that the user must click
+  on to show the prompt.
 
 ## 18.0.0 - 2023-01-24
 
