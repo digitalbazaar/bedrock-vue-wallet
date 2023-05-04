@@ -1,5 +1,5 @@
 <template>
-  <q-pull-to-refresh @refresh="getCredentials">
+  <q-pull-to-refresh @refresh="refresh">
     <credentials
       :credentials="credentials"
       :profiles="profiles"
@@ -128,7 +128,11 @@ export default {
       account: accountId.value,
       preventRenotify: true
     }));
-
+    //refresh has to call done
+    const refresh = async done => {
+      await getCredentials();
+      done();
+    };
     return {
       credentials,
       deleteCredential,
@@ -137,7 +141,8 @@ export default {
       loading,
       loadingCredentials,
       loadingFilteredCredentials,
-      profiles
+      profiles,
+      refresh
     };
   }
 };
