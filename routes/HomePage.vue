@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <q-pull-to-refresh @refresh="getCredentials">
     <credentials
       :credentials="credentials"
       :profiles="profiles"
@@ -8,7 +8,7 @@
       @delete-credential="$event.waitUntil(deleteCredential($event))"
       @filtered-profiles="filteredProfiles = $event"
       @filtered-credentials-loading="loadingFilteredCredentials = $event" />
-  </div>
+  </q-pull-to-refresh>
 </template>
 
 <script>
