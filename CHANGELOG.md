@@ -1,5 +1,10 @@
 # bedrock-vue-wallet ChangeLog
 
+## 19.1.0 -
+
+### Added
+- CHAPI notification can be disabled in WebView.
+
 ## 19.0.0 - 2023-04-dd
 
 ### Added
