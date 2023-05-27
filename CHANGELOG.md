@@ -3,7 +3,7 @@
 ## 19.1.0 -
 
 ### Added
-- CHAPI notification can be disabled in WebView.
+- A new config option `disableChapi` for disabling chapi.
 
 ## 19.0.0 - 2023-04-dd
 
