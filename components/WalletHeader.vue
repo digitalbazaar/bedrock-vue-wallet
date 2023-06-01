@@ -1,6 +1,6 @@
 <template>
-  <q-toolbar
-    class="bg-secondary">
+  <q-toolbar class="bg-white q-pa-none">
+    <div id="mobile-test" class="row bg-primary full-width items-center no-wrap mobile-height">
     <q-btn
       v-show="account"
       flat
@@ -109,6 +109,7 @@
       icon="fa fa-sign-in-alt"
       label="Log in"
       @click="login()" />
+  </div>
   </q-toolbar>
 </template>
 
@@ -215,5 +216,9 @@ $breakpoint-xs: 599px;
       display: none;
     }
   }
+}
+
+.mobile-height {
+  min-height: max(env(safe-area-inset-top), 50px);
 }
 </style>
