@@ -20,7 +20,7 @@
  * Copyright (c) 2018-2022 Digital Bazaar, Inc. All rights reserved.
  */
 import {computed, ref, watch} from 'vue';
-import {required, minLength, maxLength} from '@vuelidate/validators';
+import {maxLength, minLength, required} from '@vuelidate/validators';
 import useVuelidate from '@vuelidate/core';
 
 export default {
@@ -48,6 +48,7 @@ export default {
       default: Infinity
     }
   },
+  emits: ['code', 'invalid'],
   setup(props, {emit}) {
     const vuelidate = useVuelidate();
 
@@ -82,7 +83,6 @@ export default {
       vuelidate
     };
   },
-  emits: ['code', 'invalid'],
   validations() {
     return {
       code: {

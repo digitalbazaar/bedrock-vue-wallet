@@ -124,7 +124,7 @@ import {profileManager} from '@bedrock/web-wallet';
 import ProfileSettings from '../components/ProfileSettings.vue';
 import SettingsModule from '../components/SettingsModule.vue';
 import TwoFactorSettings from '../components/TwoFactorSettings.vue';
-import {useRoute, useRouter} from 'vue-router'
+import {useRoute, useRouter} from 'vue-router';
 
 export default {
   name: 'SettingsPage',
@@ -167,7 +167,7 @@ export default {
     watch(
       () => activeProfile.value,
       profile => {
-        settingsSelection.value = profile?.id ?? 'account'
+        settingsSelection.value = profile?.id ?? 'account';
         if(!profile) {
           // if no profile is set, change the route to account settings
           router.replace({name: 'settings'});

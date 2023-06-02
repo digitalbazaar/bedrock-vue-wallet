@@ -207,7 +207,7 @@ import CodeInput from './CodeInput.vue';
 import {config} from '@bedrock/web';
 import {helpers} from '@bedrock/web-wallet';
 import {LoginController} from '@bedrock/web-authn-token';
-import {required, email} from '@vuelidate/validators';
+import {email, required} from '@vuelidate/validators';
 import {session} from '@bedrock/web-session';
 import useVuelidate from '@vuelidate/core';
 

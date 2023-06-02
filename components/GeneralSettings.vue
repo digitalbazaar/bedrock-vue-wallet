@@ -48,7 +48,7 @@
  */
 import {computed, ref} from 'vue';
 import {getPrimaryEmail} from '@bedrock/web-wallet';
-import {required, email} from '@vuelidate/validators';
+import {email, required} from '@vuelidate/validators';
 import useVuelidate from '@vuelidate/core';
 
 export default {

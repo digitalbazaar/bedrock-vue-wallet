@@ -49,7 +49,7 @@
  */
 import AddProfileModal from './AddProfileModal.vue';
 import {BrQTable} from '@bedrock/quasar-components';
-import {helpers, getPrimaryEmail, profileManager} from '@bedrock/web-wallet';
+import {getPrimaryEmail, helpers, profileManager} from '@bedrock/web-wallet';
 import SearchBox from './SearchBox.vue';
 import {date} from 'quasar';
 
