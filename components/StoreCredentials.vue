@@ -64,8 +64,8 @@
  */
 import {computedAsync} from '@vueuse/core';
 import CredentialsList from './CredentialsList.vue';
-import {profileManager} from '@bedrock/web-wallet';
 import ProfileChooser from './ProfileChooser.vue';
+import {profileManager} from '@bedrock/web-wallet';
 import {ref} from 'vue';
 
 export default {

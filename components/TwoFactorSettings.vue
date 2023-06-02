@@ -88,8 +88,8 @@
 /*!
  * Copyright (c) 2018-2022 Digital Bazaar, Inc. All rights reserved.
  */
-import {email} from '@vuelidate/validators';
 import {AccountService} from '@bedrock/web-account';
+import {email} from '@vuelidate/validators';
 import {session} from '@bedrock/web-session';
 import {TokenService} from '@bedrock/web-authn-token';
 import useVuelidate from '@vuelidate/core';

@@ -60,8 +60,8 @@
  */
 import {cryptoSuites, helpers, presentations} from '@bedrock/web-wallet';
 import Login from '../components/Login.vue';
-import Problem from '../components/Problem.vue';
 import Next from '../components/Next.vue';
+import Problem from '../components/Problem.vue';
 import {receiveCredentialEvent} from 'web-credential-handler';
 import Register from '../components/Register.vue';
 import {session} from '@bedrock/web-session';

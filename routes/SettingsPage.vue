@@ -117,14 +117,14 @@
 /*!
  * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
  */
-import AccessManagement from '../components/AccessManagement.vue';
 import {computed, ref, watch} from 'vue';
+import {useRoute, useRouter} from 'vue-router';
+import AccessManagement from '../components/AccessManagement.vue';
 import GeneralSettings from '../components/GeneralSettings.vue';
 import {profileManager} from '@bedrock/web-wallet';
 import ProfileSettings from '../components/ProfileSettings.vue';
 import SettingsModule from '../components/SettingsModule.vue';
 import TwoFactorSettings from '../components/TwoFactorSettings.vue';
-import {useRoute, useRouter} from 'vue-router';
 
 export default {
   name: 'SettingsPage',
