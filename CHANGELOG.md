@@ -19,6 +19,7 @@
 - A new notification asks the user if they want their wallet to manage
   credentials on the home page.
 - A new config option `disableChapi` for disabling chapi.
+- Pull down refresh to `HomePage.vue` for refreshing credentials.
 
 ### Changed
 - **BREAKING**: Require node >= 18.
