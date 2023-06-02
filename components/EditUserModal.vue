@@ -17,8 +17,9 @@
 /*!
  * Copyright (c) 2019-2022 Digital Bazaar, Inc. All rights reserved.
  */
-import {BrQModal} from '@bedrock/quasar-components';
 import {email, required} from '@vuelidate/validators';
+import {BrQModal} from '@bedrock/quasar-components';
+import {computed} from 'vue';
 import UserForm from './UserForm.vue';
 import useVuelidate from '@vuelidate/core';
 

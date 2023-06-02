@@ -46,8 +46,8 @@
 /*!
  * Copyright (c) 2018-2022 Digital Bazaar, Inc. All rights reserved.
  */
-import {BrQTitleCard} from '@bedrock/quasar-components';
 import {computed, ref, toRef, watch} from 'vue';
+import {BrQTitleCard} from '@bedrock/quasar-components';
 import {createEmitExtendable} from '@digitalbazaar/vue-extendable-event';
 import CredentialsList from './CredentialsList.vue';
 import SearchBox from './SearchBox.vue';

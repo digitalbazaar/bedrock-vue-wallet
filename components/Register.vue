@@ -106,11 +106,11 @@
  * Copyright (c) 2018-2022 Digital Bazaar, Inc. All rights reserved.
  */
 import {AccountService, RegisterController} from '@bedrock/web-account';
+import {email, minLength, required} from '@vuelidate/validators';
 import {BrQTitleCard} from '@bedrock/quasar-components';
 import {config} from '@bedrock/web';
 import {helpers} from '@bedrock/web-wallet';
 import {randomColor} from 'randomcolor';
-import {email, minLength, required} from '@vuelidate/validators';
 import {session} from '@bedrock/web-session';
 import {TokenService} from '@bedrock/web-authn-token';
 import useVuelidate from '@vuelidate/core';

@@ -33,6 +33,7 @@
  * Copyright (c) 2020-2022 Digital Bazaar, Inc. All rights reserved.
  */
 import {BrQModal} from '@bedrock/quasar-components';
+import {computed} from 'vue';
 import {format} from 'quasar';
 
 export default {

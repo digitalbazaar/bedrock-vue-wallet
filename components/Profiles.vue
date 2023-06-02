@@ -47,11 +47,11 @@
 /*!
  * Copyright (c) 2018-2022 Digital Bazaar, Inc. All rights reserved.
  */
+import {getPrimaryEmail, helpers, profileManager} from '@bedrock/web-wallet';
 import AddProfileModal from './AddProfileModal.vue';
 import {BrQTable} from '@bedrock/quasar-components';
-import {getPrimaryEmail, helpers, profileManager} from '@bedrock/web-wallet';
-import SearchBox from './SearchBox.vue';
 import {date} from 'quasar';
+import SearchBox from './SearchBox.vue';
 
 const {createProfile} = helpers;
 const {formatDate} = date;

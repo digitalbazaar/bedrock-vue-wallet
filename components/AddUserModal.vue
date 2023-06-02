@@ -16,6 +16,7 @@
  * Copyright (c) 2019-2022 Digital Bazaar, Inc. All rights reserved.
  */
 import {BrQModal} from '@bedrock/quasar-components';
+import {computed} from 'vue';
 import UserForm from './UserForm.vue';
 
 export default {

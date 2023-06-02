@@ -202,12 +202,12 @@
 /*!
  * Copyright (c) 2018-2022 Digital Bazaar, Inc. All rights reserved.
  */
+import {email, required} from '@vuelidate/validators';
 import {BrQTitleCard} from '@bedrock/quasar-components';
 import CodeInput from './CodeInput.vue';
 import {config} from '@bedrock/web';
 import {helpers} from '@bedrock/web-wallet';
 import {LoginController} from '@bedrock/web-authn-token';
-import {email, required} from '@vuelidate/validators';
 import {session} from '@bedrock/web-session';
 import useVuelidate from '@vuelidate/core';
 

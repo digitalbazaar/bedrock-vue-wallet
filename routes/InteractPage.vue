@@ -62,8 +62,8 @@
 /*!
  * Copyright (c) 2019-2022 Digital Bazaar, Inc. All rights reserved.
  */
-import Interact from '../components/Interact.vue';
 import {BrQModal, BrQTitleCard} from '@bedrock/quasar-components';
+import Interact from '../components/Interact.vue';
 
 export default {
   name: 'InteractPage',

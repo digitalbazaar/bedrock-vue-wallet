@@ -62,12 +62,12 @@
  * Copyright (c) 2018-2022 Digital Bazaar, Inc. All rights reserved.
  */
 import {computed, ref, toRef} from 'vue';
-import {computedAsync} from '@vueuse/core';
-import AddUserModal from './AddUserModal.vue';
-import {BrQTable} from '@bedrock/quasar-components';
-import EditUserModal from './EditUserModal.vue';
 import {format, utils} from 'quasar';
 import {profileManager, users} from '@bedrock/web-wallet';
+import AddUserModal from './AddUserModal.vue';
+import {BrQTable} from '@bedrock/quasar-components';
+import {computedAsync} from '@vueuse/core';
+import EditUserModal from './EditUserModal.vue';
 import RemoveItemModal from './RemoveItemModal.vue';
 import SearchBox from './SearchBox.vue';
 
