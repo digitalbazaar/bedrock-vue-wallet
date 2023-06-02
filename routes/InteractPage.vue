@@ -26,8 +26,8 @@
     </div>
     <br-q-modal
       v-if="help"
-      title="Interact Help"
       v-model="help"
+      title="Interact Help"
       bottom-separator
       full-width-buttons
       accept-label="Done"

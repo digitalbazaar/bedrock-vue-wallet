@@ -1,8 +1,8 @@
 <template>
   <br-q-modal
+    v-model="show"
     title="Add Profile"
     accept-label="Create"
-    v-model="show"
     :persistent="persistent"
     :disable-accept-button="disableAcceptButton"
     @accept="$event.waitUntil($emitExtendable('create', {form}))">

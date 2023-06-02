@@ -110,7 +110,7 @@ import {BrQTitleCard} from '@bedrock/quasar-components';
 import {config} from '@bedrock/web';
 import {helpers} from '@bedrock/web-wallet';
 import {randomColor} from 'randomcolor';
-import {required, email, minLength} from '@vuelidate/validators';
+import {email, minLength, required} from '@vuelidate/validators';
 import {session} from '@bedrock/web-session';
 import {TokenService} from '@bedrock/web-authn-token';
 import useVuelidate from '@vuelidate/core';

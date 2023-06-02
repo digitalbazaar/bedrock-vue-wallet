@@ -91,7 +91,7 @@
  * Copyright (c) 2020-2022 Digital Bazaar, Inc. All rights reserved.
  */
 import {computed, toRef} from 'vue';
-import {required, requiredIf, minLength} from '@vuelidate/validators';
+import {minLength, required, requiredIf} from '@vuelidate/validators';
 import useVuelidate from '@vuelidate/core';
 
 export default {

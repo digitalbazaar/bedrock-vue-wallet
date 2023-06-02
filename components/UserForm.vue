@@ -73,7 +73,7 @@
 /*!
  * Copyright (c) 2020-2022 Digital Bazaar, Inc. All rights reserved.
  */
-import {required, email} from '@vuelidate/validators';
+import {email, required} from '@vuelidate/validators';
 import useVuelidate from '@vuelidate/core';
 import {watch} from 'vue';
 
