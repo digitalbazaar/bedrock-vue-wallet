@@ -13,5 +13,8 @@ module.exports = {
     'digitalbazaar/jsdoc',
     'digitalbazaar/vue'
   ],
+  rules: {
+    'vue/multi-word-component-names': 0
+  },
   ignorePatterns: ['node_modules/']
 };
