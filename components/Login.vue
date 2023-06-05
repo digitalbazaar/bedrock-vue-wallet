@@ -115,7 +115,8 @@
               You may also click directly on the link sent to your email.
             </p>
             <code-input
-              hint="Please enter the 6 character code sent to your email address."
+              hint="Please enter the 6 character code sent to your email
+                address."
               :min-length="6"
               :max-length="6"
               @code="emailCode = $event.code"
