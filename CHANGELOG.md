@@ -1,9 +1,12 @@
 # bedrock-vue-wallet ChangeLog
 
-## 19.1.0 -
+## 19.1.1 -
 
 ### Added
 - A new config option `disableChapi` for disabling chapi.
+
+### Fixed
+- RemoveItemModel now emits a value for show.
 
 ## 19.0.0 - 2023-04-dd
 
