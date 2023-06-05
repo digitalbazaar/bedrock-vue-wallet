@@ -63,12 +63,15 @@
  * Copyright (c) 2018-2022 Digital Bazaar, Inc. All rights reserved.
  */
 import QrCode from './QrCode.vue';
-//import {RsvpClient} from 'rsvp-client';
+/*
+FIXME: implement RsvpClient
+import {RsvpClient} from 'rsvp-client';
 
 const payload = {
   ttl: 300000,
   type: 'someType'
 };
+*/
 
 export default {
   name: 'Interact',

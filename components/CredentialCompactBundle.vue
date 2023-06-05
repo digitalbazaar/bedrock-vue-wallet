@@ -65,9 +65,13 @@ const hiddenCredentialTypes = new Map([
   ['OverAgeTokenCredential', true],
   ['AgeVerificationCredential', true]
 ]);
+
+/*
+// FIXME unused currently
 const bundleCredentialTypes = new Map([
   ['AgeVerificationContainerCredential', true]
 ]);
+*/
 
 // FIXME: refactor and move elsewhere
 async function createCompactBundledCredentials({credentials}) {
