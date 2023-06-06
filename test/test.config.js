@@ -27,3 +27,9 @@ config.karma.config.proxies = {
   '/': 'https://localhost:18443'
 };
 config.karma.config.proxyValidateSSL = false;
+config.karma.config.webpack.resolve = {
+  modules: [
+    path.resolve(__dirname, '..', 'node_modules'),
+    path.resolve(__dirname, 'node_modules')
+  ]
+};
