@@ -15,7 +15,7 @@
     "routes/*"
   ],
   "scripts": {
-    "lint": "eslint \"**/*.{js,vue}\""
+    "lint": "eslint --ext .cjs,.js,.vue ."
   },
   "dependencies": {
     "@digitalbazaar/web-app-manifest-utils": "^2.0.0",
