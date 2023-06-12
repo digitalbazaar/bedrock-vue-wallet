@@ -1,5 +1,10 @@
 # bedrock-vue-wallet ChangeLog
 
+## 19.1.0 -
+
+### Added
+- A new layout for `WalletHeader.vue` that works on ios devices with notches.
+
 ## 19.0.2 - 2023-08-06
 
 ### Fixed
