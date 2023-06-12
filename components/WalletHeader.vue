@@ -1,6 +1,8 @@
 <template>
   <q-toolbar class="bg-white q-pa-none">
-    <div class="row q-px-md bg-primary full-width items-center no-wrap mobile-height">
+    <div
+      class="row q-px-md bg-primary full-width items-center no-wrap
+        mobile-height">
       <q-btn
         v-show="account"
         flat
