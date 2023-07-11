@@ -1,5 +1,10 @@
 # bedrock-vue-wallet ChangeLog
 
+## 19.1.2 -
+
+### Fixed
+- Typo in error message: occurred not occured.
+
 ## 19.1.1 -
 
 ### Added
