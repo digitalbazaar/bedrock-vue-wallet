@@ -274,7 +274,7 @@ export default {
         this.error = newError;
 
         const message =
-          'An error has occured. Please refresh the page to try again.';
+          'An error has occurred. Please refresh the page to try again.';
         this.$q.notify({
           type: 'negative',
           timeout: 0,
