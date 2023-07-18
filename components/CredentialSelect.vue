@@ -1,10 +1,17 @@
 <template>
-  <q-checkbox
-    :val="id"
-    :model-value="selectedCredentials"
-    @click="toggleSelect(id)">
-    <slot />
-  </q-checkbox>
+  <div style="display: flex; flex-direction: row;">
+    <!-- FIXME: mh:85px is based on height of the cred title + desc. section -->
+    <div style="align-items: center; display: flex; max-height: 85px;">
+      <q-checkbox
+        :val="id"
+        :model-value="selectedCredentials"
+        @click="toggleSelect(id)">
+      </q-checkbox>
+    </div>
+    <div>
+      <slot />
+    </div>
+  </div>
 </template>
 
 <script>
