@@ -5,7 +5,8 @@
       <q-checkbox
         :val="id"
         :model-value="selectedCredentials"
-        @click="toggleSelect(id)" />
+        @click="toggleSelect(id)">
+      </q-checkbox>
     </div>
     <div>
       <slot />
