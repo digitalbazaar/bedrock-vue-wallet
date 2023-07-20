@@ -91,6 +91,7 @@ import {WebAppManifestClient} from '@digitalbazaar/web-app-manifest-utils';
 const {createCapabilities} = helpers;
 const {ensureLocalCredentials} = ageCredentialHelpers;
 
+const AUTHENTICATION_QUERY_TYPES = ['DIDAuth', 'DIDAuthentication'];
 const manifestClient = new WebAppManifestClient();
 
 /**
@@ -160,25 +161,22 @@ export default {
 
     const query = toRef(props, 'query');
 
+    // FIXME: Rename `credentialQuery`. DIDAuth is not a credential query.
     const credentialQuery = computed(() => {
       if(!query.value) {
-        return {};
+        return [];
       }
       if(Array.isArray(query.value)) {
-        // FIXME: This does not support multiple credential queries
-        const [first] = query.value.filter(q => q.type === 'QueryByExample');
-        if(!first) {
-          return {};
-        }
-        return first;
+        // FIXME: Only support `QueryByExample` for multiple queries.
+        return query.value.filter(q => q.type === 'QueryByExample');
       }
       const {type} = query.value;
       if(type === 'DIDAuthentication' || type === 'DIDAuth' ||
         type === 'QueryByExample') {
-        return query.value;
+        return [query.value];
       }
       // unrecognized query
-      return {};
+      return [];
     });
 
     const selectedProfileId = ref();
@@ -203,9 +201,8 @@ export default {
         return [];
       }
       const {id: profileId} = selectedProfile.value;
-      const {type} = credentialQuery.value;
-      if(type === 'DIDAuthentication' || type === 'DIDAuth' ||
-        type === undefined) {
+      const types = AUTHENTICATION_QUERY_TYPES;
+      if(queryContainsType({credentialQuery: credentialQuery.value, types})) {
         return [];
       }
 
@@ -219,9 +216,8 @@ export default {
         profileId, password: profileId
       });
       await ensureLocalCredentials({credentialStore});
-
       const records = await getRecords(
-        {query: credentialQuery.value, profileId});
+        {credentialQuery: credentialQuery.value, profileId});
       const displayContainers = await createContainers({records});
       // creates container credentials for display only
       displayableCredentials.value = displayContainers;
@@ -411,11 +407,25 @@ function filterHackForChapi(credentials, query) {
   return result;
 }
 
+async function getRecords({credentialQuery, profileId}) {
+  // FIXME: Make query processor smarter. Independent execution of multiple
+  //        queries may result in duplicates.
+  // FIXME: Use a p-fun library to properly handle concurrency and retries.
+  const records = await Promise.all(
+    credentialQuery.map(query => _getRecords({query, profileId}))
+  );
+
+  return removeDuplicatesById({records: records.flat()});
+}
+
 // FIXME: move elsewhere?
-async function getRecords({query, profileId}) {
+async function _getRecords({query, profileId}) {
   // Clone is done here to prevent Vue from calling the function multiple times
   // due to "query" being set inside of a computed function.
   const vprQuery = JSON.parse(JSON.stringify(query));
+
+  const credentialQuery = Array.isArray(vprQuery.credentialQuery) ?
+    vprQuery.credentialQuery : [vprQuery.credentialQuery];
 
   // convert VPR query into local queries...
   const credentialStore = await getCredentialStore({
@@ -425,12 +435,14 @@ async function getRecords({query, profileId}) {
     profileId, password: profileId
   });
 
-  // FIXME: all code here assumes a single `credentialQuery`
-  const type = vprQuery.credentialQuery.example.type;
+  // FIXME: all code here assumes a single `credentialQuery` of type
+  //        `QueryByExample`
+  const [firstCredentialQuery] = credentialQuery;
+  const firstCredentialQueryExampleType = firstCredentialQuery.example.type;
   const records = [];
-  if(type.includes('OverAgeTokenCredential')) {
+  if(firstCredentialQueryExampleType.includes('OverAgeTokenCredential')) {
     // query for *only* the over age token credential
-    vprQuery.credentialQuery.example.type = 'OverAgeTokenCredential';
+    firstCredentialQuery.example.type = 'OverAgeTokenCredential';
     const {queries: [q]} = await credentialStore.local.convertVPRQuery({
       vprQuery
     });
@@ -442,17 +454,25 @@ async function getRecords({query, profileId}) {
     records.push(results[0]);
 
     // remove local credential from type in query and restore its value
-    const index = type.indexOf('OverAgeTokenCredential');
-    type.splice(index, 1);
-    vprQuery.credentialQuery.example.type = type;
+    const index = firstCredentialQueryExampleType.indexOf(
+      'OverAgeTokenCredential'
+    );
+    firstCredentialQueryExampleType.splice(index, 1);
+    firstCredentialQuery.example.type = firstCredentialQueryExampleType;
   }
-  if(vprQuery.credentialQuery.example.type.length === 0) {
+  if(firstCredentialQuery.example.type.length === 0) {
     return records;
   }
-  const {queries: [q]} = await credentialStore.remote.convertVPRQuery({
+  const {queries: q} = await credentialStore.remote.convertVPRQuery({
     vprQuery
   });
-  const {documents: results} = await credentialStore.remote.find({query: q});
+
+  const {documents: results} = await credentialStore.remote.find({
+    // flatten the query: [[{type: A}], [{type: B}, {type: C}], [{type: D}]]
+    //         into   =>  [{type: A}, {type: B}, {type: C}, {type: D}]
+    // so that it can be processed by VerifiableCredentialStore.find()
+    query: q.flat()
+  });
   records.push(...results);
   return records;
 }
@@ -482,6 +502,30 @@ async function createContainers({credentialStore, records}) {
     credentials.push(record.content);
   }
   return credentials;
+}
+
+function queryContainsType({credentialQuery, types}) {
+  const results = credentialQuery.filter(q => types.includes(q.type));
+  return results.length > 0;
+}
+
+function removeDuplicatesById({records}) {
+  const ids = new Set();
+  const results = [];
+
+  for(const record of records) {
+    const recordId = record.id;
+
+    const found = ids.has(recordId);
+    if(found) {
+      continue;
+    }
+
+    ids.add(recordId);
+    results.push(record);
+  }
+
+  return results;
 }
 </script>
 
