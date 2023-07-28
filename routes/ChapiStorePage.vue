@@ -57,9 +57,9 @@
 
 <script>
 /*!
- * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2015-2023 Digital Bazaar, Inc. All rights reserved.
  */
-import {getCredentialStore, helpers, validator} from '@bedrock/web-wallet';
+import {exchanges, getCredentialStore, helpers} from '@bedrock/web-wallet';
 import Login from '../components/Login.vue';
 import Next from '../components/Next.vue';
 import Problem from '../components/Problem.vue';
@@ -93,6 +93,7 @@ export default {
   },
   async created() {
     this.storageChecked = false;
+    // FIXME: remove all usage of storage access API
     if(typeof document.hasStorageAccess === 'function') {
       const hasStorageAccess = await document.hasStorageAccess();
       if(!hasStorageAccess) {
@@ -104,14 +105,20 @@ export default {
     const self = this;
     const event = await receiveCredentialEvent();
     console.log('credential store event', event);
-    const presentation = event.credential.data;
-    console.log('incoming presentation: ', prettify(presentation, null, 2));
+    let exchange;
     try {
-      validator.validate({
-        type: 'VerifiablePresentation',
-        doc: presentation
-      });
-      this.presentation = presentation;
+      // start exchange
+      exchange = await exchanges.start({event});
+      const {value, done} = await exchange.next();
+      if(!done) {
+        // FIXME: implement
+        throw new Error('Multi-step exchange not implemented.');
+      }
+      if(!value?.verifiablePresentation) {
+        throw new Error(
+          'No verifiable presentation with content to store found.');
+      }
+      this.presentation = value.verifiablePresentation;
       this.holder = this.presentation.holder;
       const {verifiableCredential} = this.presentation;
       if(!verifiableCredential) {
@@ -122,27 +129,20 @@ export default {
         this.verifiableCredential = verifiableCredential;
       }
     } catch(e) {
-      let error;
-      if(e.message === 'Proof "type" is not supported.') {
-        error = new Error('This credential is not compatible with this ' +
-          'wallet.');
-      } else {
-        error = new Error('Credential request failed validation.');
-      }
-      error.name = 'ValidationError';
-      error.details = e.message;
-      this.error = error;
+      console.error(e);
+      this.error = e;
       return;
     } finally {
       this.loading = false;
-      event.respondWith(new Promise((resolve, reject) => {
-        self._store = ({presentation}) => resolve({
-          dataType: 'VerifiablePresentation',
-          data: presentation
-        });
-        self._cancel = () => resolve(null);
-        self._error = err => reject(err);
-      }));
+      if(exchange) {
+        self._store = () => exchange.close();
+        self._cancel = () => exchange.cancel();
+        self._error = error => exchange.close({error});
+      } else {
+        event.respondWith(new Promise((resolve, reject) => {
+          self._error = err => reject(err);
+        }));
+      }
     }
   },
   methods: {
