@@ -98,9 +98,7 @@
             <div class="q-mt-sm">
               <small>
                 Not registered?
-                <span v-if="!checkedStorageAccess">Register</span>
                 <a
-                  v-else
                   href=""
                   @click.stop.prevent="register($event)">
                   Register</a>.
@@ -201,23 +199,20 @@
 
 <script>
 /*!
- * Copyright (c) 2018-2022 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2018-2023 Digital Bazaar, Inc. All rights reserved.
  */
 import {email, required} from '@vuelidate/validators';
 import {BrQTitleCard} from '@bedrock/quasar-components';
 import CodeInput from './CodeInput.vue';
 import {config} from '@bedrock/web';
-import {helpers} from '@bedrock/web-wallet';
 import {LoginController} from '@bedrock/web-authn-token';
 import {session} from '@bedrock/web-session';
 import useVuelidate from '@vuelidate/core';
 
-const {openFirstPartyWindow} = helpers;
-
 export default {
   name: 'Login',
   components: {CodeInput, BrQTitleCard},
-  emits: ['login', 'register', 'next'],
+  emits: ['login', 'register'],
   setup() {
     return {
       vuelidate: useVuelidate()
@@ -253,9 +248,7 @@ export default {
         twoFactorLogin: false
       },
       showEmailCodeAuthenticated: false,
-      awaitingAuthorization: false,
-      hasStorageAccess: true,
-      checkedStorageAccess: false
+      awaitingAuthorization: false
     };
   },
   computed: {
@@ -284,12 +277,6 @@ export default {
   beforeCreate() {
     this._ctrl = new LoginController();
   },
-  async created() {
-    if(typeof document.hasStorageAccess === 'function') {
-      this.hasStorageAccess = await document.hasStorageAccess();
-    }
-    this.checkedStorageAccess = true;
-  },
   mounted() {
     // FIXME: pass as parameters to component instead of getting from URL query
     const {email = '', code} = this.$route.query;
@@ -308,19 +295,7 @@ export default {
       this.deviceRegistered = true;
       this.showDeviceAlreadyRegistered = false;
     },
-    async requestStorageAccess() {
-      try {
-        // A Promise that fulfills with undefined if the access to first-party
-        // storage was granted, and rejects if access was denied.
-        await document.requestStorageAccess();
-      } catch(e) {
-        console.log('storage access error', e);
-      }
-    },
     async sendEmail() {
-      if(typeof document.requestStorageAccess === 'function') {
-        await this.requestStorageAccess();
-      }
       try {
         const {email} = this.ctrl;
         this.loading.emailCode = true;
@@ -528,25 +503,8 @@ export default {
 
       await this.$emitExtendable('login');
     },
-    async register(event) {
-      if(!this.hasStorageAccess) {
-        this.$q.loading.show({
-          delay: 0, // ms
-          // spinner: Spinner,
-          message: 'Waiting for you to register...'
-        });
-        this.awaitingAuthorization = true;
-        const handle = await openFirstPartyWindow(event);
-        handle.addEventListener('load', () => {
-          handle.addEventListener('unload', async () => {
-            this.awaitingAuthorization = false;
-            await this.$emitExtendable('next');
-            this.$q.loading.hide();
-          });
-        });
-      } else {
-        await this.$emitExtendable('register');
-      }
+    async register() {
+      await this.$emitExtendable('register');
     }
   }
 };
