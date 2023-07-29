@@ -21,7 +21,6 @@
       v-else
       class="row justify-center q-pa-md">
       <div
-        v-if="storageChecked"
         class="full-width"
         style="max-width: 500px">
         <login
@@ -38,15 +37,6 @@
           text="Please continue to the next step in order to select a profile
             to authenticate with."
           error-message="There was a problem registering your account."
-          @login="setDisplay('login')"
-          @next="setDisplay('next')" />
-        <next
-          v-if="display === 'initial'"
-          display="initial-share"
-          title="You are about to store some credentials"
-          text="Please continue to the next step in order to select a profile
-            to authenticate with."
-          error-message="There was a problem logging into your account."
           @login="setDisplay('login')"
           @next="setDisplay('next')" />
       </div>
@@ -91,8 +81,7 @@ export default {
       removeSessionListener: undefined,
       requestOrigin: '',
       display: 'login',
-      registering: false,
-      storageChecked: false
+      registering: false
     };
   },
   computed: {
@@ -111,14 +100,6 @@ export default {
   },
   async created() {
     this.loading = true;
-    this.storageChecked = false;
-    if(typeof document.hasStorageAccess === 'function') {
-      const hasStorageAccess = await document.hasStorageAccess();
-      if(!hasStorageAccess) {
-        this.display = 'initial';
-      }
-    }
-    this.storageChecked = true;
     this.ready = !!this.account;
     this.removeSessionListener = session.on('change', ({newData = {}}) => {
       this.ready = !!newData.account;
