@@ -66,7 +66,7 @@
 
 <script>
 /*!
- * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2015-2023 Digital Bazaar, Inc. All rights reserved.
  */
 import {
   ageCredentialHelpers, getCredentialStore, helpers, profileManager
@@ -347,46 +347,6 @@ function addChapiContext({presentation}) {
     presentation['@context'] = [presentation['@context']];
   }
   presentation['@context'].push('https://w3id.org/chapi/v1');
-}
-
-// eslint-disable-next-line no-unused-vars
-function filterHackForChapi(credentials, query) {
-  const [agentCredential] = credentials.filter(
-    credential => credential.type.includes('OrganizationAgentCredential'));
-  const credentialQuery = !Array.isArray(query.credentialQuery) ?
-    [query.credentialQuery] : query.credentialQuery;
-  const [customerQuery] = credentialQuery.filter(
-    ({example}) => example.type.includes('CustomerCredential'));
-  let customerCredential;
-  if(customerQuery) {
-    const {role} = customerQuery.example.credentialSubject;
-    [customerCredential] = credentials.filter(credential => {
-      return credential.type.includes('CustomerCredential') &&
-        credential.credentialSubject.role === role;
-    });
-  }
-  const vonName = 'Verified Organization Credential';
-  const [vonCredential] = credentials.filter(({name}) => name === vonName);
-
-  let filteredOrganization;
-  if(vonCredential) {
-    filteredOrganization = vonCredential;
-  } else {
-    // pick a self issued organiztion credential
-    const [credential] = credentials.filter(({name}) => name !== vonName);
-    filteredOrganization = credential;
-  }
-  const result = [];
-  if(agentCredential) {
-    result.push(agentCredential);
-  }
-  if(filteredOrganization) {
-    result.push(filteredOrganization);
-  }
-  if(customerCredential) {
-    result.push(customerCredential);
-  }
-  return result;
 }
 
 // FIXME: move elsewhere?
