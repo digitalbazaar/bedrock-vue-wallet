@@ -25,20 +25,11 @@
         style="max-width: 500px">
         <login
           v-if="display === 'login'"
-          @register="setDisplay('register')"
-          @next="setDisplay('next')" />
+          @register="setDisplay('register')" />
         <register
           v-if="display === 'register'"
           @login="setDisplay('login')"
           @register="$event.waitUntil(register())" />
-        <next
-          v-if="display === 'next'"
-          title="Registration"
-          text="Please continue to the next step in order to select a profile
-            to authenticate with."
-          error-message="There was a problem registering your account."
-          @login="setDisplay('login')"
-          @next="setDisplay('next')" />
       </div>
     </div>
   </div>
@@ -46,11 +37,10 @@
 
 <script>
 /*!
- * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2015-2023 Digital Bazaar, Inc. All rights reserved.
  */
 import {cryptoSuites, helpers, presentations} from '@bedrock/web-wallet';
 import Login from '../components/Login.vue';
-import Next from '../components/Next.vue';
 import Problem from '../components/Problem.vue';
 import {receiveCredentialEvent} from 'web-credential-handler';
 import Register from '../components/Register.vue';
@@ -62,7 +52,7 @@ const {prettify} = helpers;
 
 export default {
   name: 'ChapiSharePage',
-  components: {Register, Share, Login, Next, Problem},
+  components: {Register, Share, Login, Problem},
   props: {
     account: {
       type: String,

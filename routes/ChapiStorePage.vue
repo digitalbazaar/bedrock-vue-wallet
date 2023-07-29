@@ -29,19 +29,11 @@
         style="max-width: 500px">
         <login
           v-if="display === 'login'"
-          @register="setDisplay('register')"
-          @next="setDisplay('next')" />
+          @register="setDisplay('register')" />
         <register
           v-if="display === 'register'"
           @login="setDisplay('login')"
           @register="$event.waitUntil(register())" />
-        <next
-          v-if="display === 'next'"
-          title="Registration"
-          text="Please continue to the next step in order to select a profile
-            to authenticate with."
-          error-message="There was a problem registering your account."
-          @next="setDisplay('next')" />
       </div>
     </div>
   </div>
@@ -53,7 +45,6 @@
  */
 import {exchanges, getCredentialStore, helpers} from '@bedrock/web-wallet';
 import Login from '../components/Login.vue';
-import Next from '../components/Next.vue';
 import Problem from '../components/Problem.vue';
 import {receiveCredentialEvent} from 'web-credential-handler';
 import Register from '../components/Register.vue';
@@ -64,7 +55,7 @@ const {prettify} = helpers;
 
 export default {
   name: 'ChapiStorePage',
-  components: {Register, StoreCredentials, Problem, Login, Next},
+  components: {Register, StoreCredentials, Problem, Login},
   props: {
     account: {
       type: String,
