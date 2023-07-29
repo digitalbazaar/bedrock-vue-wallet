@@ -25,7 +25,6 @@
       v-else
       class="row justify-center q-pa-md">
       <div
-        v-if="storageChecked"
         class="full-width"
         style="max-width: 500px">
         <login
@@ -42,13 +41,6 @@
           text="Please continue to the next step in order to select a profile
             to authenticate with."
           error-message="There was a problem registering your account."
-          @next="setDisplay('next')" />
-        <next
-          v-if="display === 'initial'"
-          title="Login"
-          text="Please continue to the next step in order to select a
-          profile to store your credentials."
-          error-message="There was a problem logging into your account."
           @next="setDisplay('next')" />
       </div>
     </div>
@@ -87,20 +79,10 @@ export default {
       loading: true,
       holder: '',
       display: 'login',
-      registering: false,
-      storageChecked: false
+      registering: false
     };
   },
   async created() {
-    this.storageChecked = false;
-    // FIXME: remove all usage of storage access API
-    if(typeof document.hasStorageAccess === 'function') {
-      const hasStorageAccess = await document.hasStorageAccess();
-      if(!hasStorageAccess) {
-        this.display = 'initial';
-      }
-    }
-    this.storageChecked = true;
     this.loading = true;
     const self = this;
     const event = await receiveCredentialEvent();
