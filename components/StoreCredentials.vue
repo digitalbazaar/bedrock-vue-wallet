@@ -1,72 +1,81 @@
 <template>
-  <q-page
-    class="s-page"
-    :class="$q.screen.lt.sm ? 's-page-mobile' : 'q-my-md'"
-    style="max-width: 600px; border: 1px solid rgba(157, 157, 157, 0.75)">
-    <div
-      class="q-px-lg"
-      style="overflow: auto"
-      :style="$q.screen.lt.sm ? 'max-height: calc(100% - 67px)' :
-        'max-height: calc(100vh - 102px)'">
-      <div class="column">
-        <h6 class="text-center q-my-sm">
-          Would you like to store these credentials?
-        </h6>
-      </div>
-      <q-separator class="s-separator" />
-      <div class="full-width">
-        <profile-chooser
-          :loading="profilesUpdating"
-          :profiles="profiles"
-          :selected="selectedProfile"
-          @select="$event.waitUntil(selectProfile($event.profile))" />
-      </div>
-      <div class="column">
-        <div
-          :style="$q.screen.lt.sm ?
-            'border-bottom: 1px solid rgba(157, 157, 157, 0.75)' : ''">
-          <credentials-list
-            :compact="true"
-            :store="true"
-            :loading="loading"
-            :credentials="verifiableCredential"
-            :selected-profile-id="selectedProfileId" />
+  <div>
+    <q-inner-loading :showing="loading">
+      <q-spinner-tail
+        size="5em"
+        color="primary" />
+    </q-inner-loading>
+    <q-page
+      v-if="!loading"
+      class="s-page"
+      :class="$q.screen.lt.sm ? 's-page-mobile' : 'q-my-md'"
+      style="max-width: 600px; border: 1px solid rgba(157, 157, 157, 0.75)">
+      <div
+        class="q-px-lg"
+        style="overflow: auto"
+        :style="$q.screen.lt.sm ? 'max-height: calc(100% - 67px)' :
+          'max-height: calc(100vh - 102px)'">
+        <div class="column">
+          <h6 class="text-center q-my-sm">
+            Would you like to store these credentials?
+          </h6>
+        </div>
+        <q-separator class="s-separator" />
+        <div class="full-width">
+          <profile-chooser
+            :loading="profilesUpdating"
+            :profiles="profiles"
+            :selected="selectedProfile"
+            @select="$event.waitUntil(selectProfile($event.profile))" />
+        </div>
+        <div class="column">
+          <div
+            :style="$q.screen.lt.sm ?
+              'border-bottom: 1px solid rgba(157, 157, 157, 0.75)' : ''">
+            <credentials-list
+              :compact="true"
+              :store="true"
+              :loading="loading"
+              :credentials="verifiableCredential"
+              :selected-profile-id="selectedProfileId" />
+          </div>
         </div>
       </div>
-    </div>
-    <div
-      class="self-end row justify-between q-py-md q-px-lg"
-      :style="$q.screen.lt.sm ? 'position: fixed' : 'position: sticky'"
-      style="max-width: 600px">
-      <q-btn
-        class="q-mr-sm g-button bg-white"
-        no-caps
-        outline
-        color="primary"
-        label="Cancel"
-        :disable="loading"
-        @click="cancel()" />
-      <q-btn
-        class="g-button"
-        no-caps
-        color="primary"
-        :disable="loading || !selectedProfile"
-        :loading="loading"
-        label="Store"
-        @click="store()" />
-    </div>
-  </q-page>
+      <div
+        class="self-end row justify-between q-py-md q-px-lg"
+        :style="$q.screen.lt.sm ? 'position: fixed' : 'position: sticky'"
+        style="max-width: 600px">
+        <q-btn
+          class="q-mr-sm g-button bg-white"
+          no-caps
+          outline
+          color="primary"
+          label="Cancel"
+          :disable="loading"
+          @click="cancel()" />
+        <q-btn
+          class="g-button"
+          no-caps
+          color="primary"
+          :disable="loading || !selectedProfile"
+          :loading="loading"
+          label="Store"
+          @click="store()" />
+      </div>
+    </q-page>
+  </div>
 </template>
 
 <script>
 /*!
- * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2015-2023 Digital Bazaar, Inc. All rights reserved.
  */
+// FIXME: fix imports
+import {computed, ref, toRef} from 'vue';
 import {computedAsync} from '@vueuse/core';
 import CredentialsList from './CredentialsList.vue';
 import ProfileChooser from './ProfileChooser.vue';
 import {profileManager} from '@bedrock/web-wallet';
-import {ref} from 'vue';
 
 export default {
   name: 'StoreCredentials',
@@ -82,11 +91,6 @@ export default {
       default: () => [],
       required: true
     },
-    loading: {
-      type: Boolean,
-      required: true,
-      default: true
-    },
     holder: {
       type: String,
       required: true,
@@ -99,10 +103,13 @@ export default {
     const profiles = computedAsync(
       async () => profileManager.getProfiles({useCache: true}),
       [], profilesUpdating);
-    return {
-      profiles,
-      profilesUpdating
-    };
+
+    const storing = ref(false);
+
+    const loading = computed(
+      () => profilesUpdating.value || storing.value);
+
+    return {loading, profiles, profilesUpdating, storing};
   },
   data() {
     return {
@@ -136,9 +143,16 @@ export default {
   },
   methods: {
     async store() {
-      const {verifiableCredential} = this;
-      const holder = this.selectedProfile.id;
-      await this.$emitExtendable('store', {holder, verifiableCredential});
+      this.storing = true;
+      try {
+        const {verifiableCredential} = this;
+        const holder = this.selectedProfile.id;
+        await this.$emitExtendable('store', {holder, verifiableCredential});
+      } catch(e) {
+        console.log('Error: ', e);
+      } finally {
+        this.storing = false;
+      }
     },
     async cancel() {
       await this.$emitExtendable('cancel');

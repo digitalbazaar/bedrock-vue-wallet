@@ -16,10 +16,6 @@
         style="overflow: auto"
         :style="$q.screen.lt.sm ? 'max-height: calc(100% - 67px)' :
           'max-height: calc(100vh - 102px)'">
-        <share-header
-          :name="name"
-          :image="image"
-          :type="headerType" />
         <div class="full-width">
           <profile-chooser
             :loading="profilesUpdating"
@@ -30,7 +26,6 @@
         <share-review
           :capabilities="capabilityQuery"
           :credentials="displayableCredentials"
-          :name="name"
           :loading="loading || !selectedProfile"
           :request-origin="requestOrigin"
           :type="query.type"
@@ -76,18 +71,16 @@ import {computedAsync} from '@vueuse/core';
 import ProfileChooser from './ProfileChooser.vue';
 import ShareHeader from './ShareHeader.vue';
 import ShareReview from './ShareReview.vue';
-import {WebAppManifestClient} from '@digitalbazaar/web-app-manifest-utils';
 
 const {createCapabilities} = helpers;
 const {ensureLocalCredentials} = ageCredentialHelpers;
-
-const manifestClient = new WebAppManifestClient();
 
 /**
  * This component is generally rendered inside a CHAPI window. It is used
  * to select credentials/capabilities to share with a relying party.
  */
 export default {
+  // FIXME: rename to `ShareCredentials`; vue components should be two+ words
   name: 'Share',
   components: {
     ProfileChooser,
@@ -109,31 +102,6 @@ export default {
   emits: ['share', 'cancel'],
   setup(props) {
     const requestOrigin = toRef(props, 'requestOrigin');
-
-    const relyingPartyManifestUpdating = ref(true);
-    const relyingPartyManifest = computedAsync(async () => {
-      try {
-        const {value: origin} = requestOrigin;
-        if(origin) {
-          return await manifestClient.getManifest({origin});
-        }
-      } catch(e) {
-        console.error(e);
-        return undefined;
-      }
-    }, undefined, relyingPartyManifestUpdating);
-
-    const icon = computedAsync(async () => {
-      const {value: manifest} = relyingPartyManifest;
-      const {value: origin} = requestOrigin;
-      if(!(manifest && origin)) {
-        return '';
-      }
-      const icon = await manifestClient.getManifestIcon({
-        size: 48, manifest, origin
-      });
-      return icon ? icon.src : '';
-    }, '');
 
     const profilesUpdating = ref(true);
     const profiles = computedAsync(async () => {
@@ -220,14 +188,12 @@ export default {
 
     const loading = computed(() =>
       verifiableCredentialUpdating.value ||
-      relyingPartyManifestUpdating.value ||
       profilesUpdating.value ||
       sharing.value);
 
     return {
       credentialQuery,
       displayableCredentials,
-      icon,
       loading,
       profiles,
       profilesUpdating,
@@ -257,21 +223,11 @@ export default {
       const response = [...vcs, ...zcaps];
       return response.length === 0;
     },
-    favicon() {
-      return `${this.requestOrigin}/favicon.ico`;
-    },
+    // FIXME: button label determined by headerType; consider moving buttons
+    // elsewhere / using `continue` and `finish` language
     headerType() {
       return (this.query && (this.query.type === 'DIDAuthentication' ||
         this.query.type === 'DIDAuth')) ? 'authentication' : 'query';
-    },
-    image() {
-      return this.icon || this.favicon;
-    },
-    name() {
-      if(!this.relyingPartyManifest) {
-        return this.requestOrigin;
-      }
-      return this.relyingPartyManifest.name;
     },
     capabilityQuery() {
       return this.ocapQuery.capabilityQuery || [];
