@@ -22,7 +22,7 @@
         :loading="loading"
         :error="error"
         @cancel="$event.waitUntil(cancel(error))" />
-      <share
+      <share-credentials
         v-else-if="!loading && display === 'share'"
         :query="query"
         :request-origin="requestOrigin"
@@ -64,7 +64,7 @@ import Problem from '../components/Problem.vue';
 import {receiveCredentialEvent} from 'web-credential-handler';
 import Register from '../components/Register.vue';
 import {session} from '@bedrock/web-session';
-import Share from '../components/Share.vue';
+import ShareCredentials from '../components/ShareCredentials.vue';
 import StoreCredentials from '../components/StoreCredentials.vue';
 import {WebAppManifestClient} from '@digitalbazaar/web-app-manifest-utils';
 
@@ -74,7 +74,9 @@ const {prettify} = helpers;
 
 export default {
   name: 'ChapiExchangePage',
-  components: {ChapiHeader, Login, Problem, Register, Share, StoreCredentials},
+  components: {
+    ChapiHeader, Login, Problem, Register, ShareCredentials, StoreCredentials
+  },
   props: {
     account: {
       type: String,
@@ -216,9 +218,6 @@ export default {
       console.log('CHAPI event received', event);
       this.requestOrigin = event.credentialRequestOrigin;
 
-      // FIXME: remove
-      this.query = {};
-
       // FIXME: as the exchange happens, pass resulting VPs and VPRs to
       // components that handle either share or store, showing first
       // the `store` component and then the `share` component ... for
@@ -258,6 +257,7 @@ export default {
             this.setDisplay('share');
 
             // FIXME: something is requested, potentially DID Auth
+            this.query = verifiablePresentationRequest;
 
             await this.yield();
           }
