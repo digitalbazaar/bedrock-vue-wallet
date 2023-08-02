@@ -69,7 +69,6 @@ import {
 import {computed, ref, toRaw, toRef} from 'vue';
 import {computedAsync} from '@vueuse/core';
 import ProfileChooser from './ProfileChooser.vue';
-import ShareHeader from './ShareHeader.vue';
 import ShareReview from './ShareReview.vue';
 
 const {createCapabilities} = helpers;
@@ -81,11 +80,7 @@ const {ensureLocalCredentials} = ageCredentialHelpers;
  */
 export default {
   name: 'ShareCredentials',
-  components: {
-    ProfileChooser,
-    ShareHeader,
-    ShareReview
-  },
+  components: {ProfileChooser, ShareReview},
   props: {
     query: {
       type: [Object, Array],
@@ -196,7 +191,7 @@ export default {
       loading,
       profiles,
       profilesUpdating,
-      relyingPartyManifest,
+      requestOrigin,
       selectedProfile,
       selectedProfileId,
       sharing,
