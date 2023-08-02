@@ -236,16 +236,11 @@ export default {
           const {value, done} = await this._exchange.next(options);
           this.exchanging = false;
 
-          // FIXME: make this cleaner
-          if(this.verifiablePresentation) {
-            value.verifiablePresentation = undefined;
-          }
-
           // clear share-related state
           this.query = undefined;
           this.verifiablePresentation = undefined;
 
-          if(value.verifiablePresentation) {
+          if(value?.verifiablePresentation) {
             // user must approve store...
             this.setDisplay('store');
 
@@ -267,7 +262,7 @@ export default {
             this.verifiableCredential = [];
             this.holder = '';
           }
-          if(value.verifiablePresentationRequest) {
+          if(value?.verifiablePresentationRequest) {
             // user must approve share...
             this.setDisplay('share');
 
