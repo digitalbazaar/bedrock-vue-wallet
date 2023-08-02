@@ -258,7 +258,7 @@ export default {
         const {verifiableCredential} = this;
         const presentation = {
           '@context': ['https://www.w3.org/2018/credentials/v1'],
-          type: 'VerifiablePresentation',
+          type: ['VerifiablePresentation'],
           holder: this.selectedProfile.id
         };
         if(verifiableCredential.length > 0) {

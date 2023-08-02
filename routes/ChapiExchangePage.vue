@@ -231,6 +231,13 @@ export default {
           const options = {};
           if(this.verifiablePresentation) {
             options.verifiablePresentation = toRaw(this.verifiablePresentation);
+            if(options.verifiablePresentation.holder) {
+              // FIXME: enable setting of other sign options such as
+              // cryptosuite / VM to use
+              options.signOptions = {
+                profileId: options.verifiablePresentation.holder
+              };
+            }
           }
           this.exchanging = true;
           const {value, done} = await this._exchange.next(options);
@@ -271,6 +278,10 @@ export default {
 
             await this.yield();
           }
+
+          // FIXME: if this is the first time through the loop and nothing
+          // was in `value` (no VPR, no VP), we need to set an error condition
+          // and `yield()` to let the user see something went wrong
 
           if(done) {
             // exchange is finished
