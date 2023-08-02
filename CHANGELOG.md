@@ -1,28 +1,27 @@
 # bedrock-vue-wallet ChangeLog
 
-## 19.1.2 -
-
-### Fixed
-- Typo in error message: occurred not occured.
-
-## 19.1.1 -
+## 19.0.0 - 2023-08-dd
 
 ### Added
+- A new notification asks the user if they want their wallet to manage
+  credentials on the home page.
 - A new config option `disableChapi` for disabling chapi.
 
 ### Fixed
+- Typo in error message: occurred not occured.
 - RemoveItemModel now emits a value for show.
-
-## 19.0.0 - 2023-04-dd
-
-### Added
-- A new notification asks the user if they want their wallet to manage credentials
-  on the home page.
+- On initial app load, the wallet layout component will not render any route
+  component until the current route in the router has been set to match
+  whatever route is associated with `window.location`.
 
 ### Removed
-- **BREAKING**: Credential Management prompt no longer occurs after registration
-  automatically, instead, a notification message is shown that the user must click
-  on to show the prompt.
+- **BREAKING**: The CHAPI share and store routes have been consoldated to a
+  single CHAPI exchange page. Existing deployments need to update their
+  credential handler implementations to redirect to
+  `/credential-handler/exchange` instead of `/credential-handler/share|store`.
+- **BREAKING**: Credential Management prompt no longer occurs after
+  registration automatically, instead, a notification message is shown that
+  the user must click on to show the prompt.
 
 ## 18.0.0 - 2023-01-24
 
