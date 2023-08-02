@@ -80,8 +80,7 @@ const {ensureLocalCredentials} = ageCredentialHelpers;
  * to select credentials/capabilities to share with a relying party.
  */
 export default {
-  // FIXME: rename to `ShareCredentials`; vue components should be two+ words
-  name: 'Share',
+  name: 'ShareCredentials',
   components: {
     ProfileChooser,
     ShareHeader,
