@@ -3,7 +3,7 @@
     view="hHh LpR fFf"
     class="s-page">
     <q-header
-      v-if="!chapi"
+      v-if="ready && !chapi"
       class="shadow-3">
       <wallet-header
         :account="account"
@@ -11,7 +11,13 @@
         :toggle-drawer="toggleDrawer" />
     </q-header>
 
-    <q-page-container>
+    <q-inner-loading :showing="!ready">
+      <q-spinner-tail
+        size="5em"
+        color="primary" />
+    </q-inner-loading>
+
+    <q-page-container v-if="ready">
       <q-drawer
         v-model="showDrawer"
         class="lt-md"
@@ -31,6 +37,7 @@
  */
 import {session, sessionDataRef} from '../lib/session.js';
 import {computed} from 'vue';
+import {rootData} from '../lib/rootData.js';
 import Drawer from './Drawer.vue';
 import WalletHeader from './WalletHeader.vue';
 
@@ -49,6 +56,7 @@ export default {
       account
     };
   },
+  // FIXME: convert to setup()
   data() {
     return {
       showDrawer: false
@@ -60,6 +68,9 @@ export default {
     },
     displayDrawer() {
       return this.$q.screen.lt.md;
+    },
+    ready() {
+      return rootData.ready;
     }
   },
   watch: {
