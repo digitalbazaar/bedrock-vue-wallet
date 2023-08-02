@@ -144,7 +144,8 @@ export default {
       registering: false,
       removeSessionListener: undefined,
       resolveYield: undefined,
-      verifiableCredential: []
+      verifiableCredential: [],
+      verifiablePresentation: undefined
     };
   },
   created() {
@@ -218,27 +219,37 @@ export default {
       console.log('CHAPI event received', event);
       this.requestOrigin = event.credentialRequestOrigin;
 
-      // FIXME: as the exchange happens, pass resulting VPs and VPRs to
-      // components that handle either share or store, showing first
-      // the `store` component and then the `share` component ... for
-      // each round of the exchange
+      // as the exchange happens, pass resulting VPs and VPRs to components
+      // that handle either share or store, showing first the `store` component
+      // and then the `share` component ... for each round of the exchange
       try {
         // start exchange
         this._exchange = await exchanges.start({event});
         this.ready = true;
 
         while(true) {
-          let options;
+          const options = {};
           if(this.verifiablePresentation) {
             options.verifiablePresentation = toRaw(this.verifiablePresentation);
           }
           this.exchanging = true;
           const {value, done} = await this._exchange.next(options);
           this.exchanging = false;
+
+          // FIXME: make this cleaner
+          if(this.verifiablePresentation) {
+            value.verifiablePresentation = undefined;
+          }
+
+          // clear share-related state
+          this.query = undefined;
+          this.verifiablePresentation = undefined;
+
           if(value.verifiablePresentation) {
             // user must approve store...
             this.setDisplay('store');
 
+            // set store-related state
             const {verifiablePresentation: presentation} = value;
             this.holder = presentation.holder;
             const {verifiableCredential} = presentation;
@@ -251,13 +262,17 @@ export default {
             }
 
             await this.yield();
+
+            // clear store-related state
+            this.verifiableCredential = [];
+            this.holder = '';
           }
           if(value.verifiablePresentationRequest) {
             // user must approve share...
             this.setDisplay('share');
 
-            // FIXME: something is requested, potentially DID Auth
-            this.query = verifiablePresentationRequest;
+            // set share-related state
+            this.query = value.verifiablePresentationRequest.query;
 
             await this.yield();
           }
