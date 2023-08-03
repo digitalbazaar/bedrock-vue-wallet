@@ -1,5 +1,12 @@
 # bedrock-vue-wallet ChangeLog
 
+## 19.0.1 - 2023-08-dd
+
+### Fixed
+- Handle empty Verifiable Presentation from exchange; there is nothing
+  to store if the properties in the VP that the wallet understands are
+  not present or are empty.
+
 ## 19.0.0 - 2023-08-03
 
 ### Added
