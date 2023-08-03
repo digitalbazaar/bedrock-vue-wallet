@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 19.0.0 - 2023-08-dd
+## 19.0.0 - 2023-08-03
 
 ### Added
 - A new notification asks the user if they want their wallet to manage
