@@ -88,39 +88,6 @@ export default {
   setup(props) {
     const $q = useQuasar();
 
-    const requestOrigin = ref('');
-
-    const relyingPartyManifestUpdating = ref(true);
-    const relyingPartyManifest = computedAsync(async () => {
-      try {
-        const {value: origin} = requestOrigin;
-        if(origin) {
-          return await manifestClient.getManifest({origin});
-        }
-      } catch(e) {
-        console.error(e);
-        return undefined;
-      }
-    }, undefined, relyingPartyManifestUpdating);
-
-    const relyingPartyIcon = computedAsync(async () => {
-      const {value: manifest} = relyingPartyManifest;
-      const {value: origin} = requestOrigin;
-      if(!(manifest && origin)) {
-        return '';
-      }
-      const icon = await manifestClient.getManifestIcon(
-        {size: 64, manifest, origin});
-      return icon ? icon.src : '';
-    }, '');
-
-    const relyingPartyFavicon = computed(
-      () => `${requestOrigin.value}/favicon.ico`);
-    const relyingPartyImage = computed(
-      () => relyingPartyIcon.value || relyingPartyFavicon.value);
-    const relyingPartyName = computed(
-      () => relyingPartyManifest.value?.name || requestOrigin.value);
-
     const display = ref('login');
     const error = ref();
     const exchanging = ref(false);
@@ -139,7 +106,6 @@ export default {
 
     const loading = computed(() =>
       !ready.value ||
-      relyingPartyManifestUpdating.value ||
       exchanging.value ||
       storing.value);
 
@@ -191,11 +157,49 @@ export default {
       }
     };
 
+    // relying party origin processing
+    const requestOrigin = ref('');
+    const relyingPartyManifest = ref();
+    const relyingPartyIcon = ref('');
+    const relyingPartyFavicon = computed(
+      () => `${requestOrigin.value}/favicon.ico`);
+    const relyingPartyImage = computed(
+      () => relyingPartyIcon.value || relyingPartyFavicon.value);
+    const relyingPartyName = computed(
+      () => relyingPartyManifest.value?.name || requestOrigin.value);
+    const getManifest = async origin => {
+      try {
+        if(origin) {
+          return await manifestClient.getManifest({origin});
+        }
+      } catch(e) {
+        console.error(e);
+        return;
+      }
+    };
+    const getManifestIcon = async () => {
+      const {value: manifest} = relyingPartyManifest;
+      const {value: origin} = requestOrigin;
+      if(!(manifest && origin)) {
+        return '';
+      }
+      const icon = await manifestClient.getManifestIcon(
+        {size: 64, manifest, origin});
+      return icon ? icon.src : '';
+    };
+    const processRelyingPartyOrigin = async ({origin}) => {
+      requestOrigin.value = origin;
+      relyingPartyManifest.value = await getManifest(origin);
+      relyingPartyIcon.value = await getManifestIcon();
+    };
+
     const handleCredentialEvent = async () => {
       const event = await receiveCredentialEvent();
       console.log('CHAPI event received', event);
-      // FIXME: call functions to get manifest
-      requestOrigin.value = event.credentialRequestOrigin;
+
+      // process relying party origin prior to indicating `ready` to create
+      // a smooth loading experience
+      await processRelyingPartyOrigin({origin: event.credentialRequestOrigin});
 
       // as the exchange happens, pass resulting VPs and VPRs to components
       // that handle either share or store, showing first the `store` component
