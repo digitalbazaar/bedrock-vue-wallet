@@ -99,6 +99,7 @@ export default {
   emits: ['store', 'cancel'],
   setup() {
     const profilesUpdating = ref(true);
+    // FIXME: `useCache: true` is problematic when user is registered JIT
     const profiles = computedAsync(
       async () => profileManager.getProfiles({useCache: true}),
       [], profilesUpdating);

@@ -98,6 +98,7 @@ export default {
     const profilesUpdating = ref(true);
     const profiles = computedAsync(async () => {
       try {
+        // FIXME: `useCache: true` is problematic when user is registered JIT
         return await profileManager.getProfiles({useCache: true});
       } catch(e) {
         // TODO: Properly handle error. Retry fetching profiles or set a flag
