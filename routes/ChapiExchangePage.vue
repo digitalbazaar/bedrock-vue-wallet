@@ -56,7 +56,7 @@
 /*!
  * Copyright (c) 2015-2023 Digital Bazaar, Inc. All rights reserved.
  */
-import {computed, onBeforeUnmount, ref, toRaw} from 'vue';
+import {computed, onBeforeUnmount, ref, toRaw, toRef} from 'vue';
 import {exchanges, getCredentialStore, helpers} from '@bedrock/web-wallet';
 import ChapiHeader from '../components/ChapiHeader.vue';
 import Login from '../components/Login.vue';
@@ -113,48 +113,21 @@ export default {
       registering.value = value === 'register';
     };
 
-    // exchange processing
-    let exchange;
+    // utils for waiting for user interaction
     let resume;
-    let reject;
-    const cancel = error => reject ?
-      reject(error) :
-      error ? exchange.close({error}) : exchange.cancel();
-    const wait = async () => await new Promise(r => resume = r);
+    const wait = async () => new Promise(r => resume = r);
 
-    const share = async presentation => {
-      verifiablePresentation.value = toRaw(presentation);
-      resume();
-    };
-    const store = async ({holder, verifiableCredential}) => {
-      holder = toRaw(holder);
-      verifiableCredential = toRaw(verifiableCredential);
-
-      storing.value = true;
-      try {
-        const credentialStore = await getCredentialStore({
-          // FIXME: determine how password will be provided / set; currently
-          // set to `profileId`
-          profileId: holder, password: holder
-        });
-        await credentialStore.add({credentials: verifiableCredential});
-        resume();
-      } catch(e) {
-        if(e.name === 'DuplicateError') {
-          $q.notify({
-            type: 'negative',
-            message: 'Failed to store duplicate credential(s).'
-          });
-        }
-        const error = new Error('Credential storage failed.');
-        error.name = 'StorageError';
-        error.details = e;
-        console.log('storage error(s): ', prettify(e, null, 2));
-        error.value = error;
-      } finally {
-        storing.value = false;
+    // track user logged in status
+    const account = toRef(props, 'account');
+    const userLoggedIn = ref(!!account.value);
+    const removeSessionListener = session.on('change', ({newData = {}}) => {
+      userLoggedIn.value = !!newData.account;
+      if(userLoggedIn.value) {
+        resume?.();
       }
-    };
+    });
+    // clean up session listener
+    onBeforeUnmount(() => removeSessionListener());
 
     // relying party origin processing
     const requestOrigin = ref('');
@@ -190,6 +163,47 @@ export default {
       requestOrigin.value = origin;
       relyingPartyManifest.value = await getManifest(origin);
       relyingPartyIcon.value = await getManifestIcon();
+    };
+
+    // exchange processing
+    let exchange;
+    let reject;
+    const cancel = error => reject ?
+      reject(error) :
+      error ? exchange.close({error}) : exchange.cancel();
+
+    const share = async presentation => {
+      verifiablePresentation.value = toRaw(presentation);
+      resume();
+    };
+    const store = async ({holder, verifiableCredential}) => {
+      holder = toRaw(holder);
+      verifiableCredential = toRaw(verifiableCredential);
+
+      storing.value = true;
+      try {
+        const credentialStore = await getCredentialStore({
+          // FIXME: determine how password will be provided / set; currently
+          // set to `profileId`
+          profileId: holder, password: holder
+        });
+        await credentialStore.add({credentials: verifiableCredential});
+        resume();
+      } catch(e) {
+        if(e.name === 'DuplicateError') {
+          $q.notify({
+            type: 'negative',
+            message: 'Failed to store duplicate credential(s).'
+          });
+        }
+        const error = new Error('Credential storage failed.');
+        error.name = 'StorageError';
+        error.details = e;
+        console.log('storage error(s): ', prettify(e, null, 2));
+        error.value = error;
+      } finally {
+        storing.value = false;
+      }
     };
 
     const handleCredentialEvent = async () => {
@@ -291,17 +305,6 @@ export default {
         }
       }
     };
-
-    // track user logged in status
-    const userLoggedIn = ref(!!props.account);
-    const removeSessionListener = session.on('change', ({newData = {}}) => {
-      userLoggedIn.value = !!newData.account;
-      if(userLoggedIn.value) {
-        resume?.();
-      }
-    });
-    // clean up session listener
-    onBeforeUnmount(() => removeSessionListener());
 
     // start processing any CHAPI event
     handleCredentialEvent().finally(() => ready.value = true);
