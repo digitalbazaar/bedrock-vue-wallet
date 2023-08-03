@@ -11,7 +11,7 @@ module.exports = {
   extends: [
     'digitalbazaar',
     'digitalbazaar/jsdoc',
-    'digitalbazaar/vue'
+    'digitalbazaar/vue3'
   ],
   rules: {
     'vue/multi-word-component-names': 0
