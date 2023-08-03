@@ -43,11 +43,12 @@
       style="max-width: 500px">
       <login
         v-if="display === 'login'"
+        @login="$event.waitUntil(login())"
         @register="setDisplay('register')" />
       <register
         v-if="display === 'register'"
         @login="setDisplay('login')"
-        @register="$event.waitUntil(register())" />
+        @register="$event.waitUntil(login())" />
     </div>
   </div>
 </template>
@@ -56,14 +57,15 @@
 /*!
  * Copyright (c) 2015-2023 Digital Bazaar, Inc. All rights reserved.
  */
-import {computed, onBeforeUnmount, ref, toRaw, toRef} from 'vue';
-import {exchanges, getCredentialStore, helpers} from '@bedrock/web-wallet';
+import {computed, ref, toRaw, toRef} from 'vue';
+import {
+  exchanges, getCredentialStore, helpers, profileManager
+} from '@bedrock/web-wallet';
 import ChapiHeader from '../components/ChapiHeader.vue';
 import Login from '../components/Login.vue';
 import Problem from '../components/Problem.vue';
 import {receiveCredentialEvent} from 'web-credential-handler';
 import Register from '../components/Register.vue';
-import {session} from '@bedrock/web-session';
 import ShareCredentials from '../components/ShareCredentials.vue';
 import StoreCredentials from '../components/StoreCredentials.vue';
 import {useQuasar} from 'quasar';
@@ -98,11 +100,6 @@ export default {
     const verifiableCredential = ref([]);
     const verifiablePresentation = ref();
 
-    const register = async () => {
-      display.value = 'login';
-      registering.value = false;
-    };
-
     const loading = computed(() =>
       !ready.value ||
       exchanging.value ||
@@ -120,14 +117,12 @@ export default {
     // track user logged in status
     const account = toRef(props, 'account');
     const userLoggedIn = ref(!!account.value);
-    const removeSessionListener = session.on('change', ({newData = {}}) => {
-      userLoggedIn.value = !!newData.account;
-      if(userLoggedIn.value) {
-        resume?.();
-      }
-    });
-    // clean up session listener
-    onBeforeUnmount(() => removeSessionListener());
+    const login = async () => {
+      // ensure profiles are reloaded after login
+      await profileManager.getProfiles({useCache: false});
+      userLoggedIn.value = true;
+      resume?.();
+    };
 
     // relying party origin processing
     const requestOrigin = ref('');
@@ -311,9 +306,9 @@ export default {
 
     return {
       cancel, display, error, exchanging, holder,
-      loading, query, ready,
+      loading, login, query, ready,
       relyingPartyImage, relyingPartyName,
-      register, registering, requestOrigin, setDisplay,
+      registering, requestOrigin, setDisplay,
       share, store, storing, userLoggedIn, verifiableCredential
     };
   }
