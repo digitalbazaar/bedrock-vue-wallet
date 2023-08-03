@@ -14,7 +14,8 @@
       <div v-if="requestOrigin">
         <chapi-header
           :name="relyingPartyName"
-          :image="relyingPartyImage" />
+          :image="relyingPartyImage"
+          :request="relyingPartyRequest" />
         <q-separator class="s-separator" />
       </div>
       <problem
@@ -134,6 +135,18 @@ export default {
       () => relyingPartyIcon.value || relyingPartyFavicon.value);
     const relyingPartyName = computed(
       () => relyingPartyManifest.value?.name || requestOrigin.value);
+    const relyingPartyRequest = computed(
+      () => {
+        if(display.value === 'store') {
+          return 'has something for you';
+        } else if(display.value === 'share') {
+          if(query.value?.type === 'DIDAuthentication') {
+            return 'would like you to authenticate';
+          }
+          return 'would like some information from you'
+        }
+        return 'would like to interact with you';
+      });
     const getManifest = async origin => {
       try {
         if(origin) {
@@ -307,7 +320,7 @@ export default {
     return {
       cancel, display, error, exchanging, holder,
       loading, login, query, ready,
-      relyingPartyImage, relyingPartyName,
+      relyingPartyImage, relyingPartyName, relyingPartyRequest,
       registering, requestOrigin, setDisplay,
       share, store, storing, userLoggedIn, verifiableCredential
     };

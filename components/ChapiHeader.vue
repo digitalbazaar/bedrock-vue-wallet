@@ -9,7 +9,7 @@
           class="s-rp-image">
       </div>
       <h6 class="q-my-sm">
-        <strong>{{name}}</strong> would like to interact with you.
+        <strong>{{name}}</strong> {{request}}.
       </h6>
     </div>
   </div>
@@ -27,6 +27,10 @@ export default {
       required: true
     },
     name: {
+      type: String,
+      required: true
+    },
+    request: {
       type: String,
       required: true
     }
