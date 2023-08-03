@@ -8,10 +8,14 @@ module.exports = {
     browser: true,
     node: true
   },
+  plugins: [
+    'quasar'
+  ],
   extends: [
     'digitalbazaar',
     'digitalbazaar/jsdoc',
-    'digitalbazaar/vue3'
+    'digitalbazaar/vue3',
+    'plugin:quasar/standard'
   ],
   rules: {
     'vue/multi-word-component-names': 0
