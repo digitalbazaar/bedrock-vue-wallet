@@ -9,7 +9,8 @@
     </q-inner-loading>
     <div
       v-if="userLoggedIn"
-      class="column" style="max-width: 500px">
+      class="column"
+      style="max-width: 500px">
       <div v-if="requestOrigin">
         <chapi-header
           :name="relyingPartyName"
@@ -55,10 +56,10 @@
 /*!
  * Copyright (c) 2015-2023 Digital Bazaar, Inc. All rights reserved.
  */
+import {computed, onBeforeUnmount, ref, toRaw} from 'vue';
 import {exchanges, getCredentialStore, helpers} from '@bedrock/web-wallet';
-import {computed, ref, toRaw} from 'vue';
-import {computedAsync} from '@vueuse/core';
 import ChapiHeader from '../components/ChapiHeader.vue';
+import {computedAsync} from '@vueuse/core';
 import Login from '../components/Login.vue';
 import Problem from '../components/Problem.vue';
 import {receiveCredentialEvent} from 'web-credential-handler';
@@ -83,7 +84,7 @@ export default {
       default: undefined
     }
   },
-  setup() {
+  setup(props) {
     const requestOrigin = ref('');
 
     const relyingPartyManifestUpdating = ref(true);
@@ -117,9 +118,21 @@ export default {
     const relyingPartyName = computed(
       () => relyingPartyManifest.value?.name || requestOrigin.value);
 
+    const display = ref('login');
+    const error = ref();
     const exchanging = ref(false);
-    const storing = ref(false);
+    const holder = ref('');
+    const query = ref();
     const ready = ref(false);
+    const registering = ref(false);
+    const storing = ref(false);
+    const verifiableCredential = ref([]);
+    const verifiablePresentation = ref();
+
+    const register = async () => {
+      display.value = 'login';
+      registering.value = false;
+    };
 
     const loading = computed(() =>
       !ready.value ||
@@ -127,58 +140,29 @@ export default {
       exchanging.value ||
       storing.value);
 
-    return {
-      exchanging, loading, ready, relyingPartyImage, relyingPartyName,
-      requestOrigin, storing
+    const setDisplay = value => {
+      display.value = value;
+      registering.value = value === 'register';
     };
-  },
-  // FIXME: convert to `setup()`
-  data() {
-    return {
-      // FIXME: clean up
-      //acceptedProofTypes: undefined,
-      display: 'login',
-      error: undefined,
-      holder: '',
-      query: undefined,
-      registering: false,
-      removeSessionListener: undefined,
-      resolveYield: undefined,
-      verifiableCredential: [],
-      verifiablePresentation: undefined
+
+    // exchange processing
+    let exchange;
+    let resume;
+    let reject;
+    const cancel = error => reject ?
+      reject(error) :
+      error ? exchange.close({error}) : exchange.cancel();
+    const wait = async () => await new Promise(r => resume = r);
+
+    const share = async presentation => {
+      verifiablePresentation.value = toRaw(presentation);
+      resume();
     };
-  },
-  created() {
-    this.userLoggedIn = !!this.account;
-    this.removeSessionListener = session.on('change', ({newData = {}}) => {
-      this.userLoggedIn = !!newData.account;
-    });
-    this.handleCredentialEvent().finally(() => {
-      this.ready = true;
-    });
-  },
-  async beforeUnmount() {
-    // clean up session listener
-    this.removeSessionListener();
-  },
-  methods: {
-    setDisplay(display) {
-      this.display = display;
-      this.registering = display === 'register';
-    },
-    async register() {
-      this.display = 'login';
-      this.registering = false;
-    },
-    async share(presentation) {
-      this.verifiablePresentation = presentation;
-      this.continue();
-    },
-    async store({holder, verifiableCredential}) {
+    const store = async ({holder, verifiableCredential}) => {
       holder = toRaw(holder);
       verifiableCredential = toRaw(verifiableCredential);
 
-      this.storing = true;
+      storing.value = true;
       try {
         const credentialStore = await getCredentialStore({
           // FIXME: determine how password will be provided / set; currently
@@ -186,7 +170,7 @@ export default {
           profileId: holder, password: holder
         });
         await credentialStore.add({credentials: verifiableCredential});
-        this.continue();
+        resume();
       } catch(e) {
         if(e.name === 'DuplicateError') {
           this.$q.notify({
@@ -198,39 +182,31 @@ export default {
         error.name = 'StorageError';
         error.details = e;
         console.log('storage error(s): ', prettify(e, null, 2));
-        this.error = error;
+        error.value = error;
       } finally {
-        this.storing = false;
+        storing.value = false;
       }
-    },
-    cancel(error) {
-      // FIXME: perhaps set a flag to cancel and then call `continue` instead,
-      // allowing `_exchange` to be scoped only to `handleCredentialEvent`
-      error ? this._exchange.close({error}) : this._exchange.cancel();
-    },
-    async yield() {
-      await new Promise(r => this.resolveYield = r);
-    },
-    continue() {
-      this.resolveYield();
-    },
-    async handleCredentialEvent() {
+    };
+
+    const handleCredentialEvent = async () => {
       const event = await receiveCredentialEvent();
       console.log('CHAPI event received', event);
-      this.requestOrigin = event.credentialRequestOrigin;
+      // FIXME: call functions to get manifest
+      requestOrigin.value = event.credentialRequestOrigin;
 
       // as the exchange happens, pass resulting VPs and VPRs to components
       // that handle either share or store, showing first the `store` component
       // and then the `share` component ... for each round of the exchange
       try {
         // start exchange
-        this._exchange = await exchanges.start({event});
-        this.ready = true;
+        exchange = await exchanges.start({event});
+        ready.value = true;
 
         while(true) {
           const options = {};
-          if(this.verifiablePresentation) {
-            options.verifiablePresentation = toRaw(this.verifiablePresentation);
+          if(verifiablePresentation.value) {
+            options.verifiablePresentation = toRaw(
+              verifiablePresentation.value);
             if(options.verifiablePresentation.holder) {
               // FIXME: enable setting of other sign options such as
               // cryptosuite / VM to use
@@ -239,71 +215,90 @@ export default {
               };
             }
           }
-          this.exchanging = true;
-          const {value, done} = await this._exchange.next(options);
-          this.exchanging = false;
+          exchanging.value = true;
+          const {value, done} = await exchange.next(options);
+          exchanging.value = false;
 
           // clear share-related state
-          this.query = undefined;
-          this.verifiablePresentation = undefined;
+          query.value = undefined;
+          verifiablePresentation.value = undefined;
 
           if(value?.verifiablePresentation) {
             // user must approve store...
-            this.setDisplay('store');
+            setDisplay('store');
 
             // set store-related state
             const {verifiablePresentation: presentation} = value;
-            this.holder = presentation.holder;
-            const {verifiableCredential} = presentation;
-            if(!verifiableCredential) {
-              this.verifiableCredential = [];
-            } else if(!Array.isArray(verifiableCredential)) {
-              this.verifiableCredential = [verifiableCredential];
+            holder.value = presentation.holder;
+            const {verifiableCredential: credentials} = presentation;
+            if(!credentials) {
+              verifiableCredential.value = [];
+            } else if(!Array.isArray(credentials)) {
+              verifiableCredential.value = [credentials];
             } else {
-              this.verifiableCredential = verifiableCredential;
+              verifiableCredential.value = credentials;
             }
 
-            await this.yield();
+            await wait();
 
             // clear store-related state
-            this.verifiableCredential = [];
-            this.holder = '';
+            verifiableCredential.value = [];
+            holder.value = '';
           }
           if(value?.verifiablePresentationRequest) {
             // user must approve share...
-            this.setDisplay('share');
+            setDisplay('share');
 
             // set share-related state
-            this.query = value.verifiablePresentationRequest.query;
+            query.value = value.verifiablePresentationRequest.query;
 
-            await this.yield();
+            await wait();
           }
 
           // FIXME: if this is the first time through the loop and nothing
           // was in `value` (no VPR, no VP), we need to set an error condition
-          // and `yield()` to let the user see something went wrong
+          // and `wait()` to let the user see something went wrong
 
           if(done) {
             // exchange is finished
-            this._exchange.close();
+            exchange.close();
             break;
           }
         }
       } catch(e) {
         console.error(e);
-        this.error = e;
+        error.value = e;
         return;
       } finally {
-        this.ready = true;
-        this.exchanging = false;
+        ready.value = true;
+        exchanging.value = false;
         // no exchange created; just reject event once user cancels
-        if(!this._exchange) {
-          event.respondWith(new Promise((resolve, reject) => {
-            this.cancel = err => reject(err);
+        if(!exchange) {
+          event.respondWith(new Promise((res, rej) => {
+            reject = rej;
           }));
         }
       }
-    }
+    };
+
+    // track user logged in status
+    const userLoggedIn = ref(!!props.account);
+    const removeSessionListener = session.on('change', ({newData = {}}) => {
+      userLoggedIn.value = !!newData.account;
+    });
+    // clean up session listener
+    onBeforeUnmount(() => removeSessionListener());
+
+    // start processing any CHAPI event
+    handleCredentialEvent().finally(() => ready.value = true);
+
+    return {
+      cancel, display, error, exchanging, holder,
+      loading, query, ready,
+      relyingPartyImage, relyingPartyName,
+      register, registering, requestOrigin, setDisplay,
+      share, store, storing, userLoggedIn, verifiableCredential
+    };
   }
 };
 </script>
