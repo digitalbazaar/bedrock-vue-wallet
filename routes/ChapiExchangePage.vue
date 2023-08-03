@@ -59,7 +59,6 @@
 import {computed, onBeforeUnmount, ref, toRaw} from 'vue';
 import {exchanges, getCredentialStore, helpers} from '@bedrock/web-wallet';
 import ChapiHeader from '../components/ChapiHeader.vue';
-import {computedAsync} from '@vueuse/core';
 import Login from '../components/Login.vue';
 import Problem from '../components/Problem.vue';
 import {receiveCredentialEvent} from 'web-credential-handler';
@@ -209,6 +208,11 @@ export default {
         exchange = await exchanges.start({event});
         ready.value = true;
 
+        // wait for user to be logged in
+        if(!userLoggedIn.value) {
+          await wait();
+        }
+
         while(true) {
           const options = {};
           if(verifiablePresentation.value) {
@@ -292,6 +296,9 @@ export default {
     const userLoggedIn = ref(!!props.account);
     const removeSessionListener = session.on('change', ({newData = {}}) => {
       userLoggedIn.value = !!newData.account;
+      if(userLoggedIn.value) {
+        resume?.();
+      }
     });
     // clean up session listener
     onBeforeUnmount(() => removeSessionListener());
