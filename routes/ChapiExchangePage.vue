@@ -143,7 +143,7 @@ export default {
           if(query.value?.type === 'DIDAuthentication') {
             return 'would like you to authenticate';
           }
-          return 'would like some information from you'
+          return 'would like some information from you';
         }
         return 'would like to interact with you';
       });
