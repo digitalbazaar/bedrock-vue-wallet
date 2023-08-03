@@ -67,6 +67,7 @@ import Register from '../components/Register.vue';
 import {session} from '@bedrock/web-session';
 import ShareCredentials from '../components/ShareCredentials.vue';
 import StoreCredentials from '../components/StoreCredentials.vue';
+import {useQuasar} from 'quasar';
 import {WebAppManifestClient} from '@digitalbazaar/web-app-manifest-utils';
 
 const manifestClient = new WebAppManifestClient();
@@ -85,6 +86,8 @@ export default {
     }
   },
   setup(props) {
+    const $q = useQuasar();
+
     const requestOrigin = ref('');
 
     const relyingPartyManifestUpdating = ref(true);
@@ -173,7 +176,7 @@ export default {
         resume();
       } catch(e) {
         if(e.name === 'DuplicateError') {
-          this.$q.notify({
+          $q.notify({
             type: 'negative',
             message: 'Failed to store duplicate credential(s).'
           });
