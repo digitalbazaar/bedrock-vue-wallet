@@ -257,9 +257,6 @@ export default {
           verifiablePresentation.value = undefined;
 
           if(value?.verifiablePresentation) {
-            // user must approve store...
-            setDisplay('store');
-
             // set store-related state
             const {verifiablePresentation: presentation} = value;
             holder.value = presentation.holder;
@@ -272,7 +269,14 @@ export default {
               verifiableCredential.value = credentials;
             }
 
-            await wait();
+            // if there is something to store, wait for user to approve storage
+            // FIXME: enable storage of capabilities as well
+            if(verifiableCredential.value.length > 0) {
+              // user must approve store...
+              setDisplay('store');
+
+              await wait();
+            }
 
             // clear store-related state
             verifiableCredential.value = [];
