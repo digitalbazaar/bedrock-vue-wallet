@@ -7,6 +7,10 @@
   credentials on the home page.
 - A new config option `disableChapi` for disabling chapi.
 
+### Changed
+- **BREAKING**: Require node >= 18.
+- Require peer dependency `@bedrock/web-wallet@11.3`.
+
 ### Fixed
 - Typo in error message: occurred not occured.
 - RemoveItemModel now emits a value for show.
