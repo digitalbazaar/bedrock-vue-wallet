@@ -35,7 +35,7 @@
       :columns="columns"
       :rows="searchFilter"
       :loading="loading"
-      @handleButton="handleButton($event)" />
+      @handle-button="handleButton($event)" />
     <!-- Modals -->
     <add-user-modal
       v-if="showAddModal"
@@ -62,7 +62,7 @@
  * Copyright (c) 2018-2022 Digital Bazaar, Inc. All rights reserved.
  */
 import {computed, ref, toRef} from 'vue';
-import {format, utils} from 'quasar';
+import {date, format} from 'quasar';
 import {profileManager, users} from '@bedrock/web-wallet';
 import AddUserModal from './AddUserModal.vue';
 import {BrQTable} from '@bedrock/quasar-components';
@@ -70,6 +70,9 @@ import {computedAsync} from '@vueuse/core';
 import EditUserModal from './EditUserModal.vue';
 import RemoveItemModal from './RemoveItemModal.vue';
 import SearchBox from './SearchBox.vue';
+
+const {capitalize} = format;
+const {formatDate} = date;
 
 const {
   addUser, updateUser, removeUser, createOnboardLink
@@ -103,7 +106,7 @@ const columns = [
     label: 'Access',
     field: 'access',
     // TODO: br-quasar-table has a bug and does not respect format
-    format: val => format.capitalize(val),
+    format: val => capitalize(val),
     sortable: true
   },
   {
@@ -212,7 +215,7 @@ export default {
           return {
             ...row,
             authorizedDate: this.getDate(row.authorizedDate),
-            access: format.capitalize(row.access)
+            access: capitalize(row.access)
           };
         });
     }
@@ -231,7 +234,7 @@ export default {
   },
   methods: {
     getDate(dateString) {
-      return utils.date.formatDate(dateString, 'YYYY-MM-DD');
+      return formatDate(dateString, 'YYYY-MM-DD');
     },
     handleButton(data) {
       this.user = {...data.row};

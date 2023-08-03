@@ -34,7 +34,7 @@
       :columns="columns"
       :rows="profilesList"
       :loading="loading"
-      @handleButton="handleButton($event)" />
+      @handle-button="handleButton($event)" />
     <add-profile-modal
       v-if="showAddProfileModal"
       v-model="showAddProfileModal"
