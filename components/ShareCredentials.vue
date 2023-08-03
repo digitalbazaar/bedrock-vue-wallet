@@ -95,8 +95,6 @@ export default {
   },
   emits: ['share', 'cancel'],
   setup(props) {
-    const requestOrigin = toRef(props, 'requestOrigin');
-
     const profilesUpdating = ref(true);
     const profiles = computedAsync(async () => {
       try {
@@ -191,16 +189,10 @@ export default {
       loading,
       profiles,
       profilesUpdating,
-      requestOrigin,
       selectedProfile,
       selectedProfileId,
       sharing,
       verifiableCredential
-    };
-  },
-  data() {
-    return {
-      presentation: null
     };
   },
   computed: {
