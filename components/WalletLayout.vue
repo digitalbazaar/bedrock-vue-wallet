@@ -37,8 +37,8 @@
  */
 import {session, sessionDataRef} from '../lib/session.js';
 import {computed} from 'vue';
-import {rootData} from '../lib/rootData.js';
 import Drawer from './Drawer.vue';
+import {rootData} from '../lib/rootData.js';
 import WalletHeader from './WalletHeader.vue';
 
 export default {

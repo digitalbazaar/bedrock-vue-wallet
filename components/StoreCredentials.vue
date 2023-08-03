@@ -70,8 +70,7 @@
 /*!
  * Copyright (c) 2015-2023 Digital Bazaar, Inc. All rights reserved.
  */
-// FIXME: fix imports
-import {computed, ref, toRef} from 'vue';
+import {computed, ref} from 'vue';
 import {computedAsync} from '@vueuse/core';
 import CredentialsList from './CredentialsList.vue';
 import ProfileChooser from './ProfileChooser.vue';
