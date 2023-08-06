@@ -235,6 +235,7 @@ export default {
           await wait();
         }
 
+        let actionTaken = false;
         while(true) {
           const options = {};
           if(verifiablePresentation.value) {
@@ -276,6 +277,7 @@ export default {
               setDisplay('store');
 
               await wait();
+              actionTaken = true;
             }
 
             // clear store-related state
@@ -290,11 +292,19 @@ export default {
             query.value = value.verifiablePresentationRequest.query;
 
             await wait();
+            actionTaken = true;
           }
 
-          // FIXME: if this is the first time through the loop and nothing
-          // was in `value` (no VPR, no VP), we need to set an error condition
-          // and `wait()` to let the user see something went wrong
+          // if no action was taken then nothing actionable was in in `value`
+          // (no VPR, no VP / empty VP); so set an error condition and `wait()`
+          // to let the user see something went wrong
+          if(!actionTaken) {
+            const e = new Error('Nothing was received or requested.');
+            e.name = 'OperationError';
+            error.value = e;
+            await wait();
+            throw e;
+          }
 
           if(done) {
             // exchange is finished
