@@ -205,7 +205,7 @@ export default {
           });
         }
         const error = new Error('Credential storage failed.');
-        error.name = 'StorageError';
+        error.name = 'OperationError';
         error.details = e;
         console.log('storage error(s): ', prettify(e, null, 2));
         error.value = error;
