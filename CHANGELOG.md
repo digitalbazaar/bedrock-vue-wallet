@@ -1,5 +1,11 @@
 # bedrock-vue-wallet ChangeLog
 
+## 19.0.2 - 2023-08-dd
+
+### Fixed
+- Show error for exchanges that have both nothing to store and nothing
+  requested.
+
 ## 19.0.1 - 2023-08-03
 
 ### Fixed
