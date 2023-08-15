@@ -373,7 +373,8 @@ async function _getRecords({query, profileId}) {
   const {queries: q} = await credentialStore.remote.convertVPRQuery({
     vprQuery
   });
-
+  // FIXME: Flattened query should be removed. Must be able to process query
+  //        as-is to properly apply and-or logic to results.
   const {documents: results} = await credentialStore.remote.find({
     // flatten the query: [[{type: A}], [{type: B}, {type: C}], [{type: D}]]
     //         into   =>  [{type: A}, {type: B}, {type: C}, {type: D}]
@@ -381,7 +382,7 @@ async function _getRecords({query, profileId}) {
     query: q.flat()
   });
   records.push(...results);
-
+  // FIXME: Create a more generalized filter mechanism for vc search.
   return records.filter(openBadgeFilter({vprQuery}));
 }
 
