@@ -85,7 +85,6 @@ const {createCapabilities} = helpers;
 const {ensureLocalCredentials} = ageCredentialHelpers;
 
 const AUTHENTICATION_QUERY_TYPES = ['DIDAuth', 'DIDAuthentication'];
-const manifestClient = new WebAppManifestClient();
 
 /**
  * This component is generally rendered inside a CHAPI window. It is used
