@@ -315,46 +315,6 @@ function addChapiContext({presentation}) {
   presentation['@context'].push('https://w3id.org/chapi/v1');
 }
 
-// eslint-disable-next-line no-unused-vars
-function filterHackForChapi(credentials, query) {
-  const [agentCredential] = credentials.filter(
-    credential => credential.type.includes('OrganizationAgentCredential'));
-  const credentialQuery = !Array.isArray(query.credentialQuery) ?
-    [query.credentialQuery] : query.credentialQuery;
-  const [customerQuery] = credentialQuery.filter(
-    ({example}) => example.type.includes('CustomerCredential'));
-  let customerCredential;
-  if(customerQuery) {
-    const {role} = customerQuery.example.credentialSubject;
-    [customerCredential] = credentials.filter(credential => {
-      return credential.type.includes('CustomerCredential') &&
-        credential.credentialSubject.role === role;
-    });
-  }
-  const vonName = 'Verified Organization Credential';
-  const [vonCredential] = credentials.filter(({name}) => name === vonName);
-
-  let filteredOrganization;
-  if(vonCredential) {
-    filteredOrganization = vonCredential;
-  } else {
-    // pick a self issued organiztion credential
-    const [credential] = credentials.filter(({name}) => name !== vonName);
-    filteredOrganization = credential;
-  }
-  const result = [];
-  if(agentCredential) {
-    result.push(agentCredential);
-  }
-  if(filteredOrganization) {
-    result.push(filteredOrganization);
-  }
-  if(customerCredential) {
-    result.push(customerCredential);
-  }
-  return result;
-}
-
 async function getRecords({credentialQuery, profileId}) {
   // FIXME: Make query processor smarter. Independent execution of multiple
   //        queries may result in duplicates.
