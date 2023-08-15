@@ -5,6 +5,11 @@
       <br-q-title-card
         title="Credentials"
         class="full-width">
+        <template #head>
+          <div style="float: right;">
+            <q-btn size="sm" flat icon="fas fa-sync-alt" @click="refresh" />
+          </div>
+        </template>
         <template #body>
           <div class="q-pl-md q-pb-md row">
             <div class="q-pt-md q-pr-md col-md-8 col-xs-12 row items-center">
@@ -109,6 +114,10 @@ export default {
       return emitExtendable('delete-credential', {profileId, credentialId});
     };
 
+    function refresh() {
+      emit('refresh');
+    }
+
     const filteredProfiles = ref([]);
     watch(
       () => filteredProfiles,
@@ -120,6 +129,7 @@ export default {
       filteredCredentials,
       filteredProfiles,
       noResults,
+      refresh,
       search
     };
   }

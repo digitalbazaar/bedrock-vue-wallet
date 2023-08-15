@@ -7,7 +7,8 @@
       :error-text="errorText"
       @delete-credential="$event.waitUntil(deleteCredential($event))"
       @filtered-profiles="filteredProfiles = $event"
-      @filtered-credentials-loading="loadingFilteredCredentials = $event" />
+      @filtered-credentials-loading="loadingFilteredCredentials = $event"
+      @refresh="getCredentials"/>
   </div>
 </template>
 
@@ -134,6 +135,7 @@ export default {
       deleteCredential,
       errorText,
       filteredProfiles,
+      getCredentials,
       loading,
       loadingCredentials,
       loadingFilteredCredentials,
