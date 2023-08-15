@@ -381,9 +381,17 @@ async function _getRecords({query, profileId}) {
     query: q.flat()
   });
   records.push(...results);
-  return records;
+
+  return records.filter(openBadgeFilter({vprQuery}));
 }
 
+function openBadgeFilter({vprQuery}) {
+  return ({content}) => {
+    const {example} = vprQuery.credentialQuery;
+    // eslint-disable-next-line max-len
+    return example?.credentialSubject?.achievement?.id === content?.credentialSubject?.achievement?.id;
+  };
+}
 // FIXME: move elsewhere?
 async function createContainers({credentialStore, records}) {
   // FIXME: change this; it is hacky -- build virtual VCs instead somehow
