@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 20.0.0 - 2023-08-xx
+## 20.0.0 - 2023-08-15
 
 ### Added
 - `CredentialsList.vue` now contains an option to select the VCs shared.
