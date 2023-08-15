@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 20.1.0 - 2023-08-xx
+## 20.1.0 - 2023-08-15
 
 ### Added
 - Add refresh button to retrieve new credentials.
