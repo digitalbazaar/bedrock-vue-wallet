@@ -1,10 +1,12 @@
 # bedrock-vue-wallet ChangeLog
 
-## 19.1.0 -
- 
+## 20.0.0 - 2023-08-xx
+
 ### Added
 - `CredentialsList.vue` now contains an option to select the VCs shared.
 - `CredentialSelect.vue` is a new component that adds a selection box to VCs.
+- Support and-or semantics for QueryByExample.
+- Support advanced credential filtering for OpenBadgeCredentials.
 
 ## 19.0.2 - 2023-08-06
 
