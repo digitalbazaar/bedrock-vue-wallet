@@ -1,5 +1,20 @@
 # bedrock-vue-wallet ChangeLog
 
+## 21.0.0 - 2023-08-dd
+
+### Changed
+- **BREAKING**: Decouple `token-client-registration` from email authentication
+  and remove it as a required authentication method for any account that
+  successfully logs in. This means that device registration can still be
+  required for accounts that are created with it as a requirement -- but only
+  once and then it will be subsequently removed as a requirement. Device
+  registration, if enabled, will occur after email authentication now as it
+  is expected to be phased out (it is no longer a requirement to do it prior
+  to email authentication). Deployments may be updated to use this version
+  and expect a smooth transition that removes device registration as users
+  login again over time. Deployments should also be updated to remove device
+  registration as a requirement from new accounts to avoid it entirely.
+
 ## 20.1.0 - 2023-08-15
 
 ### Added

@@ -154,7 +154,6 @@ export default {
     async setAuthenticationRequirements({account, totp, recoveryEmail}) {
       // TODO: update rather than full overwrite
       const requiredAuthenticationMethods = [
-        'token-client-registration',
         'login-email-challenge'
       ];
       if(totp || recoveryEmail) {
