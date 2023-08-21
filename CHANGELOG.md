@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 21.0.0 - 2023-08-dd
+## 21.0.0 - 2023-08-21
 
 ### Changed
 - **BREAKING**: Decouple `token-client-registration` from email authentication
