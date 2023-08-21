@@ -40,13 +40,13 @@
               a code that you can enter below to log into your wallet.
             </p>
             <p
-              v-if="deviceRegistered"
+              v-if="!deviceRegistrationRequired"
               class="text-left">
               We will email you a code so you can access your wallet. Please
               enter the email address below associated with your wallet.
             </p>
             <p
-              v-if="!deviceRegistered"
+              v-if="deviceRegistrationRequired"
               class="text-left">
               We could not find an account with the email you entered.
               You can register
@@ -106,11 +106,9 @@
             </div>
           </div>
 
-          <div v-if="showEmailCode && deviceRegistered">
+          <div v-if="showEmailCode && !deviceRegistrationRequired">
             <p class="text-left q-mt-md">
               Please enter the code that was sent to your above email.
-              <!-- FIXME -->
-              You may also click directly on the link sent to your email.
             </p>
             <code-input
               hint="Please enter the 6 character code sent to your email
@@ -222,6 +220,7 @@ export default {
     return {
       branding: config.vueWallet.branding,
       ctrl: this._ctrl.state,
+      deviceRegistrationRequired: false,
       emailCode: '',
       emailCodeAuthenticated: false,
       invalidEmailCode: false,
@@ -230,7 +229,6 @@ export default {
       invalidTotpCode: false,
       recoveryEmailCode: '',
       invalidRecoveryEmailCode: false,
-      deviceRegistered: true,
       showEmail: true,
       showSendEmail: true,
       showResendEmail: false,
@@ -259,7 +257,7 @@ export default {
       if(this.showDeviceAlreadyRegistered) {
         return 'Warning: Possible Scam Blocked!';
       }
-      if(!this.deviceRegistered) {
+      if(this.deviceRegistrationRequired) {
         return 'Device Not Registered';
       }
       if(this.showRecoveryEmailCode) {
@@ -292,72 +290,66 @@ export default {
   },
   methods: {
     reset() {
-      this.deviceRegistered = true;
+      this.deviceRegistrationRequired = false;
       this.showDeviceAlreadyRegistered = false;
     },
     async sendEmail() {
       try {
         const {email} = this.ctrl;
         this.loading.emailCode = true;
-        // check if device registered
-        const result = await this._ctrl.tokenService.isClientRegistered(
-          {email});
-        this.deviceRegistered = result.registered;
-        let authenticationMethod;
-        const requiredAuthenticationMethods = [];
-        let typeOptions;
-        if(this.deviceRegistered) {
-          requiredAuthenticationMethods.push('token-client-registration');
-          authenticationMethod = 'login-email-challenge';
-        } else {
-          authenticationMethod = 'token-client-registration';
-          typeOptions = {entryStyle: 'machine'};
-        }
-        await this._ctrl.tokenService.create({
-          email,
-          type: 'nonce',
-          authenticationMethod,
-          requiredAuthenticationMethods,
-          typeOptions
-        });
 
-        // go to page to enter info
-        if(!this.deviceRegistered) {
-          this.showRegisterDevice = true;
+        if(this.deviceRegistrationRequired) {
+          // create nonce for device registration; it will send email as well;
+          // note this is a legacy feature for older accounts only
+          await this._ctrl.tokenService.create({
+            email,
+            type: 'nonce',
+            authenticationMethod: 'token-client-registration',
+            typeOptions: {entryStyle: 'machine'}
+          });
         } else {
-          this.showSendEmail = false;
-          this.showResendEmail = true;
-          this.showRegisterLink = false;
-          this.showEmailCode = true;
-          this.emailCode = '';
+          // create nonce for email authentication; it will send email as well
+          await this._ctrl.tokenService.create({
+            email,
+            type: 'nonce',
+            authenticationMethod: 'login-email-challenge'
+          });
         }
+
+        this.showSendEmail = false;
+        this.showResendEmail = true;
+        this.showRegisterLink = false;
+        this.showEmailCode = true;
+        this.emailCode = '';
       } catch(e) {
-        console.log('sendEmail error', e);
+        console.error('sendEmail error', e);
         this.reset();
       } finally {
         this.loading.emailCode = false;
       }
     },
     async registerDevice({email, code}) {
+      let result;
       try {
-        await this._ctrl.tokenService.authenticate({
+        result = await this._ctrl.tokenService.authenticate({
           type: 'nonce', email, challenge: code
         });
       } catch(e) {
-        if(e.name === 'DuplicateError') {
+        if(e.name !== 'DuplicateError') {
+          console.error('Device registration error', e);
+        } else {
           this.showDeviceAlreadyRegistered = true;
         }
+        return;
       }
-      if(!this.showDeviceAlreadyRegistered) {
-        this.showDeviceRegistered = true;
-        // TODO: optimize to only create new email login token
-        await this.sendEmail();
-      }
+      this.showDeviceRegistered = true;
+      await this.handleAuthenticationResult({result});
     },
     async emailCodeEntered() {
       try {
-        const {email} = this.ctrl;
         this.loading.login = true;
+
+        const {email} = this.ctrl;
         let result;
         try {
           result = await this._ctrl.tokenService.authenticate({
@@ -380,36 +372,67 @@ export default {
           });
           return;
         }
-        this.totpCode = '';
-        this.showTotpCode = this.requiresMethod({
-          method: 'totp-challenge',
-          authenticatedMethods: result.result.authenticatedMethods,
-          requiredAuthenticationMethods:
-            result.result.requiredAuthenticationMethods
-        });
-        this.showEmailCodeAuthenticated = this.showTotpCode;
-        this.hasRecoveryEmail = this.requiresMethod({
-          method: 'recovery-email-challenge',
-          authenticatedMethods: result.result.authenticatedMethods,
-          requiredAuthenticationMethods:
-            result.result.requiredAuthenticationMethods
-        });
-        if(!this.showTotpCode) {
-          await this.login();
-        }
-        this.showEmail = false;
-        this.showEmailCode = false;
+
+        await this.handleAuthenticationResult({result});
       } catch(e) {
-        console.log('Login Error', e);
+        console.error('Login Error', e);
       } finally {
         this.loading.login = false;
       }
+    },
+    async handleAuthenticationResult({result} = {}) {
+      // check for device registration requirement; this is a legacy method
+      // that has been deprecated but some accounts still require it
+      this.deviceRegistrationRequired = this.requiresMethod({
+        method: 'token-client-registration',
+        authenticatedMethods: result.result.authenticatedMethods,
+        requiredAuthenticationMethods:
+          result.result.requiredAuthenticationMethods
+      });
+      if(this.deviceRegistrationRequired) {
+        // do device registration
+        this.showRegisterDevice = true;
+        return this.sendEmail();
+      }
+
+      // check if email authentication is required
+      const emailAuthnRequired = this.requiresMethod({
+        method: 'login-email-challenge',
+        authenticatedMethods: result.result.authenticatedMethods,
+        requiredAuthenticationMethods:
+          result.result.requiredAuthenticationMethods
+      });
+      if(emailAuthnRequired) {
+        this.showRegisterDevice = false;
+        return this.sendEmail();
+      }
+
+      // check for other multifactors
+      this.totpCode = '';
+      this.showTotpCode = this.requiresMethod({
+        method: 'totp-challenge',
+        authenticatedMethods: result.result.authenticatedMethods,
+        requiredAuthenticationMethods:
+          result.result.requiredAuthenticationMethods
+      });
+      this.showEmailCodeAuthenticated = this.showTotpCode;
+      this.hasRecoveryEmail = this.requiresMethod({
+        method: 'recovery-email-challenge',
+        authenticatedMethods: result.result.authenticatedMethods,
+        requiredAuthenticationMethods:
+          result.result.requiredAuthenticationMethods
+      });
+      if(!this.showTotpCode) {
+        await this.login();
+      }
+      this.showEmail = false;
+      this.showEmailCode = false;
     },
     requiresMethod({
       method, authenticatedMethods, requiredAuthenticationMethods
     }) {
       // FIXME: improve / share with TwoFactorStepper code
-      return !(method in authenticatedMethods) &&
+      return !authenticatedMethods.includes(method) &&
         requiredAuthenticationMethods
           .some(element => {
             return element === method ||
@@ -425,7 +448,7 @@ export default {
         });
         await this.login();
       } catch(e) {
-        console.log('Login Error', e);
+        console.error('Login Error', e);
       } finally {
         this.loading.twoFactorLogin = false;
       }
@@ -451,25 +474,10 @@ export default {
       await this.login();
     },
     async login() {
-      // TODO: Needs to properly check for correct code
-      //console.log('Code: ' + this.ctrl.challenge);
-
-      //const result = await this._ctrl.authenticate({type: 'nonce'});
-      //console.log('LOGIN AUTH', {result});
-      // FIXME: check result for two-factor needed and type(s)
-
-      // TODO: Check for two-factor authentication
-      /*
-      const hasTwoFactor = false;
-      if(hasTwoFactor) {
-        await this.$emitExtendable('authenticate');
-        return;
-      }
-      */
-
       try {
         await this._ctrl.login();
       } catch(e) {
+        console.error('Login error', e);
         let message;
         if(e.type === 'ValidationError') {
           message = 'Your credentials are incorrect. Please try again.';
@@ -488,8 +496,9 @@ export default {
 
       try {
         await session.refresh();
+        await this.removeTokenClientRegistrationRequirement();
       } catch(e) {
-        console.log(e);
+        console.error(e);
         const message =
           'An error has occurred. Please refresh the page to try again.';
         this.$q.notify({
@@ -505,6 +514,22 @@ export default {
     },
     async register() {
       await this.$emitExtendable('register');
+    },
+    async removeTokenClientRegistrationRequirement() {
+      // remove `token-client-registration` requirement if present
+      const {account: {id: account}} = session.data;
+      const response = await this._ctrl.tokenService
+        .getAuthenticationRequirements({account});
+      const requiredAuthenticationMethods =
+        response.requiredAuthenticationMethods.filter(
+          m => m !== 'token-client-registration');
+      if(requiredAuthenticationMethods.length <
+        response.requiredAuthenticationMethods.length) {
+        await this._ctrl.tokenService.setAuthenticationRequirements({
+          account,
+          requiredAuthenticationMethods
+        });
+      }
     }
   }
 };
