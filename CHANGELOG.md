@@ -1,5 +1,11 @@
 # bedrock-vue-wallet ChangeLog
 
+## 21.1.0 - 2023-08-dd
+
+### Changed
+- Render "allow wallet" feature as an unobtrusive banner at the bottom of the
+  home page instead of as a notification.
+
 ## 21.0.0 - 2023-08-21
 
 ### Changed
