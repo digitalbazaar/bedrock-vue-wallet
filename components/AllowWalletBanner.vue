@@ -2,7 +2,7 @@
   <q-banner
     v-if="show"
     :class="$q.dark.isActive ? 'bg-grey-9' : 'bg-grey-3'">
-    Your wallet is not showing in the wallet selector on other websites?
+    Your wallet not showing in the wallet selector on other websites?
     <template v-slot:action>
       <q-btn
         flat
