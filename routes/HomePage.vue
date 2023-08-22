@@ -9,6 +9,11 @@
       @filtered-profiles="filteredProfiles = $event"
       @filtered-credentials-loading="loadingFilteredCredentials = $event"
       @refresh="getCredentials"/>
+    <q-page-sticky
+      expand
+      position="bottom">
+      <AllowWalletBanner :account="account" />
+    </q-page-sticky>
   </div>
 </template>
 
@@ -18,14 +23,15 @@ import {
   getCredentialStore,
   profileManager
 } from '@bedrock/web-wallet';
-import {computed, onMounted, ref, toRef, watch} from 'vue';
+import {computed, ref, toRef, watch} from 'vue';
+import AllowWalletBanner from '../components/AllowWalletBanner.vue';
 import {computedAsync} from '@vueuse/core';
 import Credentials from '../components/Credentials.vue';
-import {notifyAllowWallet} from '../lib/helpers.js';
 
 export default {
   name: 'HomePage',
   components: {
+    AllowWalletBanner,
     Credentials
   },
   props: {
@@ -124,11 +130,6 @@ export default {
       loadingFilteredCredentials.value ||
       loadingCredentials.value ||
       loadingProfiles.value);
-    // on mount possibly show the wallet authorization notification
-    onMounted(() => notifyAllowWallet({
-      account: accountId.value,
-      preventRenotify: true
-    }));
 
     return {
       credentials,
