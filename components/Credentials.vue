@@ -7,7 +7,11 @@
         class="full-width">
         <template #head>
           <div style="float: right;">
-            <q-btn size="sm" flat icon="fas fa-sync-alt" @click="refresh" />
+            <q-btn
+              size="sm"
+              flat
+              icon="fas fa-sync-alt"
+              @click="refresh" />
           </div>
         </template>
         <template #body>

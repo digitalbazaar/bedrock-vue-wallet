@@ -3,7 +3,7 @@
     v-if="show"
     :class="$q.dark.isActive ? 'bg-grey-9' : 'bg-grey-3'">
     Your wallet not showing in the wallet selector on other websites?
-    <template v-slot:action>
+    <template #action>
       <q-btn
         flat
         color="white"
@@ -25,7 +25,7 @@
 import {ref, toRef} from 'vue';
 import {config} from '@bedrock/web';
 import {installHandler} from 'web-credential-handler';
-import {Notify} from 'quasar';``
+import {Notify} from 'quasar';
 
 const notifiedAccounts = new Map();
 
@@ -39,6 +39,7 @@ export default {
   },
   setup(props) {
     const accountId = toRef(props, 'account');
+    const show = ref(!config?.vueWallet?.disableChapi);
 
     const addWallet = async () => {
       try {
@@ -65,8 +66,6 @@ export default {
       // if the user dismisses the notification don't show it again
       notifiedAccounts.set(accountId.value, true);
     };
-
-    const show = ref(!config?.vueWallet?.disableChapi);
 
     return {addWallet, dismiss, show};
   }
