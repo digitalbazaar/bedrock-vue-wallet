@@ -8,7 +8,8 @@
       @delete-credential="$event.waitUntil(deleteCredential($event))"
       @filtered-profiles="filteredProfiles = $event"
       @filtered-credentials-loading="loadingFilteredCredentials = $event"
-      @refresh="getCredentials"/>
+      @refresh="getCredentials" />
+    <install-credential-handler />
   </div>
 </template>
 
@@ -18,15 +19,17 @@ import {
   getCredentialStore,
   profileManager
 } from '@bedrock/web-wallet';
-import {computed, onMounted, ref, toRef, watch} from 'vue';
+import {computed, ref, toRef, watch} from 'vue';
 import {computedAsync} from '@vueuse/core';
 import Credentials from '../components/Credentials.vue';
-import {notifyAllowWallet} from '../lib/helpers.js';
+import InstallCredentialHandler
+  from '../components/InstallCredentialHandler.vue';
 
 export default {
   name: 'HomePage',
   components: {
-    Credentials
+    Credentials,
+    InstallCredentialHandler
   },
   props: {
     account: {
@@ -124,11 +127,6 @@ export default {
       loadingFilteredCredentials.value ||
       loadingCredentials.value ||
       loadingProfiles.value);
-    // on mount possibly show the wallet authorization notification
-    onMounted(() => notifyAllowWallet({
-      account: accountId.value,
-      preventRenotify: true
-    }));
 
     return {
       credentials,
