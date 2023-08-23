@@ -8,7 +8,7 @@
       @delete-credential="$event.waitUntil(deleteCredential($event))"
       @filtered-profiles="filteredProfiles = $event"
       @filtered-credentials-loading="loadingFilteredCredentials = $event"
-      @refresh="getCredentials"/>
+      @refresh="getCredentials" />
     <q-page-sticky
       expand
       position="bottom">
