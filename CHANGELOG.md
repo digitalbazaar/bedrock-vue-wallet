@@ -2,6 +2,9 @@
 
 ## 21.1.0 - 2023-08-dd
 
+### Added
+- Add option to settings page to show wallet in the browser wallet selector.
+
 ### Changed
 - Render "allow wallet" feature as an unobtrusive banner at the bottom of the
   home page instead of as a notification.
