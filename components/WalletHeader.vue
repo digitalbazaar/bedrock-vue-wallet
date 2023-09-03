@@ -175,7 +175,7 @@ export default {
       await this.routerPush({name: 'login'});
     },
     async settings() {
-      await this.routerPush({path: 'settings'});
+      await this.routerPush({name: 'settings'});
     },
     async handleNav() {
       await this.routerPush({name: this.navRouteName});
