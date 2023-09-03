@@ -108,6 +108,27 @@
           no-padding>
           <access-management :profile-id="$route.params.profileId" />
         </settings-module>
+        <settings-module
+          v-if="chapiEnabled"
+          title="Wallet Selection"
+          class="q-my-md">
+          <div>
+            <p>
+              When other websites request or offer credentials, your browser
+              shows a wallet selector. If your wallet is not displayed in the
+              selector and you would like it to be, click "Show Wallet" to
+              request permission to show it in your browser's wallet selector.
+            </p>
+            <q-btn
+              label="Show Wallet"
+              color="primary"
+              class="full-width"
+              style="max-width: 250px"
+              :disable="loading"
+              :loading="loading"
+              @click="showWallet()" />
+          </div>
+        </settings-module>
       </div>
     </div>
   </q-page>
@@ -115,11 +136,13 @@
 
 <script>
 /*!
- * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2015-2023 Digital Bazaar, Inc. All rights reserved.
  */
 import {computed, ref, watch} from 'vue';
 import {useRoute, useRouter} from 'vue-router';
+import {addWalletToChapi} from '../lib/helpers.js';
 import AccessManagement from '../components/AccessManagement.vue';
+import {config} from '@bedrock/web';
 import GeneralSettings from '../components/GeneralSettings.vue';
 import {profileManager} from '@bedrock/web-wallet';
 import ProfileSettings from '../components/ProfileSettings.vue';
@@ -203,14 +226,19 @@ export default {
       settingsPageMode.value === 'profile-settings' &&
       activeProfile.value?.shared);
 
+    const chapiEnabled = ref(!config?.vueWallet?.disableChapi);
+    const showWallet = async () => addWalletToChapi();
+
     return {
       activeProfile,
+      chapiEnabled,
       label,
       profiles,
       navigateTo,
       settingsPageMode,
       settingsSelection,
-      showAccessManagement
+      showAccessManagement,
+      showWallet
     };
   },
   data() {
