@@ -9,11 +9,6 @@
       @filtered-profiles="filteredProfiles = $event"
       @filtered-credentials-loading="loadingFilteredCredentials = $event"
       @refresh="getCredentials" />
-    <q-page-sticky
-      expand
-      position="bottom">
-      <AllowWalletBanner :account="account" />
-    </q-page-sticky>
   </div>
 </template>
 
@@ -24,16 +19,12 @@ import {
   profileManager
 } from '@bedrock/web-wallet';
 import {computed, ref, toRef, watch} from 'vue';
-import AllowWalletBanner from '../components/AllowWalletBanner.vue';
 import {computedAsync} from '@vueuse/core';
 import Credentials from '../components/Credentials.vue';
 
 export default {
   name: 'HomePage',
-  components: {
-    AllowWalletBanner,
-    Credentials
-  },
+  components: {Credentials},
   props: {
     account: {
       type: String,

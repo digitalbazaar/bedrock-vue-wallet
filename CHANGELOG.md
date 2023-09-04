@@ -6,8 +6,7 @@
 - Add option to settings page to show wallet in the browser wallet selector.
 
 ### Changed
-- Render "allow wallet" feature as an unobtrusive banner at the bottom of the
-  home page instead of as a notification.
+- Move "allow wallet" feature such that it occurs during registration.
 
 ## 21.0.0 - 2023-08-21
 
