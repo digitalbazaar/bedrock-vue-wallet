@@ -140,8 +140,8 @@
  */
 import {computed, ref, watch} from 'vue';
 import {useRoute, useRouter} from 'vue-router';
-import {addWalletToChapi} from '../lib/helpers.js';
 import AccessManagement from '../components/AccessManagement.vue';
+import {addWalletToChapi} from '../lib/helpers.js';
 import {config} from '@bedrock/web';
 import GeneralSettings from '../components/GeneralSettings.vue';
 import {profileManager} from '@bedrock/web-wallet';
