@@ -69,6 +69,11 @@
             </q-card-section>
           </q-card>
         </q-dialog>
+        <p class="row text-left">
+          When you click "Register", you may be asked to grant permission to
+          show your wallet in your browser's wallet selector. If you decline,
+          you can change this later under "Settings".
+        </p>
         <q-btn
           :disable="vuelidate.ctrl.$invalid || vuelidate.tosAgree.$invalid ||
             vuelidate.name.$invalid || checkingEmail || !isEmailUnique ||
@@ -106,6 +111,7 @@
  */
 import {AccountService, RegisterController} from '@bedrock/web-account';
 import {email, minLength, required} from '@vuelidate/validators';
+import {addWalletToChapi} from '../lib/helpers';
 import {BrQTitleCard} from '@bedrock/quasar-components';
 import {config} from '@bedrock/web';
 import {helpers} from '@bedrock/web-wallet';
@@ -237,6 +243,8 @@ export default {
       try {
         this.error = false;
         this.loading = true;
+
+        await addWalletToChapi();
 
         // end session to ensure the user is not logged in
         await session.end();
