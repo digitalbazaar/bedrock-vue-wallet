@@ -5,7 +5,6 @@
       class="full-width"
       style="max-width: 500px">
       <register
-        :is-popup="isPopup"
         @login="$event.waitUntil(login())"
         @register="$event.waitUntil(register())" />
     </div>
@@ -24,12 +23,6 @@ export default {
   components: {Register},
   data() {
     return {};
-  },
-  computed: {
-    isPopup() {
-      return window.location.href ===
-        `${window.location.origin}/credential-handler/register`;
-    }
   },
   methods: {
     async login() {

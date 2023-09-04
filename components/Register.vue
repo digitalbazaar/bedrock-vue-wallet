@@ -79,8 +79,7 @@
           label="Register"
           :loading="loading"
           @click="register" />
-        <div
-          v-if="!isPopup">
+        <div>
           <div class="q-mt-sm">
             <small>
               Already registered?
@@ -103,7 +102,7 @@
 
 <script>
 /*!
- * Copyright (c) 2018-2022 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2018-2023 Digital Bazaar, Inc. All rights reserved.
  */
 import {AccountService, RegisterController} from '@bedrock/web-account';
 import {email, minLength, required} from '@vuelidate/validators';
@@ -120,13 +119,6 @@ const {createProfile} = helpers;
 export default {
   name: 'Register',
   components: {BrQTitleCard},
-  props: {
-    isPopup: {
-      type: Boolean,
-      default: false,
-      required: false
-    }
-  },
   emits: ['login', 'register'],
   setup() {
     return {
@@ -263,9 +255,6 @@ export default {
         }
 
         // registration now complete
-        if(this.isPopup) {
-          return window.close();
-        }
         await this.$emitExtendable('register');
       } catch(e) {
         // eslint-disable-line no-console
