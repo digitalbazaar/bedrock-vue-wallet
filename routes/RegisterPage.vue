@@ -13,22 +13,23 @@
 
 <script>
 /*!
- * Copyright (c) 2018-2022 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2018-2023 Digital Bazaar, Inc. All rights reserved.
  */
 import Register from '../components/Register.vue';
 import {session} from '@bedrock/web-session';
+import {useQuasar} from 'quasar';
+import {useRouter} from 'vue-router';
 
 export default {
   name: 'RegisterPage',
   components: {Register},
-  data() {
-    return {};
-  },
-  methods: {
-    async login() {
-      this.$router.push({name: 'login'});
-    },
-    async register() {
+  setup() {
+    const router = useRouter();
+    const $q = useQuasar();
+
+    const login = async () => router.push({name: 'login'});
+
+    const register = async () => {
       try {
         // get account user is logged into
         await session.refresh();
@@ -36,23 +37,25 @@ export default {
         const {account: currentAccount = null} = session.data;
         if(!currentAccount) {
           // not logged in, redirect to login
-          this.login();
+          login();
           return;
         }
 
         // redirect home
-        this.$router.push({name: 'home'});
+        router.push({name: 'home'});
       } catch(e) {
         const newError = `${e.name}: ${e.message || 'No Message'}`;
         // eslint-disable-line no-console
         console.error('Register Error:', e);
-        this.$q.notify({
+        $q.notify({
           type: 'negative',
           message: newError,
           actions: [{icon: 'fa fa-times'}]
         });
       }
-    }
+    };
+
+    return {login, register};
   }
 };
 </script>
