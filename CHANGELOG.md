@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 21.1.0 - 2023-08-dd
+## 21.1.0 - 2023-09-04
 
 ### Added
 - Add option to settings page to show wallet in the browser wallet selector.
