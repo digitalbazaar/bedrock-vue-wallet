@@ -31,76 +31,11 @@
       flat
       :options="[
         {label: 'Credentials', value: 'home'},
-        {label: 'Profiles', value: 'profiles'}
+        {label: 'Profiles', value: 'profiles'},
+        {label: 'Settings', value: 'settings'},
+        {label: 'Log Out', value: 'logout'}
       ]"
       @click="handleNav()" />
-    <div v-if="account">
-      <q-btn
-        v-if="$q.screen.lt.md"
-        flat
-        no-wrap
-        dense
-        class="persona-btn q-mr-sm"
-        @click="interact()">
-        <interact-icon
-          :fill="branding.brand.info" />
-      </q-btn>
-      <q-btn
-        flat
-        no-wrap
-        dense
-        color="info"
-        icon="fas fa-user-circle"
-        class="persona-btn">
-        <q-menu
-          anchor-click
-          fit
-          no-wrap
-          anchor="bottom right"
-          self="top right">
-          <q-separator />
-          <q-list
-            separator
-            link
-            class="text-subtitle1">
-            <q-item
-              v-close-popup
-              clickable
-              @click="settings()">
-              <q-item
-                avatar
-                class="items-center">
-                <q-icon
-                  name="fas fa-cog"
-                  style="font-size: 25px;" />
-              </q-item>
-              <q-item-section>
-                <q-item-label>
-                  Settings
-                </q-item-label>
-              </q-item-section>
-            </q-item>
-            <q-item
-              v-close-popup
-              clickable
-              @click="logout()">
-              <q-item
-                avatar
-                class="items-center">
-                <q-icon
-                  name="fa fa-sign-out-alt"
-                  style="font-size: 25px;" />
-              </q-item>
-              <q-item-section>
-                <q-item-label>
-                  Log Out
-                </q-item-label>
-              </q-item-section>
-            </q-item>
-          </q-list>
-        </q-menu>
-      </q-btn>
-    </div>
     <q-btn
       v-else
       flat
@@ -117,11 +52,9 @@
  * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
  */
 import {config} from '@bedrock/web';
-import InteractIcon from './InteractIcon.vue';
 
 export default {
   name: 'WalletHeader',
-  components: {InteractIcon},
   props: {
     account: {
       type: String,
@@ -178,7 +111,11 @@ export default {
       await this.routerPush({name: 'settings'});
     },
     async handleNav() {
-      await this.routerPush({name: this.navRouteName});
+      if(this.navRouteName === 'logout') {
+        this.logout();
+      } else {
+        await this.routerPush({name: this.navRouteName});
+      }
     },
     async interact() {
       await this.routerPush({name: 'interact'});
