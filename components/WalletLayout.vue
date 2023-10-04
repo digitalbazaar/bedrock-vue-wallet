@@ -22,7 +22,9 @@
         v-model="showDrawer"
         class="lt-md"
         side="left">
-        <drawer :account="account" />
+        <drawer
+          :logout="logout"
+          :account="account" />
       </q-drawer>
       <router-view :account="account" />
     </q-page-container>

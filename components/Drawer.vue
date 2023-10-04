@@ -1,7 +1,5 @@
 <template>
-  <q-list
-    separator
-    class="text-subtitle1">
+  <q-list class="text-subtitle1">
     <q-item-label header>
       Navigation
     </q-item-label>
@@ -31,6 +29,22 @@
       </q-item-section>
       <q-item-section>Profiles</q-item-section>
     </q-item>
+    <q-item
+      to="/settings"
+      exact>
+      <q-item-section avatar>
+        <q-icon name="fas fa-cog" />
+      </q-item-section>
+      <q-item-section>Settings</q-item-section>
+    </q-item>
+    <q-item
+      clickable
+      @click="logout">
+      <q-item-section avatar>
+        <q-icon name="fa fa-sign-out-alt" />
+      </q-item-section>
+      <q-item-section>Log Out</q-item-section>
+    </q-item>
   </q-list>
 </template>
 
@@ -43,6 +57,10 @@ export default {
   props: {
     account: {
       type: String,
+      default: undefined
+    },
+    logout: {
+      type: Function,
       default: undefined
     }
   },
