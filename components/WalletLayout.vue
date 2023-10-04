@@ -38,6 +38,7 @@
 import {session, sessionDataRef} from '../lib/session.js';
 import {computed} from 'vue';
 import Drawer from './Drawer.vue';
+import {default as iconSet} from 'quasar/icon-set/fontawesome-v5.js';
 import {rootData} from '../lib/rootData.js';
 import WalletHeader from './WalletHeader.vue';
 
@@ -79,6 +80,10 @@ export default {
         this.showDrawer = false;
       }
     }
+  },
+  beforeMount() {
+    // Set icon library
+    this.$q.iconSet.set(iconSet);
   },
   methods: {
     async cleanup() {
