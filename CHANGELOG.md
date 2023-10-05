@@ -1,5 +1,19 @@
 # bedrock-vue-wallet ChangeLog
 
+## 21.2.1 - 2023-10-05
+
+### Added
+- Add "Settings" and "Log Out" options to header & drawer.
+
+### Changed
+- Move establishing icon library to vue component in order to run code locally with npm link.
+
+### Fixed
+- Typo fix in change log 19.0.0.
+
+### Removed
+- Remove avatar menu from right side of header.
+
 ## 21.2.0 - 2023-09-dd
 
 ### Changed
@@ -73,7 +87,7 @@
   whatever route is associated with `window.location`.
 
 ### Removed
-- **BREAKING**: The CHAPI share and store routes have been consoldated to a
+- **BREAKING**: The CHAPI share and store routes have been consolidated to a
   single CHAPI exchange page. Existing deployments need to update their
   credential handler implementations to redirect to
   `/credential-handler/exchange` instead of `/credential-handler/share|store`.
