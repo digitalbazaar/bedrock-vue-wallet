@@ -169,7 +169,7 @@ export default {
     const router = useRouter();
 
     const settingsPageMode = computed(() => {
-      return route && route.name === 'settings-profile' ?
+      return route?.name === 'settings-profile' ?
         'profile-settings' : 'account-settings';
     });
 
