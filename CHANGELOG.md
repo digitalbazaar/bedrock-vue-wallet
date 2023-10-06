@@ -1,5 +1,14 @@
 # bedrock-vue-wallet ChangeLog
 
+## 26.0.0 - 2024-xx-xx
+
+### Changed
+- **BREAKING**: Update dependencies.
+  - `@bedrock/quasar-components@5`.
+  - `@bedrock/quasar@10`
+  - `@bedrock/vue-vc@3`.
+  - `@vueuse/core@10`.
+
 ## 25.0.1 - 2024-01-25
 
 ### Fixed

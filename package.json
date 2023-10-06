@@ -24,9 +24,9 @@
     "web-credential-handler": "^2.0.2"
   },
   "peerDependencies": {
-    "@bedrock/quasar": "^9.0.0",
-    "@bedrock/quasar-components": "^4.1.0",
-    "@bedrock/vue-vc": "^2.0.2",
+    "@bedrock/quasar": "^10.0.0",
+    "@bedrock/quasar-components": "^5.0.0",
+    "@bedrock/vue-vc": "^3.0.0",
     "@bedrock/web": "^3.0.0",
     "@bedrock/web-account": "^6.0.0",
     "@bedrock/web-authn-token": "^7.0.0",
