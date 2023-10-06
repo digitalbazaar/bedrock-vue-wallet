@@ -20,11 +20,10 @@
             v-model="ctrl.email"
             outlined
             stack-label
-            hint="Please enter your email address."
+            :hint="emailAvailable || 'Please enter your email address.'"
             :error="vuelidate.ctrl.email.$error ||
               (vuelidate.ctrl.email.$dirty && !isEmailUnique && !checkingEmail)"
             :error-message="emailErrorMessage"
-            :helper="emailAvailable"
             type="email"
             label="Email"
             class="q-mt-md"
