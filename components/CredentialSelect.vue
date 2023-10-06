@@ -28,7 +28,7 @@ export default {
       type: String
     }
   },
-  emit: ['select-credentials'],
+  emits: ['select-credentials'],
   methods: {
     /**
      * Takes in an id and emits a set of selected credentials.

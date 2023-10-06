@@ -90,6 +90,7 @@ export default {
     }
   },
   emits: [
+    'refresh',
     'delete-credential',
     'filtered-credentials-loading',
     'filtered-profiles'
