@@ -1,15 +1,9 @@
 # bedrock-vue-wallet ChangeLog
 
-## 22.0.0 - 2023-10-xx
+## 21.2.1 - 2023-10-xx
 
 ### Added
 - Add "Settings" and "Log Out" options to header & drawer.
-
-### Changed
-- **BREAKING**: Move set icon library action into vue component in order to
-  run code locally with npm link. Any application that uses this library and
-  does not use the WalletLayout component will need to set the default icon
-  set.
 
 ### Fixed
 - Address Vue linting errors.
