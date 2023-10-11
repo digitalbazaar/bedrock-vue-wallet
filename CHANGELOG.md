@@ -1,9 +1,12 @@
 # bedrock-vue-wallet ChangeLog
 
-## 21.2.1 - 2023-10-xx
+## 21.2.0 - 2023-10-xx
 
 ### Added
 - Add "Settings" and "Log Out" options to header & drawer.
+
+### Changed
+- Update dependencies.
 
 ### Fixed
 - Address Vue linting errors.
@@ -11,11 +14,6 @@
 
 ### Removed
 - Remove avatar menu from right side of header.
-
-## 21.2.0 - 2023-09-dd
-
-### Changed
-- Update dependencies.
 
 ## 21.1.0 - 2023-09-04
 
