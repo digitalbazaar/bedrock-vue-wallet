@@ -17,8 +17,6 @@ module.exports = {
     'digitalbazaar/vue3',
     'plugin:quasar/standard'
   ],
-  rules: {
-    'vue/multi-word-component-names': 0
-  },
+  rules: {},
   ignorePatterns: ['node_modules/']
 };
