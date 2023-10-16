@@ -22,7 +22,7 @@
         v-model="showDrawer"
         class="lt-md"
         side="left">
-        <drawer
+        <navigation-drawer
           :logout="logout"
           :account="account" />
       </q-drawer>
@@ -39,15 +39,15 @@
  */
 import {session, sessionDataRef} from '../lib/session.js';
 import {computed} from 'vue';
-import Drawer from './Drawer.vue';
+import NavigationDrawer from './NavigationDrawer.vue';
 import {rootData} from '../lib/rootData.js';
 import WalletHeader from './WalletHeader.vue';
 
 export default {
   name: 'WalletLayout',
   components: {
-    Drawer,
-    WalletHeader
+    WalletHeader,
+    NavigationDrawer
   },
   setup() {
     const account = computed(() => {
