@@ -53,7 +53,7 @@
  * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
  */
 export default {
-  name: 'Drawer',
+  name: 'NavigationDrawer',
   props: {
     account: {
       type: String,
