@@ -74,7 +74,7 @@ const payload = {
 */
 
 export default {
-  name: 'Interact',
+  name: 'InteractDashboard',
   components: {QrCode},
   props: {},
   data() {
