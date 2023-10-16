@@ -6,7 +6,7 @@
         title="Profiles"
         class="full-width">
         <template #body>
-          <profiles />
+          <profile-dashboard />
         </template>
       </br-q-title-card>
     </div>
@@ -18,12 +18,12 @@
  * Copyright (c) 2019-2022 Digital Bazaar, Inc. All rights reserved.
  */
 import {BrQTitleCard} from '@bedrock/quasar-components';
-import Profiles from '../components/Profiles.vue';
+import ProfileDashboard from '../components/ProfileDashboard.vue';
 
 export default {
   name: 'ProfilesPage',
   components: {
-    Profiles,
+    ProfileDashboard,
     BrQTitleCard
   }
 };

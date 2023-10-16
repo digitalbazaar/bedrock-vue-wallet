@@ -99,7 +99,7 @@ const columns = [
 ];
 
 export default {
-  name: 'Profiles',
+  name: 'ProfileDashboard',
   components: {
     SearchBox,
     AddProfileModal,
