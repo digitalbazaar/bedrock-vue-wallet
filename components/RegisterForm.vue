@@ -122,7 +122,7 @@ import useVuelidate from '@vuelidate/core';
 const {createProfile} = helpers;
 
 export default {
-  name: 'Register',
+  name: 'RegisterForm',
   components: {BrQTitleCard},
   emits: ['login', 'register'],
   setup() {

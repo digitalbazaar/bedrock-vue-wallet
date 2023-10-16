@@ -4,7 +4,7 @@
     <div
       class="full-width"
       style="max-width: 500px">
-      <register
+      <register-form
         @login="$event.waitUntil(login())"
         @register="$event.waitUntil(register())" />
     </div>
@@ -15,14 +15,14 @@
 /*!
  * Copyright (c) 2018-2023 Digital Bazaar, Inc. All rights reserved.
  */
-import Register from '../components/Register.vue';
+import RegisterForm from '../components/RegisterForm.vue';
 import {session} from '@bedrock/web-session';
 import {useQuasar} from 'quasar';
 import {useRouter} from 'vue-router';
 
 export default {
   name: 'RegisterPage',
-  components: {Register},
+  components: {RegisterForm},
   setup() {
     const router = useRouter();
     const $q = useQuasar();
