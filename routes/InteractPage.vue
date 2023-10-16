@@ -6,7 +6,7 @@
         title="Interact"
         class="full-width">
         <template #body>
-          <interact />
+          <interact-dashboard />
         </template>
         <template #icon>
           <q-btn
@@ -63,12 +63,12 @@
  * Copyright (c) 2019-2022 Digital Bazaar, Inc. All rights reserved.
  */
 import {BrQModal, BrQTitleCard} from '@bedrock/quasar-components';
-import Interact from '../components/Interact.vue';
+import InteractDashboard from '../components/InteractDashboard.vue';
 
 export default {
   name: 'InteractPage',
   components: {
-    Interact,
+    InteractDashboard,
     BrQTitleCard,
     BrQModal
   },
