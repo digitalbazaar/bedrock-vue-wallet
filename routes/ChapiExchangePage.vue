@@ -42,7 +42,7 @@
       v-else-if="!loading"
       class="full-width q-pa-md"
       style="max-width: 500px">
-      <login
+      <login-form
         v-if="display === 'login'"
         @login="$event.waitUntil(login())"
         @register="setDisplay('register')" />
@@ -63,7 +63,7 @@ import {
   exchanges, getCredentialStore, helpers, profileManager
 } from '@bedrock/web-wallet';
 import ChapiHeader from '../components/ChapiHeader.vue';
-import Login from '../components/Login.vue';
+import LoginForm from '../components/LoginForm.vue';
 import Problem from '../components/Problem.vue';
 import {receiveCredentialEvent} from 'web-credential-handler';
 import Register from '../components/Register.vue';
@@ -79,7 +79,12 @@ const {prettify} = helpers;
 export default {
   name: 'ChapiExchangePage',
   components: {
-    ChapiHeader, Login, Problem, Register, ShareCredentials, StoreCredentials
+    ChapiHeader,
+    LoginForm,
+    Problem,
+    Register,
+    ShareCredentials,
+    StoreCredentials
   },
   props: {
     account: {

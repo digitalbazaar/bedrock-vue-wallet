@@ -210,7 +210,7 @@ import {session} from '@bedrock/web-session';
 import useVuelidate from '@vuelidate/core';
 
 export default {
-  name: 'Login',
+  name: 'LoginForm',
   components: {CodeInput, BrQTitleCard},
   emits: ['login', 'register'],
   setup() {
