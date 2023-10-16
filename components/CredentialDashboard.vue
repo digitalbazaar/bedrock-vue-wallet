@@ -62,7 +62,7 @@ import CredentialsList from './CredentialsList.vue';
 import SearchBox from './SearchBox.vue';
 
 export default {
-  name: 'Credentials',
+  name: 'CredentialDashboard',
   components: {
     BrQTitleCard,
     CredentialsList,

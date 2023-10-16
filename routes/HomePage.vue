@@ -1,6 +1,6 @@
 <template>
   <div>
-    <credentials
+    <credential-dashboard
       :credentials="credentials"
       :profiles="profiles"
       :loading="loading"
@@ -20,11 +20,11 @@ import {
 } from '@bedrock/web-wallet';
 import {computed, ref, toRef, watch} from 'vue';
 import {computedAsync} from '@vueuse/core';
-import Credentials from '../components/Credentials.vue';
+import CredentialDashboard from '../components/CredentialDashboard.vue';
 
 export default {
   name: 'HomePage',
-  components: {Credentials},
+  components: {CredentialDashboard},
   props: {
     account: {
       type: String,
