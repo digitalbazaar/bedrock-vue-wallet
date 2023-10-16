@@ -1,5 +1,11 @@
 # bedrock-vue-wallet ChangeLog
 
+## 23.0.0 - 2023-11-xx
+
+### Changed
+- **BREAKING**: Rename all single word components to multi-word component names
+  in order to remove ESLint rule exception.
+
 ## 22.2.0 - 2023-11-09
 
 ### Added
