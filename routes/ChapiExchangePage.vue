@@ -46,7 +46,7 @@
         v-if="display === 'login'"
         @login="$event.waitUntil(login())"
         @register="setDisplay('register')" />
-      <register
+      <register-form
         v-if="display === 'register'"
         @login="setDisplay('login')"
         @register="$event.waitUntil(login())" />
@@ -66,7 +66,7 @@ import ChapiHeader from '../components/ChapiHeader.vue';
 import LoginForm from '../components/LoginForm.vue';
 import ProblemCard from '../components/ProblemCard.vue';
 import {receiveCredentialEvent} from 'web-credential-handler';
-import Register from '../components/Register.vue';
+import RegisterForm from '../components/RegisterForm.vue';
 import ShareCredentials from '../components/ShareCredentials.vue';
 import StoreCredentials from '../components/StoreCredentials.vue';
 import {useQuasar} from 'quasar';
@@ -82,7 +82,7 @@ export default {
     ChapiHeader,
     LoginForm,
     ProblemCard,
-    Register,
+    RegisterForm,
     ShareCredentials,
     StoreCredentials
   },
