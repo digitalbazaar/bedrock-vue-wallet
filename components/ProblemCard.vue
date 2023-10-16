@@ -66,7 +66,7 @@
  * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
  */
 export default {
-  name: 'Problem',
+  name: 'ProblemCard',
   props: {
     account: {
       type: String,
