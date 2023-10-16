@@ -4,7 +4,7 @@
     <div
       class="full-width"
       style="max-width: 500px">
-      <login
+      <login-form
         @login="$event.waitUntil(login())"
         @register="$event.waitUntil(register())" />
     </div>
@@ -15,11 +15,11 @@
 /*!
  * Copyright (c) 2018-2022 Digital Bazaar, Inc. All rights reserved.
  */
-import Login from '../components/Login.vue';
+import LoginForm from '../components/LoginForm.vue';
 
 export default {
   name: 'LoginPage',
-  components: {Login},
+  components: {LoginForm},
   props: {
     account: {
       type: String,

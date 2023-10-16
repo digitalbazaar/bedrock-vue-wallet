@@ -31,7 +31,7 @@
         <div
           class="row justify-center q-pa-md q-mx-auto"
           style="max-width: 500px">
-          <login @login="$event.waitUntil(claim())" />
+          <login-form @login="$event.waitUntil(claim())" />
         </div>
       </div>
     </div>
@@ -49,13 +49,13 @@
  * Copyright (c) 2020-2022 Digital Bazaar, Inc. All rights reserved.
  */
 import {BrQTitleCard} from '@bedrock/quasar-components';
-import Login from '../components/Login.vue';
+import LoginForm from '../components/LoginForm.vue';
 import {ProfileService} from '@bedrock/web-profile';
 import {session} from '@bedrock/web-session';
 
 export default {
   name: 'OnboardPage',
-  components: {Login, BrQTitleCard},
+  components: {LoginForm, BrQTitleCard},
   data() {
     return {
       email: '',
