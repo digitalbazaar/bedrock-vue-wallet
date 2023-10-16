@@ -18,7 +18,7 @@
           :request="relyingPartyRequest" />
         <q-separator class="s-separator" />
       </div>
-      <problem
+      <problem-card
         v-if="error"
         :account="account"
         :loading="loading"
@@ -64,7 +64,7 @@ import {
 } from '@bedrock/web-wallet';
 import ChapiHeader from '../components/ChapiHeader.vue';
 import LoginForm from '../components/LoginForm.vue';
-import Problem from '../components/Problem.vue';
+import ProblemCard from '../components/ProblemCard.vue';
 import {receiveCredentialEvent} from 'web-credential-handler';
 import Register from '../components/Register.vue';
 import ShareCredentials from '../components/ShareCredentials.vue';
@@ -81,7 +81,7 @@ export default {
   components: {
     ChapiHeader,
     LoginForm,
-    Problem,
+    ProblemCard,
     Register,
     ShareCredentials,
     StoreCredentials
