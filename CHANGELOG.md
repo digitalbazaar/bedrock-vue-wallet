@@ -1,12 +1,18 @@
 # bedrock-vue-wallet ChangeLog
 
-## 21.2.0 - 2023-10-xx
+## 22.0.0 - 2023-10-xx
 
 ### Added
 - Add "Settings" and "Log Out" options to header & drawer.
 
 ### Changed
 - Update dependencies.
+- **BREAKING**: Update peer deps.
+  - Use `@bedrock/web-account@6.0`.
+  - Use `@bedrock/web-authn-token@7.0`.
+  - Use `@bedrock/web-profile@7.0`.
+  - Use `@bedrock/web-session@6.0`.
+  - Use `@bedrock/web-wallet@12.0.1`.
 
 ### Fixed
 - Address Vue linting errors.
