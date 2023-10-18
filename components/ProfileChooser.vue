@@ -5,7 +5,8 @@
       dense
       filled
       :options="profiles"
-      :disable="loading"
+      :readonly="oneProfileAvailable"
+      :disable="loading || oneProfileAvailable"
       :label="loading ? 'Loading...' : 'Select a profile'"
       class="s-profile-select text-subtitle1"
       @update:model-value="selectProfile">
@@ -73,6 +74,9 @@ export default {
     };
   },
   computed: {
+    oneProfileAvailable() {
+      return this.profiles.length < 2;
+    },
     selectedProfile: {
       get() {
         return this.selected ? {...this.selected} : null;
