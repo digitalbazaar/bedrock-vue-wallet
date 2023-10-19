@@ -4,6 +4,7 @@
       v-model="selectedProfile"
       dense
       filled
+      :label="inputLabel"
       :options="profiles"
       :readonly="oneProfileAvailable"
       :disable="loading || oneProfileAvailable"
@@ -76,6 +77,15 @@ export default {
   computed: {
     oneProfileAvailable() {
       return this.profiles.length < 2;
+    },
+    inputLabel() {
+      if(this.loading) {
+        return 'Loading...';
+      } else if(this.oneProfileAvailable) {
+        return 'Selected Profile';
+      } else {
+        return 'Select a profile';
+      }
     },
     selectedProfile: {
       get() {
