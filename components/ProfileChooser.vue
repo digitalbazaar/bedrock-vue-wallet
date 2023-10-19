@@ -7,7 +7,7 @@
       :options="profiles"
       :readonly="oneProfileAvailable"
       :disable="loading || oneProfileAvailable"
-      :label="loading ? 'Loading...' : 'Select a profile'"
+      :hide-dropdown-icon="oneProfileAvailable"
       class="s-profile-select text-subtitle1"
       @update:model-value="selectProfile">
       <template #prepend>
