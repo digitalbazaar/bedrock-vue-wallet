@@ -82,7 +82,7 @@ export default {
       if(this.loading) {
         return 'Loading...';
       } else if(this.oneProfileAvailable) {
-        return 'Selected Profile';
+        return 'Profile';
       } else {
         return 'Select a profile';
       }
