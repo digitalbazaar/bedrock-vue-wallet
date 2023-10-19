@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 22.0.0 - 2023-10-xx
+## 22.0.0 - 2023-10-19
 
 ### Added
 - Add "Settings" and "Log Out" options to header & drawer.
