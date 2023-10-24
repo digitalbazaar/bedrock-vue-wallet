@@ -1,5 +1,10 @@
 # bedrock-vue-wallet ChangeLog
 
+## 22.0.1 - 2023-10-xx
+
+### Fixed
+- Fix quasar import.
+
 ## 22.0.0 - 2023-10-19
 
 ### Added
