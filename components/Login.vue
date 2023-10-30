@@ -72,7 +72,7 @@
                 autofocus
                 bottom-slots
                 clearable
-                @keydown.enter.prevent="sendEmail"
+                @keydown.enter.prevent="handleEnterForEmail"
                 @blur="vuelidate.ctrl.email.$touch" />
             </form>
             <q-btn
@@ -117,7 +117,7 @@
               :min-length="6"
               :max-length="6"
               @code="emailCode = $event.code"
-              @keydown.enter.prevent="emailCodeEntered"
+              @keydown.enter.prevent="handleEnterForCode"
               @invalid="invalidEmailCode = $event.invalid" />
             <q-btn
               :disable="loading.login || invalidEmailCode"
@@ -330,6 +330,12 @@ export default {
         this.loading.emailCode = false;
       }
     },
+    handleEnterForEmail() {
+      if(this.loading.emailCode || this.vuelidate.ctrl.email.$invalid) {
+        return;
+      }
+      this.sendEmail();
+    },
     async registerDevice({email, code}) {
       let result;
       try {
@@ -381,6 +387,12 @@ export default {
       } finally {
         this.loading.login = false;
       }
+    },
+    handleEnterForCode() {
+      if(this.loading.login || this.invalidEmailCode) {
+        return;
+      }
+      this.emailCodeEntered();
     },
     async handleAuthenticationResult({result} = {}) {
       // check for device registration requirement; this is a legacy method
