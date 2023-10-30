@@ -1,5 +1,10 @@
 # bedrock-vue-wallet ChangeLog
 
+## 22.0.2 - 2023-10-xx
+
+### Added
+- Add "enter" key handler for submitting email and verification code on login.
+
 ## 22.0.1 - 2023-10-24
 
 ### Fixed
