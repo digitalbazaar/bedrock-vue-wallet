@@ -72,6 +72,7 @@
                 autofocus
                 bottom-slots
                 clearable
+                @keydown.enter.prevent="sendEmail"
                 @blur="vuelidate.ctrl.email.$touch" />
             </form>
             <q-btn
@@ -116,6 +117,7 @@
               :min-length="6"
               :max-length="6"
               @code="emailCode = $event.code"
+              @keydown.enter.prevent="emailCodeEntered"
               @invalid="invalidEmailCode = $event.invalid" />
             <q-btn
               :disable="loading.login || invalidEmailCode"
