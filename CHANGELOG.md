@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 22.1.0 - 2023-10-dd
+## 22.1.0 - 2023-10-31
 
 ### Added
 - Limit profile chooser to read-only if only one profile is available.
