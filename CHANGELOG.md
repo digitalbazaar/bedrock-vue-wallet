@@ -1,13 +1,9 @@
 # bedrock-vue-wallet ChangeLog
 
-## 22.2.0 - 2023-10-dd
-
-### Added
-- Limit profile chooser to read-only if only one profile is available.
-
 ## 22.1.0 - 2023-10-dd
 
 ### Added
+- Limit profile chooser to read-only if only one profile is available.
 - Add "enter" key handler for submitting email and verification code on login.
 
 ## 22.0.1 - 2023-10-24
