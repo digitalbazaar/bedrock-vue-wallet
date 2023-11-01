@@ -280,6 +280,16 @@ $breakpoint-xs: 320px;
   width: 100%;
 }
 
+.s-card-title {
+  /* Anything larger than mobile */
+  @media (min-width: #{$breakpoint-sm}) {
+    min-width: 450px;
+  }
+  @include mobile {
+    min-width: 300px;
+  }
+}
+
 .s-section {
   height: 100%;
   display: flex;
