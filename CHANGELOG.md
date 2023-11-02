@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 22.1.1 - 2023-11-dd
+## 22.1.1 - 2023-11-02
 
 ### Fixed
 - Include default minimum width on credential card popup title.
