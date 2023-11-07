@@ -7,7 +7,7 @@
         :model-value="selectedCredentials"
         @click="toggleSelect(id)" />
     </div>
-    <div>
+    <div style="width: 100%">
       <slot />
     </div>
   </div>

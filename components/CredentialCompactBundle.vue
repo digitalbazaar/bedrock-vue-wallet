@@ -3,7 +3,6 @@
     <div
       v-for="(credential, index) in filteredCredentials"
       :key="index"
-      style="max-width: 400px"
       class="q-my-sm q-gutter-y-sm column">
       <slot
         name="credential-switch"
