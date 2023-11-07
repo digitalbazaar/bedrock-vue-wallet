@@ -296,10 +296,10 @@ export default {
       this.showDeviceAlreadyRegistered = false;
     },
     async sendEmail() {
+      let errorMessage = '';
       try {
         const {email} = this.ctrl;
         this.loading.emailCode = true;
-
         if(this.deviceRegistrationRequired) {
           // create nonce for device registration; it will send email as well;
           // note this is a legacy feature for older accounts only
@@ -317,18 +317,25 @@ export default {
             authenticationMethod: 'login-email-challenge'
           });
         }
-
+      } catch(e) {
+        errorMessage = e.message;
+        console.error('sendEmail error', e);
+        this.$q.notify({
+          type: 'negative',
+          message: errorMessage,
+          actions: [{icon: 'fa fa-times', color: 'white'}]
+        });
+      }
+      if(errorMessage && !errorMessage.includes('No more than 5 tokens')) {
+        this.reset();
+      } else {
         this.showSendEmail = false;
         this.showResendEmail = true;
         this.showRegisterLink = false;
         this.showEmailCode = true;
         this.emailCode = '';
-      } catch(e) {
-        console.error('sendEmail error', e);
-        this.reset();
-      } finally {
-        this.loading.emailCode = false;
       }
+      this.loading.emailCode = false;
     },
     handleEnterForEmail() {
       if(this.loading.emailCode || this.vuelidate.ctrl.email.$invalid) {
