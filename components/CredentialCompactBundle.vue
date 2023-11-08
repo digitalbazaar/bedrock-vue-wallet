@@ -25,7 +25,7 @@ import {CredentialSwitch} from '@bedrock/vue-vc';
 import {toRef} from 'vue';
 
 export default {
-  name: 'CredentialsList',
+  name: 'CredentialCompactBundle',
   components: {
     CredentialSwitch,
   },
