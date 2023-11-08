@@ -69,7 +69,7 @@ import {
 const {generateQrCodeDataUrl, reissue} = ageCredentialHelpers;
 
 export default {
-  name: 'CredentialsList',
+  name: 'CredentialCardBundle',
   components: {
     CredentialSwitch
   },
