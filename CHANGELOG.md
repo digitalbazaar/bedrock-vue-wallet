@@ -1,10 +1,10 @@
 # bedrock-vue-wallet ChangeLog
 
-## 22.2.0 - 2023-11-dd
+## 23.0.0 - 2023-11-dd
 
-### Fixed
-- Allow credentials with any description length to align title, description, and
-  image correctly in credential list.
+### Changed
+- **BREAKING**: Allow credentials with any description length to align title,
+  description, and image correctly in credential list.
 
 ## 23.0.0 - 2023-11-xx
 
