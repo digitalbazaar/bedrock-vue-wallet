@@ -1,12 +1,12 @@
 # bedrock-vue-wallet ChangeLog
 
-## 23.0.0 - 2023-11-dd
+## 24.0.0 - 2023-11-dd
 
 ### Changed
 - **BREAKING**: Allow credentials with any description length to align title,
   description, and image correctly in credential list.
 
-## 23.0.0 - 2023-11-xx
+## 23.0.0 - 2023-11-dd
 
 ### Changed
 - **BREAKING**: Rename all single word components to multi-word component names
