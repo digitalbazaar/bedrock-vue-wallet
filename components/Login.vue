@@ -248,7 +248,9 @@ export default {
         twoFactorLogin: false
       },
       showEmailCodeAuthenticated: false,
-      awaitingAuthorization: false
+      awaitingAuthorization: false,
+      customErrorMessage:
+        'Too many login requests, check your email for a login code.'
     };
   },
   computed: {
@@ -318,15 +320,17 @@ export default {
           });
         }
       } catch(e) {
-        errorMessage = e.message;
         console.error('sendEmail error', e);
+        errorMessage = e.message.includes('No more than 5 tokens') ?
+          this.customErrorMessage : e.message;
         this.$q.notify({
+          timeout: 0,
           type: 'negative',
           message: errorMessage,
           actions: [{icon: 'fa fa-times', color: 'white'}]
         });
       }
-      if(errorMessage && !errorMessage.includes('No more than 5 tokens')) {
+      if(errorMessage && errorMessage !== this.customErrorMessage) {
         this.reset();
       } else {
         this.showSendEmail = false;
