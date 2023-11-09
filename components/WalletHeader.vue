@@ -1,8 +1,7 @@
 <template>
-  <q-toolbar
-    class="bg-secondary">
+  <q-toolbar class="bg-secondary">
     <q-btn
-      v-show="account"
+      v-show="account && !hideNavigation"
       flat
       round
       dense
@@ -11,8 +10,8 @@
       class="toggle-drawer-btn lt-md"
       @click="toggleDrawer()" />
     <q-toolbar-title
-      class="row cursor-pointer"
-      @click="home()">
+      class="row"
+      @click="!hideNavigation && home()">
       <img
         v-if="branding.logo"
         :src="branding.logo"
@@ -23,7 +22,7 @@
       </div>
     </q-toolbar-title>
     <q-btn-toggle
-      v-if="account"
+      v-if="account && !hideNavigation"
       v-model="navRouteName"
       color="accent"
       toggle-color="info"
@@ -37,7 +36,7 @@
       ]"
       @click="handleNav()" />
     <q-btn
-      v-else
+      v-else-if="!hideNavigation"
       flat
       no-wrap
       color="info"
@@ -67,6 +66,10 @@ export default {
     toggleDrawer: {
       type: Function,
       default: undefined
+    },
+    hideNavigation: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -132,6 +135,10 @@ $breakpoint-xs: 599px;
   @media (min-width: 0) and (max-width: #{$breakpoint-sm}) {
     @content;
   }
+}
+
+.non-selectable {
+  cursor: pointer;
 }
 
 .profile-name {

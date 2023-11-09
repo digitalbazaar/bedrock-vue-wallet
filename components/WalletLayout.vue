@@ -3,11 +3,12 @@
     view="hHh LpR fFf"
     class="s-page">
     <q-header
-      v-if="ready && !chapi"
+      v-if="ready"
       class="shadow-3">
       <wallet-header
-        :account="account"
         :logout="logout"
+        :account="account"
+        :hide-navigation="chapi"
         :toggle-drawer="toggleDrawer" />
     </q-header>
 
