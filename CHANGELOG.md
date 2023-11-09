@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 22.2.0 - 2023-11-dd
+## 22.2.0 - 2023-11-09
 
 ### Added
 - Communicates send email code errors to user on login.
