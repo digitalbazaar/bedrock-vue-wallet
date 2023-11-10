@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 23.0.0 - 2023-11-dd
+## 23.0.0 - 2023-11-10
 
 ### Changed
 - **BREAKING**: Allow credentials with any description length to align title,
