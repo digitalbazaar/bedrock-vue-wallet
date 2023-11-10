@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 23.1.0 - 2023-11-xx
+## 23.1.0 - 2023-11-10
 
 ### Added
 - Render a non-selectable header with logo and title to CHAPI handler windows.
