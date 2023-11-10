@@ -137,10 +137,6 @@ $breakpoint-xs: 599px;
   }
 }
 
-.non-selectable {
-  cursor: pointer;
-}
-
 .profile-name {
   line-height: 14px !important;
   text-transform: none;
