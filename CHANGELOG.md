@@ -7,7 +7,7 @@
   configurable proof allow list that will be used to prune presentations
   during VC exchange to ensure that only proofs on the allow list will be
   permitted in VCs in the presentation. Also adds support for signing
-  presentations using `eddsa-rdfc-2022`.
+  presentations using `eddsa-rdfc-2022` and a basic OID4VP support.
 
 ## 23.1.0 - 2023-11-10
 
