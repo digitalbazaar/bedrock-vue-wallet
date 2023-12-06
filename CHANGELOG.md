@@ -1,5 +1,14 @@
 # bedrock-vue-wallet ChangeLog
 
+## 24.0.0 - 2023-12-dd
+
+### Changed
+- **BREAKING**: Update `@bedrock/web-wallet` peer dep to v13.1 that adds a
+  configurable proof allow list that will be used to prune presentations
+  during VC exchange to ensure that only proofs on the allow list will be
+  permitted in VCs in the presentation. Also adds support for signing
+  presentations using `eddsa-rdfc-2022`.
+
 ## 23.1.0 - 2023-11-10
 
 ### Added
