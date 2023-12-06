@@ -30,7 +30,7 @@
     "@bedrock/web-profile-manager": "^20.0.0",
     "@bedrock/web-session": "^6.0.0",
     "@bedrock/web-vc-store": "^8.0.0",
-    "@bedrock/web-wallet": "^12.0.1",
+    "@bedrock/web-wallet": "^13.1.0",
     "@digitalbazaar/vue-extendable-event": "^4.1.0",
     "@vuelidate/core": "^2.0.3",
     "@vuelidate/validators": "^2.0.3",
