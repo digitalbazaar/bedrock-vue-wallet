@@ -1,5 +1,18 @@
 # bedrock-vue-wallet ChangeLog
 
+## 25.0.0 - 2023-12-dd
+
+### Changed
+- **BREAKING**: Change `ShareReview` props to take authentication boolean
+  instead of query type.
+- **BREAKING**: Change `ShareCredentials` props to take the full VPR
+  (`verifiablePresentationRequest`) instead of just `query` (a sub-property of
+  the full VPR).
+- **BREAKING**: Update `@bedrock/web-wallet` peer dep to v13.2 that adds
+  a `match()` function to the presentation APIs. This function is used to
+  match a VPR against a credential store, which should be done in the lower
+  level wallet code instead of in the UI layer.
+
 ## 24.0.0 - 2023-12-06
 
 ### Changed
