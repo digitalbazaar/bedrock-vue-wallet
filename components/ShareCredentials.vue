@@ -168,7 +168,8 @@ export default {
         });
         // FIXME: remove logging
         console.log('VC matches', matches);
-        records = matches.flat;
+        // FIXME: use matches directly instead of using records
+        records = matches.flat.map(match => match.record);
       } catch(e) {
         console.log('Error: ', e);
       }
