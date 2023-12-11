@@ -73,8 +73,7 @@
  * Copyright (c) 2015-2023 Digital Bazaar, Inc. All rights reserved.
  */
 import {
-  ageCredentialHelpers, getCredentialStore, helpers, profileManager,
-  presentations
+  getCredentialStore, helpers, presentations, profileManager
 } from '@bedrock/web-wallet';
 import {computed, ref, toRaw, toRef} from 'vue';
 import {computedAsync} from '@vueuse/core';
@@ -83,7 +82,6 @@ import ProfileChooser from './ProfileChooser.vue';
 import ShareReview from './ShareReview.vue';
 
 const {createCapabilities} = helpers;
-const {ensureLocalCredentials} = ageCredentialHelpers;
 
 // FIXME: remove, use bedrock-web-wallet APIs
 const AUTHENTICATION_QUERY_TYPES = ['DIDAuth', 'DIDAuthentication'];
@@ -126,21 +124,23 @@ export default {
       return [];
     }, [], profilesUpdating);
 
-    const query = toRef(props, 'query');
+    const verifiablePresentationRequest = toRef(
+      props, 'verifiablePresentationRequest');
 
     // FIXME: Rename `credentialQuery`. DIDAuth is not a credential query.
     const credentialQuery = computed(() => {
-      if(!query.value) {
+      const query = verifiablePresentationRequest.value?.query;
+      if(!query) {
         return [];
       }
-      if(Array.isArray(query.value)) {
+      if(Array.isArray(query)) {
         // FIXME: Only support `QueryByExample` for multiple queries.
-        return query.value.filter(q => q.type === 'QueryByExample');
+        return query.filter(q => q.type === 'QueryByExample');
       }
-      const {type} = query.value;
+      const {type} = query;
       if(type === 'DIDAuthentication' || type === 'DIDAuth' ||
         type === 'QueryByExample') {
-        return [query.value];
+        return [query];
       }
       // unrecognized query
       return [];
@@ -188,11 +188,16 @@ export default {
 
       // match VPR against credential store
       console.log('vpr', verifiablePresentationRequest.value);
-      const matches = await presentations.match({
-        verifiablePresentationRequest: verifiablePresentationRequest.value,
-        credentialStore
-      });
-      console.log('matches', matches);
+      try {
+        const matches = await presentations.match({
+          verifiablePresentationRequest: verifiablePresentationRequest.value,
+          credentialStore
+        });
+        console.log('matches', matches);
+      } catch(e) {
+        console.log('error', e);
+      }
+      console.log('credentialQuery.value', credentialQuery.value);
 
       // FIXME: `ensureLocalCredentials` handled by `.match()`
       //await ensureLocalCredentials({credentialStore});
