@@ -31,7 +31,7 @@
     </div>
     <div v-else>
       <q-card
-        v-if="type !== 'DIDAuthentication' && type !== 'DIDAuth'"
+        v-if="!authentication"
         class="my-card"
         flat>
         <q-card-section horizontal>
@@ -53,7 +53,7 @@
 
 <script>
 /*!
- * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2015-2023 Digital Bazaar, Inc. All rights reserved.
  */
 import CapabilitiesList from './CapabilitiesList.vue';
 import CredentialsList from './CredentialsList.vue';
@@ -65,6 +65,11 @@ export default {
     CredentialsList
   },
   props: {
+    authentication: {
+      type: Boolean,
+      required: true,
+      default: () => false
+    },
     capabilities: {
       type: Array,
       required: true,
@@ -81,11 +86,6 @@ export default {
       default: true
     },
     requestOrigin: {
-      type: String,
-      required: true,
-      default: ''
-    },
-    type: {
       type: String,
       required: true,
       default: ''
