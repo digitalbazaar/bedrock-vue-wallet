@@ -24,11 +24,11 @@
             @select="selectedProfileId = $event.profile" />
         </div>
         <share-review
+          :authentication="headerType === 'authentication'"
           :capabilities="capabilityQuery"
           :credentials="displayableCredentials"
           :loading="loading || !selectedProfile"
           :request-origin="requestOrigin"
-          :type="query.type"
           :style="$q.screen.lt.sm ?
             'border-bottom: 1px solid rgba(157, 157, 157, 0.75)' : ''">
           <template #credentials-display="displayProps">
@@ -73,7 +73,8 @@
  * Copyright (c) 2015-2023 Digital Bazaar, Inc. All rights reserved.
  */
 import {
-  ageCredentialHelpers, getCredentialStore, helpers, profileManager
+  ageCredentialHelpers, getCredentialStore, helpers, profileManager,
+  presentations
 } from '@bedrock/web-wallet';
 import {computed, ref, toRaw, toRef} from 'vue';
 import {computedAsync} from '@vueuse/core';
@@ -84,6 +85,7 @@ import ShareReview from './ShareReview.vue';
 const {createCapabilities} = helpers;
 const {ensureLocalCredentials} = ageCredentialHelpers;
 
+// FIXME: remove, use bedrock-web-wallet APIs
 const AUTHENTICATION_QUERY_TYPES = ['DIDAuth', 'DIDAuthentication'];
 
 /**
@@ -98,15 +100,15 @@ export default {
     ShareReview
   },
   props: {
-    query: {
-      type: [Object, Array],
-      required: true,
-      default: () => ({})
-    },
     requestOrigin: {
       type: String,
       required: true,
       default: ''
+    },
+    verifiablePresentationRequest: {
+      type: [Object, Array],
+      required: true,
+      default: () => ({})
     }
   },
   emits: ['share', 'cancel'],
@@ -162,25 +164,41 @@ export default {
 
     const verifiableCredentialUpdating = ref(true);
     const verifiableCredential = computedAsync(async () => {
-      if(!(query.value && selectedProfile.value)) {
+      if(!(verifiablePresentationRequest.value && selectedProfile.value)) {
         return [];
       }
       const {id: profileId} = selectedProfile.value;
+
+      // FIXME: remove below and let bedrock-web-wallet handle it
       const types = AUTHENTICATION_QUERY_TYPES;
       if(queryContainsType({credentialQuery: credentialQuery.value, types})) {
         return [];
       }
+      // FIXME: remove above
 
       // FIXME: event should be emitted to deal with the query at the page
 
-      // ensures local credentials are made present on the device
+      // get credential store for selected profile
       const credentialStore = await getCredentialStore({
         // FIXME: determine how password will be provided / set; currently
         // set to `profileId`
         // FIXME: this code shouldn't be called in a component anyway
         profileId, password: profileId
       });
-      await ensureLocalCredentials({credentialStore});
+
+      // match VPR against credential store
+      console.log('vpr', verifiablePresentationRequest.value);
+      const matches = await presentations.match({
+        verifiablePresentationRequest: verifiablePresentationRequest.value,
+        credentialStore
+      });
+      console.log('matches', matches);
+
+      // FIXME: `ensureLocalCredentials` handled by `.match()`
+      //await ensureLocalCredentials({credentialStore});
+      // FIXME:
+      // const results = await bedrock-web-wallet.match(
+      //   {credentialStore, verifiablePresentationRequest});
       const records = await getRecords(
         {credentialQuery: credentialQuery.value, profileId});
       const displayContainers = await createContainers({records});
@@ -228,26 +246,28 @@ export default {
     // FIXME: button label determined by headerType; consider moving buttons
     // elsewhere / using `continue` and `finish` language
     headerType() {
-      return (this.query && (this.query.type === 'DIDAuthentication' ||
-        this.query.type === 'DIDAuth')) ? 'authentication' : 'query';
+      const type = this.verifiablePresentationRequest?.query?.type;
+      return (type === 'DIDAuthentication' || type === 'DIDAuth') ?
+        'authentication' : 'query';
     },
     capabilityQuery() {
       return this.ocapQuery.capabilityQuery || [];
     },
     ocapQuery() {
       const type = 'OcapLdQuery';
-      if(!this.query) {
+      const query = this.verifiablePresentationRequest?.query;
+      if(!query) {
         return {};
       }
-      if(Array.isArray(this.query)) {
+      if(Array.isArray(query)) {
         // FIXME: This does not support multiple ocap-ld queries
-        const [ocapQuery] = this.query.filter(query => query.type === type);
+        const [ocapQuery] = query.filter(q => q.type === type);
         if(!ocapQuery) {
           return {};
         }
         return ocapQuery;
       }
-      return this.query.type === type ? this.query : {};
+      return query.type === type ? query : {};
     }
   },
   methods: {
@@ -313,6 +333,8 @@ function addChapiContext({presentation}) {
   }
   presentation['@context'].push('https://w3id.org/chapi/v1');
 }
+
+// FIXME: remove below, use from bedrock-web-wallet
 
 async function getRecords({credentialQuery, profileId}) {
   // FIXME: Make query processor smarter. Independent execution of multiple
@@ -420,6 +442,7 @@ async function createContainers({credentialStore, records}) {
   return credentials;
 }
 
+// FIXME: remove, use bedrock-web-wallet APIs
 function queryContainsType({credentialQuery, types}) {
   const results = credentialQuery.filter(q => types.includes(q.type));
   return results.length > 0;
