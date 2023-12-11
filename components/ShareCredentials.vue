@@ -75,16 +75,13 @@
 import {
   getCredentialStore, helpers, presentations, profileManager
 } from '@bedrock/web-wallet';
-import {computed, ref, toRaw, toRef} from 'vue';
+import {computed, ref, toRaw, toRef, unref} from 'vue';
 import {computedAsync} from '@vueuse/core';
 import CredentialsList from './CredentialsList.vue';
 import ProfileChooser from './ProfileChooser.vue';
 import ShareReview from './ShareReview.vue';
 
 const {createCapabilities} = helpers;
-
-// FIXME: remove, use bedrock-web-wallet APIs
-const AUTHENTICATION_QUERY_TYPES = ['DIDAuth', 'DIDAuthentication'];
 
 /**
  * This component is generally rendered inside a CHAPI window. It is used
@@ -127,25 +124,6 @@ export default {
     const verifiablePresentationRequest = toRef(
       props, 'verifiablePresentationRequest');
 
-    // FIXME: Rename `credentialQuery`. DIDAuth is not a credential query.
-    const credentialQuery = computed(() => {
-      const query = verifiablePresentationRequest.value?.query;
-      if(!query) {
-        return [];
-      }
-      if(Array.isArray(query)) {
-        // FIXME: Only support `QueryByExample` for multiple queries.
-        return query.filter(q => q.type === 'QueryByExample');
-      }
-      const {type} = query;
-      if(type === 'DIDAuthentication' || type === 'DIDAuth' ||
-        type === 'QueryByExample') {
-        return [query];
-      }
-      // unrecognized query
-      return [];
-    });
-
     const selectedProfileId = ref();
 
     const selectedProfile = computed(() => {
@@ -169,13 +147,6 @@ export default {
       }
       const {id: profileId} = selectedProfile.value;
 
-      // FIXME: remove below and let bedrock-web-wallet handle it
-      const types = AUTHENTICATION_QUERY_TYPES;
-      if(queryContainsType({credentialQuery: credentialQuery.value, types})) {
-        return [];
-      }
-      // FIXME: remove above
-
       // FIXME: event should be emitted to deal with the query at the page
 
       // get credential store for selected profile
@@ -187,27 +158,26 @@ export default {
       });
 
       // match VPR against credential store
-      console.log('vpr', verifiablePresentationRequest.value);
+      let records = [];
       try {
+        // FIXME: remove logging
+        console.log('VPR', unref(verifiablePresentationRequest));
         const matches = await presentations.match({
-          verifiablePresentationRequest: verifiablePresentationRequest.value,
+          verifiablePresentationRequest: unref(verifiablePresentationRequest),
           credentialStore
         });
-        console.log('matches', matches);
+        // FIXME: remove logging
+        console.log('VC matches', matches);
+        records = matches.flat;
       } catch(e) {
-        console.log('error', e);
+        console.log('Error: ', e);
       }
-      console.log('credentialQuery.value', credentialQuery.value);
 
-      // FIXME: `ensureLocalCredentials` handled by `.match()`
-      //await ensureLocalCredentials({credentialStore});
-      // FIXME:
-      // const results = await bedrock-web-wallet.match(
-      //   {credentialStore, verifiablePresentationRequest});
-      const records = await getRecords(
-        {credentialQuery: credentialQuery.value, profileId});
-      const displayContainers = await createContainers({records});
+      // FIXME: handle duplicate VC IDs (multiple derived VCs with the same
+      // VC `id` could have been generated based on different queries)
+
       // creates container credentials for display only
+      const displayContainers = await createContainers({records});
       displayableCredentials.value = displayContainers;
       selectedCredentials.value = displayContainers.map(vc => vc.id);
       const credentials = records.map(r => r.content);
@@ -222,7 +192,6 @@ export default {
       sharing.value);
 
     return {
-      credentialQuery,
       displayableCredentials,
       selectedCredentials,
       loading,
@@ -339,88 +308,6 @@ function addChapiContext({presentation}) {
   presentation['@context'].push('https://w3id.org/chapi/v1');
 }
 
-// FIXME: remove below, use from bedrock-web-wallet
-
-async function getRecords({credentialQuery, profileId}) {
-  // FIXME: Make query processor smarter. Independent execution of multiple
-  //        queries may result in duplicates.
-  // FIXME: Use a p-fun library to properly handle concurrency and retries.
-  const records = await Promise.all(
-    credentialQuery.map(query => _getRecords({query, profileId}))
-  );
-
-  return removeDuplicatesById({records: records.flat()});
-}
-
-// FIXME: move elsewhere?
-async function _getRecords({query, profileId}) {
-  // Clone is done here to prevent Vue from calling the function multiple times
-  // due to "query" being set inside of a computed function.
-  const vprQuery = JSON.parse(JSON.stringify(query));
-
-  const credentialQuery = Array.isArray(vprQuery.credentialQuery) ?
-    vprQuery.credentialQuery : [vprQuery.credentialQuery];
-
-  // convert VPR query into local queries...
-  const credentialStore = await getCredentialStore({
-    // FIXME: determine how password will be provided / set; currently
-    // set to `profileId`
-    // FIXME: this code shouldn't be called in a component anyway
-    profileId, password: profileId
-  });
-
-  // FIXME: all code here assumes a single `credentialQuery` of type
-  //        `QueryByExample`
-  const [firstCredentialQuery] = credentialQuery;
-  const firstCredentialQueryExampleType = firstCredentialQuery.example.type;
-  const records = [];
-  if(firstCredentialQueryExampleType.includes('OverAgeTokenCredential')) {
-    // query for *only* the over age token credential
-    firstCredentialQuery.example.type = 'OverAgeTokenCredential';
-    const {queries: [q]} = await credentialStore.local.convertVPRQuery({
-      vprQuery
-    });
-    const {documents: results} = await credentialStore.local.find({
-      // only return 1 over age token
-      query: q, limit: 1
-    });
-    // adds only the first OverAgeTokenCredential to records array
-    records.push(results[0]);
-
-    // remove local credential from type in query and restore its value
-    const index = firstCredentialQueryExampleType.indexOf(
-      'OverAgeTokenCredential'
-    );
-    firstCredentialQueryExampleType.splice(index, 1);
-    firstCredentialQuery.example.type = firstCredentialQueryExampleType;
-  }
-  if(firstCredentialQuery.example.type.length === 0) {
-    return records;
-  }
-  const {queries: q} = await credentialStore.remote.convertVPRQuery({
-    vprQuery
-  });
-  // FIXME: Flattened query should be removed. Must be able to process query
-  //        as-is to properly apply and-or logic to results.
-  const {documents: results} = await credentialStore.remote.find({
-    // flatten the query: [[{type: A}], [{type: B}, {type: C}], [{type: D}]]
-    //         into   =>  [{type: A}, {type: B}, {type: C}, {type: D}]
-    // so that it can be processed by VerifiableCredentialStore.find()
-    query: q.flat()
-  });
-  records.push(...results);
-  // FIXME: Create a more generalized filter mechanism for vc search.
-  return records.filter(openBadgeFilter({vprQuery}));
-}
-
-function openBadgeFilter({vprQuery}) {
-  return ({content}) => {
-    const {example} = vprQuery.credentialQuery;
-    // eslint-disable-next-line max-len
-    return example?.credentialSubject?.achievement?.id === content?.credentialSubject?.achievement?.id;
-  };
-}
-// FIXME: move elsewhere?
 async function createContainers({credentialStore, records}) {
   // FIXME: change this; it is hacky -- build virtual VCs instead somehow
   const recordsClone = JSON.parse(JSON.stringify(records));
@@ -445,31 +332,6 @@ async function createContainers({credentialStore, records}) {
     credentials.push(record.content);
   }
   return credentials;
-}
-
-// FIXME: remove, use bedrock-web-wallet APIs
-function queryContainsType({credentialQuery, types}) {
-  const results = credentialQuery.filter(q => types.includes(q.type));
-  return results.length > 0;
-}
-
-function removeDuplicatesById({records}) {
-  const ids = new Set();
-  const results = [];
-
-  for(const record of records) {
-    const recordId = record.id;
-
-    const found = ids.has(recordId);
-    if(found) {
-      continue;
-    }
-
-    ids.add(recordId);
-    results.push(record);
-  }
-
-  return results;
 }
 </script>
 
