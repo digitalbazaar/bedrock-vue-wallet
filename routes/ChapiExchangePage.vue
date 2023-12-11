@@ -26,7 +26,7 @@
         @cancel="$event.waitUntil(cancel(error))" />
       <share-credentials
         v-else-if="!loading && display === 'share'"
-        :query="query"
+        :verifiablePresentationRequest="verifiablePresentationRequest"
         :request-origin="requestOrigin"
         @cancel="$event.waitUntil(cancel())"
         @share="$event.waitUntil(share($event.presentation))" />
@@ -99,12 +99,12 @@ export default {
     const error = ref();
     const exchanging = ref(false);
     const holder = ref('');
-    const query = ref();
     const ready = ref(false);
     const registering = ref(false);
     const storing = ref(false);
     const verifiableCredential = ref([]);
     const verifiablePresentation = ref();
+    const verifiablePresentationRequest = ref();
 
     const loading = computed(() =>
       !ready.value ||
@@ -145,7 +145,8 @@ export default {
         if(display.value === 'store') {
           return 'has something for you';
         } else if(display.value === 'share') {
-          if(query.value?.type === 'DIDAuthentication') {
+          if(verifiablePresentationRequest.value?.query?.type ===
+            'DIDAuthentication') {
             return 'would like you to authenticate';
           }
           return 'would like some information from you';
@@ -259,7 +260,7 @@ export default {
           exchanging.value = false;
 
           // clear share-related state
-          query.value = undefined;
+          verifiablePresentationRequest.value = undefined;
           verifiablePresentation.value = undefined;
 
           if(value?.verifiablePresentation) {
@@ -294,7 +295,8 @@ export default {
             setDisplay('share');
 
             // set share-related state
-            query.value = value.verifiablePresentationRequest.query;
+            verifiablePresentationRequest.value =
+              value.verifiablePresentationRequest;
 
             await wait();
             actionTaken = true;
@@ -338,10 +340,11 @@ export default {
 
     return {
       cancel, display, error, exchanging, holder,
-      loading, login, query, ready,
+      loading, login, ready,
       relyingPartyImage, relyingPartyName, relyingPartyRequest,
       registering, requestOrigin, setDisplay,
-      share, store, storing, userLoggedIn, verifiableCredential
+      share, store, storing, userLoggedIn, verifiableCredential,
+      verifiablePresentationRequest
     };
   }
 };
