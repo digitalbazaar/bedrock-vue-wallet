@@ -169,9 +169,12 @@ export default {
         // FIXME: remove logging
         console.log('VC matches', matches);
         // FIXME: use matches directly instead of using records
-        records = matches.flat.map(match => match.record);
-      } catch(e) {
-        console.log('Error: ', e);
+        records = matches.flat.map(match => match.derived?.length > 0 ?
+          // FIXME: temporary measure to replace content with derived VC
+          {...match.record, content: match.derived[0].derivedCredential} :
+          match.record);
+      } catch(error) {
+        console.log('Error trying to process query: ', {error});
       }
 
       // FIXME: handle duplicate VC IDs (multiple derived VCs with the same
