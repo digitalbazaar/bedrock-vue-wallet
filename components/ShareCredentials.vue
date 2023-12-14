@@ -160,17 +160,15 @@ export default {
       // match VPR against credential store
       let records = [];
       try {
-        // FIXME: remove logging
-        console.log('VPR', unref(verifiablePresentationRequest));
         const matches = await presentations.match({
           verifiablePresentationRequest: unref(verifiablePresentationRequest),
           credentialStore
         });
-        // FIXME: remove logging
-        console.log('VC matches', matches);
-        // FIXME: use matches directly instead of using records
+        // FIXME: use matches directly instead of using records, UI
+        // should better render full matches
         records = matches.flat.map(match => match.derived?.length > 0 ?
-          // FIXME: temporary measure to replace content with derived VC
+          // FIXME: temporary measure to replace content with derived VC,
+          // instead UI should support both and prefer derived
           {...match.record, content: match.derived[0].derivedCredential} :
           match.record);
       } catch(error) {
@@ -285,8 +283,8 @@ export default {
           presentation.capability = capabilities;
         }
         await this.$emitExtendable('share', {presentation});
-      } catch(e) {
-        console.log('Error: ', e);
+      } catch(error) {
+        console.log('Error trying to share credentials: ', {error});
       } finally {
         this.sharing = false;
       }
