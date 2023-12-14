@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 25.0.0 - 2023-12-dd
+## 25.0.0 - 2023-12-14
 
 ### Changed
 - **BREAKING**: Change `ShareReview` props to take authentication boolean
