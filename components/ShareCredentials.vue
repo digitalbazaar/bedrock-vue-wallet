@@ -72,10 +72,10 @@
 /*!
  * Copyright (c) 2015-2023 Digital Bazaar, Inc. All rights reserved.
  */
+import {computed, ref, toRaw, toRef, unref} from 'vue';
 import {
   getCredentialStore, helpers, presentations, profileManager
 } from '@bedrock/web-wallet';
-import {computed, ref, toRaw, toRef, unref} from 'vue';
 import {computedAsync} from '@vueuse/core';
 import CredentialsList from './CredentialsList.vue';
 import ProfileChooser from './ProfileChooser.vue';
