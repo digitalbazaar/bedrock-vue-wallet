@@ -26,7 +26,7 @@
         @cancel="$event.waitUntil(cancel(error))" />
       <share-credentials
         v-else-if="!loading && display === 'share'"
-        :verifiablePresentationRequest="verifiablePresentationRequest"
+        :verifiable-presentation-request="verifiablePresentationRequest"
         :request-origin="requestOrigin"
         @cancel="$event.waitUntil(cancel())"
         @share="$event.waitUntil(share($event.presentation))" />
