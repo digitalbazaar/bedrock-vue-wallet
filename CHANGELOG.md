@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 25.0.1 - 2024-01-dd
+## 25.0.1 - 2024-01-25
 
 ### Fixed
 - Allow nameless credential with only one type to render.
