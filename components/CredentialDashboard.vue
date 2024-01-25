@@ -102,7 +102,7 @@ export default {
       emit('filtered-credentials-loading', true);
       const filteredCredentials = credentials.value.filter(({credential}) => {
         if(credential) {
-          const credentialName = credential.name || credential.type[1];
+          const credentialName = credential.name || credential.type[1] || '';
           return credentialName.toLowerCase().includes(
             search.value.toLowerCase());
         }
