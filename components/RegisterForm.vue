@@ -93,11 +93,12 @@
           loading"
         @click="register" />
       <q-separator
-        class="q-mt-lg q-mb-sm q-mx-xl" 
+        class="q-mt-lg q-mb-sm q-mx-xl"
         inset />
       <div class="q-mt-sm">
-        <p style="margin: 0px">Already registered?
-          <q-btn 
+        <p style="margin: 0px">
+          Already registered?
+          <q-btn
             flat
             no-caps
             color="primary"
@@ -122,7 +123,6 @@
 import {AccountService, RegisterController} from '@bedrock/web-account';
 import {email, minLength, required} from '@vuelidate/validators';
 import {addWalletToChapi} from '../lib/helpers';
-import {BrQTitleCard} from '@bedrock/quasar-components';
 import {config} from '@bedrock/web';
 import {helpers} from '@bedrock/web-wallet';
 import {randomColor} from 'randomcolor';
@@ -134,7 +134,6 @@ const {createProfile} = helpers;
 
 export default {
   name: 'RegisterForm',
-  components: {BrQTitleCard},
   emits: ['login', 'register'],
   setup() {
     return {
