@@ -1,18 +1,19 @@
 <template>
   <q-input
     v-model="code"
-    outlined
     stack-label
+    outlined
+    color="dark"
     :minlength="minLength"
     :maxlength="maxLength"
     autocomplete="code"
     :hint="hint"
     :error="vuelidate.code.$error"
     :error-message="errorMessage"
-    label="Code"
+    label="Verification Code"
     autofocus
-    bottom-slots
-    @blur="vuelidate.code.$touch" />
+    bottom-slots 
+    :input-style="{ fontSize: '16px' }" />
 </template>
 
 <script>
@@ -30,7 +31,7 @@ export default {
     hint: {
       type: String,
       required: false,
-      default: 'Please enter the code.'
+      default: ''
     },
     max: {
       type: String,
