@@ -3,7 +3,7 @@
     class="row justify-center q-pa-md">
     <div
       class="full-width"
-      style="max-width: 500px">
+      style="max-width: 385px; margin-top: 6%">
       <login-form
         @login="$event.waitUntil(login())"
         @register="$event.waitUntil(register())" />
