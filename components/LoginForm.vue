@@ -26,7 +26,8 @@
               autocomplete="email"
               :input-style="{ fontSize: '16px' }"
               :error="vuelidate.ctrl.email.$error"
-              error-message="Please enter the email address you registered with."
+              error-message=
+                "Please enter the email address you registered with."
               @keydown.enter.prevent="handleEnterForEmail" />
           </form>
           <q-btn
@@ -41,7 +42,7 @@
             :disable="loading.emailCode || vuelidate.ctrl.email.$invalid"
             @click="sendEmail" />
           <q-separator
-            class="q-my-lg q-mx-xl" 
+            class="q-my-lg q-mx-xl"
             inset />
           <div class="column text-body2">
             New to Veres Wallet?
@@ -50,13 +51,13 @@
               style="text-decoration: none"
               @click.stop.prevent="register($event)">
               Create Account</a>
-          </div> 
+          </div>
         </div>
-        
+
         <div v-if="showEmailCode">
           A verification code was sent to
           <div class="text-body1 q-mt-md q-mb-lg text-weight-bold">
-            {{ ctrl.email }}
+            {{ctrl.email}}
           </div>
           <code-input
             :min-length="6"
@@ -76,11 +77,11 @@
             :loading="loading.login || loading.emailCode"
             @click="emailCodeEntered" />
           <q-separator
-            class="q-my-lg q-mx-xl" 
+            class="q-my-lg q-mx-xl"
             inset />
           <div class="column text-body2">
             Didn't receive an email?
-            <div>   
+            <div>
               <a
                 href=""
                 style="text-decoration: none"
@@ -93,7 +94,7 @@
                 style="text-decoration: none"
                 @click.stop.prevent="backToEmailInput()">
                 change email
-              </a>           
+              </a>
             </div>
           </div>
         </div>
@@ -129,7 +130,7 @@
           @click="totpCodeEntered" />
         <div v-if="hasRecoveryEmail">
           <q-separator
-            class="q-my-lg q-mx-xl" 
+            class="q-my-lg q-mx-xl"
             inset />
           <div class="column text-body2">
             Can't access your authenticator app?
@@ -138,14 +139,14 @@
               style="text-decoration: none"
               @click.stop.prevent="sendRecoveryEmail">
               Use your recovery email</a>
-          </div> 
+          </div>
         </div>
       </div>
 
       <div v-else-if="showRecoveryEmailCode">
         <div class="q-mb-lg">
-          An email has been sent to the recovery email associated with your account.
-          Please enter the code from that email below.
+          An email has been sent to the recovery email associated with your
+          account. Please enter the code from that email below.
         </div>
         <code-input
           :min-length="6"
@@ -313,7 +314,7 @@ export default {
           } else {
             message = e.message;
           }
-          this.$q.notify({ message, actions: [{icon: 'fa fa-times'}]});
+          this.$q.notify({message, actions: [{icon: 'fa fa-times'}]});
           return;
         }
         await this.handleAuthenticationResult({result});
@@ -417,7 +418,7 @@ export default {
         } else {
           message = e.message;
         }
-        this.$q.notify({ message, actions: [{icon: 'fa fa-times'}] });
+        this.$q.notify({message, actions: [{icon: 'fa fa-times'}]});
         return;
       }
       // clear challenge from state

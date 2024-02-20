@@ -12,7 +12,7 @@
     :error-message="errorMessage"
     label="Verification Code"
     autofocus
-    bottom-slots 
+    bottom-slots
     :input-style="{ fontSize: '16px' }" />
 </template>
 
