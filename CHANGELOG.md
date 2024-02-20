@@ -1,5 +1,10 @@
 # bedrock-vue-wallet ChangeLog
 
+## 25.1.0 - 2024-02-dd
+
+### Changed
+- Update UI for log in and register user workflows.
+
 ## 26.0.0 - 2024-03-14
 
 ### Added
