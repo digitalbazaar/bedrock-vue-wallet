@@ -1,107 +1,118 @@
 <template>
-  <br-q-title-card
-    title="Register"
-    class="full-width">
-    <template #body>
-      <div class="column q-pa-md">
-        <form class="full-width">
-          <q-input
-            v-model="name"
-            outlined
-            stack-label
-            hint="Please enter your name."
-            :error="vuelidate.name.$error"
-            error-message="Your name must be at least 1 character."
-            label="Name"
-            autofocus
-            bottom-slots
-            @blur="vuelidate.name.$touch" />
-          <q-input
-            v-model="ctrl.email"
-            outlined
-            stack-label
-            :hint="emailAvailable || 'Please enter your email address.'"
-            :error="vuelidate.ctrl.email.$error ||
-              (vuelidate.ctrl.email.$dirty && !isEmailUnique && !checkingEmail)"
-            :error-message="emailErrorMessage"
-            type="email"
-            label="Email"
-            class="q-mt-md"
-            bottom-slots
-            :loading="checkingEmail"
-            @blur="vuelidate.ctrl.email.$touch" />
-        </form>
-        <div class="row">
-          <q-checkbox
-            v-model="tosAgree"
-            dense />
-          <span class="q-my-md q-ml-sm">
-            I agree to the
-            <a
-              href=""
-              @click.stop.prevent="showTosModal = true">
-              Terms of Service
-            </a>
-          </span>
-        </div>
-        <q-dialog
-          v-model="showTosModal"
-          :maximized="maximizeModal">
-          <q-card
-            :style="!maximizeModal && {width: '700px', maxWidth: '80vw'}">
-            <q-toolbar class="bg-primary text-white">
-              <q-toolbar-title>Terms of Service</q-toolbar-title>
-              <q-btn
-                v-close-popup
-                dense
-                flat
-                label="Close">
-                <q-tooltip>Close</q-tooltip>
-              </q-btn>
-            </q-toolbar>
-            <q-card-section>
-              <p
-                v-for="(line, index) in tos"
-                :key="index">
-                {{line}}
-              </p>
-            </q-card-section>
-          </q-card>
-        </q-dialog>
-        <p class="row text-left">
-          When you click "Register", you may be asked to grant permission to
-          show your wallet in your browser's wallet selector. If you decline,
-          you can change this later under "Settings".
-        </p>
-        <q-btn
-          :disable="vuelidate.ctrl.$invalid || vuelidate.tosAgree.$invalid ||
-            vuelidate.name.$invalid || checkingEmail || !isEmailUnique ||
-            loading"
-          size="form"
-          color="primary"
-          icon="fa fa-sign-in-alt"
-          label="Register"
-          :loading="loading"
-          @click="register" />
-        <div>
-          <div class="q-mt-sm">
-            <small>
-              Already registered?
-              <a
-                href=""
-                @click.stop.prevent="login">
-                Login</a>.
-            </small>
-          </div>
-        </div>
-        <q-banner
-          v-if="error"
-          class="bg-red q-mt-md q-ml-sm">
-          {{error}}
-        </q-banner>
+  <q-card
+    class="full-width"
+    flat
+    bordered>
+    <q-card-section class="q-mt-lg text-center">
+      <img
+        v-if="branding.logo"
+        :src="branding.logo"
+        :style="`height: ${branding.logoSize.desktop}; filter:invert(1)`">
+    </q-card-section>
+    <q-card-section class="column text-center q-px-xl">
+      <form class="full-width">
+        <q-input
+          v-model="name"
+          outlined
+          stack-label
+          color="dark"
+          :error="vuelidate.name.$error"
+          error-message="Your name must be at least 1 character."
+          label="Name"
+          autofocus
+          bottom-slots />
+        <q-input
+          v-model="ctrl.email"
+          outlined
+          stack-label
+          color="dark"
+          :hint="emailAvailable || ''"
+          :error="vuelidate.ctrl.email.$error ||
+            (vuelidate.ctrl.email.$dirty && !isEmailUnique && !checkingEmail)"
+          :error-message="emailErrorMessage"
+          type="email"
+          label="Email"
+          class="q-mt-md"
+          bottom-slots
+          :loading="checkingEmail" />
+      </form>
+      <div class="row q-my-lg">
+        <q-checkbox
+          v-model="tosAgree"
+          dense />
+        <span class="q-ml-sm">
+          I agree to the
+          <a
+            href=""
+            style="text-decoration: none"
+            @click.stop.prevent="showTosModal = true">
+            Terms of Service
+          </a>
+        </span>
       </div>
-    </template>
-  </br-q-title-card>
+      <q-dialog
+        v-model="showTosModal"
+        :maximized="maximizeModal">
+        <q-card
+          :style="!maximizeModal && {width: '700px', maxWidth: '80vw'}">
+          <q-toolbar class="bg-primary text-white">
+            <q-toolbar-title>Terms of Service</q-toolbar-title>
+            <q-btn
+              v-close-popup
+              dense
+              flat
+              label="Close">
+              <q-tooltip>Close</q-tooltip>
+            </q-btn>
+          </q-toolbar>
+          <q-card-section>
+            <p
+              v-for="(line, index) in tos"
+              :key="index">
+              {{line}}
+            </p>
+          </q-card-section>
+        </q-card>
+      </q-dialog>
+      <div class="text-body2 text-left q-mb-md">
+        When you click "Register", you may be asked to grant permission to
+        show your wallet in your browser's wallet selector. If you decline,
+        you can change this later under "Settings".
+      </div>
+      <q-btn
+        no-caps
+        rounded
+        size="16px"
+        unelevated
+        color="dark"
+        class="q-mb-sm"
+        label="Register"
+        :loading="loading"
+        :disable="vuelidate.ctrl.$invalid || vuelidate.tosAgree.$invalid ||
+          vuelidate.name.$invalid || checkingEmail || !isEmailUnique ||
+          loading"
+        @click="register" />
+      <q-separator
+        class="q-mt-lg q-mb-sm q-mx-xl" 
+        inset />
+      <div class="q-mt-sm">
+        <p style="margin: 0px">Already registered?
+          <q-btn 
+            flat
+            no-caps
+            color="primary"
+            label="Log In"
+            class="q-ma-none q-pa-xs"
+            @click.stop.prevent="login" />
+        </p>
+      </div>
+      <q-banner
+        v-if="error"
+        class="bg-red q-mt-md q-ml-sm">
+        {{error}}
+      </q-banner>
+    </q-card-section>
+  </q-card>
 </template>
 
 <script>
@@ -132,6 +143,7 @@ export default {
   },
   data() {
     return {
+      branding: config.vueWallet.branding,
       showTosModal: false,
       tosAgree: false,
       isEmailUnique: true,
