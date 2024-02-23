@@ -20,13 +20,13 @@
     </q-toolbar-title>
     <div v-if="account && !hideNavigation">
       <q-btn-toggle
+        v-model="navRouteName"
         flat
         no-caps
         size="16px"
         :ripple="false"
         class="gt-xs q-ml-md"
         toggle-color="primary"
-        v-model="navRouteName"
         :options="[
           {label: 'Credentials', value: 'home'},
           {label: 'Profiles', value: 'profiles'},
@@ -42,29 +42,33 @@
         :size="$q.screen.gt.xs ? 'sm': 'md'"
         :dropdown-icon="$q.screen.gt.xs ? 'far fa-user' : 'fa fa-bars'">
         <q-list style="min-width: 300px; font-size: 16px">
-          <q-item-label header>Welcome!</q-item-label>
+          <q-item-label header>
+            Welcome!
+          </q-item-label>
           <q-item
             v-for="menuItem in menuItems"
-            clickable
             v-close-popup
             :key="menuItem.route"
+            clickable
             active-class="bg-grey-3"
             :class="menuItem.class + ' q-pa-lg'"
-            :active="this.$route.path === `/${menuItem.route}`"
+            :active="$route.path === `/${menuItem.route}`"
             @click="navigateTo(menuItem.route)">
             <q-item-section avatar>
               <q-icon
                 size="xs"
-                :color="this.$route.path === `/${menuItem.route}`
+                :color="$route.path === `/${menuItem.route}`
                   ? 'primary' : 'dark'"
                 :name="menuItem.icon" />
             </q-item-section>
             <q-item-section>{{menuItem.label}}</q-item-section>
           </q-item>
-          <q-separator inset spaced />
+          <q-separator
+            inset
+            spaced />
           <q-item
-            clickable
             v-close-popup
+            clickable
             class="q-pa-lg"
             @click="logout">
             <q-item-section avatar>
@@ -85,8 +89,8 @@
       no-caps
       unelevated
       color="primary"
-      @click="login()"
-      label="Log In / Register"/>
+      label="Log In / Register"
+      @click="login()" />
   </q-toolbar>
 </template>
 
@@ -122,19 +126,19 @@ export default {
       navRouteName: '',
       menuItems: [
         {
-          route:'home',
+          route: 'home',
           class: 'lt-sm',
           label: 'Credentials',
           icon: 'fa fa-address-card'
         },
         {
-          route:'profiles',
+          route: 'profiles',
           class: 'lt-sm',
           label: 'Profiles',
           icon: 'fa fa-users'
         },
         {
-          route:'settings',
+          route: 'settings',
           class: '',
           label: 'Settings',
           icon: 'fa fa-cog'
@@ -144,10 +148,10 @@ export default {
   },
   computed: {
     isLoginPage() {
-      return this.$route.path === '/login'
+      return this.$route.path === '/login';
     },
     isRegisterPage() {
-      return this.$route.path === '/register'
+      return this.$route.path === '/register';
     },
   },
   watch: {
@@ -181,7 +185,7 @@ export default {
     },
     async navigateTo(routeName) {
       this.navRouteName = routeName;
-      this.handleNav()
+      this.handleNav();
     },
     async handleNav() {
       if(this.navRouteName === 'logout') {

@@ -1,7 +1,7 @@
 <template>
-  <q-page 
+  <q-page
     class="row justify-center"
-    style="min-height: 0px;" >
+    style="min-height: 0px;">
     <div class="col-sm-5 col-xs-10 row items-center q-mt-lg q-mb-sm">
       <search-box
         class="col-grow"
@@ -17,7 +17,7 @@
         :loading="loading"
         :error-text="errorText"
         @delete-credential="$event.waitUntil(deleteCredential($event))" />
-      </div>
+    </div>
   </q-page>
 </template>
 
@@ -26,7 +26,6 @@
  * Copyright (c) 2018-2022 Digital Bazaar, Inc. All rights reserved.
  */
 import {computed, ref, toRef, watch} from 'vue';
-import {BrQTitleCard} from '@bedrock/quasar-components';
 import {createEmitExtendable} from '@digitalbazaar/vue-extendable-event';
 import CredentialsList from './CredentialsList.vue';
 import SearchBox from './SearchBox.vue';
@@ -34,7 +33,6 @@ import SearchBox from './SearchBox.vue';
 export default {
   name: 'CredentialDashboard',
   components: {
-    BrQTitleCard,
     CredentialsList,
     SearchBox
   },

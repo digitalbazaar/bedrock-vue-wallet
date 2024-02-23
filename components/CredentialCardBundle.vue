@@ -1,5 +1,5 @@
 <template>
-  <div 
+  <div
     class="card-container q-my-xs q-mx-xs"
     @mouseover="hover=true"
     @mouseleave="hover=false">
@@ -60,8 +60,8 @@
  * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
  */
 // FIXME: do not import any of these, parameterize / use events instead
-import {CredentialSwitch} from '@bedrock/vue-vc';
 import {ageCredentialHelpers, getCredentialStore} from '@bedrock/web-wallet';
+import {CredentialSwitch} from '@bedrock/vue-vc';
 
 const {generateQrCodeDataUrl, reissue} = ageCredentialHelpers;
 
@@ -270,20 +270,19 @@ $breakpoint-xs: 360px;
 
 .card {
   /* Credit card ratio 2.125 H by 3.375 W */
-  width: 275px; 
+  width: 275px;
   padding: 24px;
   border-radius: 16px;
   aspect-ratio: 3.375 / 2.125;
   background-color: #FFFFFF;
   border: 1px solid rgba(0, 0, 0, 0.1);
-  
   /* Fill screen when using smaller device */
   @media (max-width: #{$breakpoint-sm}) {
-    width: 340px; 
+    width: 340px;
   }
   /* Fill screen when using smaller device */
   @media (max-width: #{$breakpoint-xs}) {
-    width: 275px; 
+    width: 275px;
   }
 }
 
