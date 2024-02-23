@@ -1,5 +1,11 @@
 # bedrock-vue-wallet ChangeLog
 
+## 26.0.0 - 2024-02-dd
+
+### Changed
+- Update credential dashboard UI style and layout.
+- Update app header style and utilize dropdown menu instead of app drawer.
+
 ## 27.0.0 - 2024-03-dd
 
 ### Changed
