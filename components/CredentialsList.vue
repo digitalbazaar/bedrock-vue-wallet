@@ -24,7 +24,7 @@
   </div>
   <div v-else>
     <div
-      class="s-credential-list q-py-sm overflow-auto">
+      class="s-credential-list q-pa-sm overflow-auto">
       <div class="row justify-center">
         <div
           v-if="loading"
@@ -51,7 +51,7 @@
         </div>
         <div
           v-else
-          class="row q-gutter-md justify-center">
+          class="row q-gutter-md justify-center q-mb-lg">
           <div
             v-for="credentialRecord in credentialsList"
             :key="credentialRecord.credential.id ?? credentialRecord.meta.id"
@@ -62,7 +62,6 @@
               :selected-credentials="selectedCredentials"
               @select-credentials="relaySelection">
               <credential-card-bundle
-                style="max-width: 300px;"
                 :credential-record="credentialRecord"
                 :schema-map="schemaMap"
                 :profile="profile"

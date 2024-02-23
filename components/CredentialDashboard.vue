@@ -1,53 +1,23 @@
 <template>
-  <q-page
-    class="row justify-center q-pa-md">
-    <div class="col-md-9 col-xs-12">
-      <br-q-title-card
-        title="Credentials"
-        class="full-width">
-        <template #head>
-          <div style="float: right;">
-            <q-btn
-              size="sm"
-              flat
-              icon="fas fa-sync-alt"
-              @click="refresh" />
-          </div>
-        </template>
-        <template #body>
-          <div class="q-pl-md q-pb-md row">
-            <div class="q-pt-md q-pr-md col-md-8 col-xs-12 row items-center">
-              <search-box
-                class="col-grow"
-                placeholder="Search for a credential."
-                @search="search = $event.text" />
-            </div>
-            <div class="q-pt-md q-pr-md col-md-4 col-xs-12">
-              <q-select
-                v-model="filteredProfiles"
-                dense
-                outlined
-                multiple
-                :options="profiles"
-                option-value="id"
-                option-label="name"
-                use-chips
-                label="Profile Filters"
-                @focus="search = ''" />
-            </div>
-          </div>
-          <q-separator />
-          <credentials-list
-            :credentials="filteredCredentials"
-            :profile-options="profiles"
-            :no-results="noResults"
-            :search="search"
-            :loading="loading"
-            :error-text="errorText"
-            @delete-credential="$event.waitUntil(deleteCredential($event))" />
-        </template>
-      </br-q-title-card>
+  <q-page 
+    class="row justify-center"
+    style="min-height: 0px;" >
+    <div class="col-sm-5 col-xs-10 row items-center q-mt-lg q-mb-sm">
+      <search-box
+        class="col-grow"
+        placeholder="Search credentials"
+        @search="search=$event.text" />
     </div>
+    <div class="col-xs-12">
+      <credentials-list
+        :credentials="filteredCredentials"
+        :profile-options="profiles"
+        :no-results="noResults"
+        :search="search"
+        :loading="loading"
+        :error-text="errorText"
+        @delete-credential="$event.waitUntil(deleteCredential($event))" />
+      </div>
   </q-page>
 </template>
 

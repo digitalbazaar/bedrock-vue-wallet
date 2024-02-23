@@ -1,12 +1,14 @@
 <template>
-  <div>
-    <q-card>
+  <div 
+    class="card-container q-my-xs q-mx-xs"
+    @mouseover="hover=true"
+    @mouseleave="hover=false">
+    <q-card class="card">
       <credential-switch
-        class="q-ma-xs"
         :credential="credentialRecord.credential"
         :clickable="true">
         <template #modalHeader>
-          <q-card-section class="q-pa-sm text-center s-card-title">
+          <q-card-section class="q-pa-sm text-center card-title">
             <div class="row">
               <div class="col-2">
                 <div class="float-left">
@@ -58,13 +60,8 @@
  * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
  */
 // FIXME: do not import any of these, parameterize / use events instead
-import {
-  ageCredentialHelpers,
-  getCredentialStore
-} from '@bedrock/web-wallet';
-import {
-  CredentialSwitch
-} from '@bedrock/vue-vc';
+import {CredentialSwitch} from '@bedrock/vue-vc';
+import {ageCredentialHelpers, getCredentialStore} from '@bedrock/web-wallet';
 
 const {generateQrCodeDataUrl, reissue} = ageCredentialHelpers;
 
@@ -96,6 +93,7 @@ export default {
   data() {
     return {
       card: false,
+      hover: false,
       currentCard: {},
       currentCardProfile: {},
       qrUrl: ''
@@ -253,22 +251,8 @@ async function createAgeCredential({
 </script>
 
 <style lang="scss" scoped>
-$breakpoint-lg: 1216px;
-$breakpoint-md: 991px;
 $breakpoint-sm: 767px;
-$breakpoint-xs: 320px;
-
-@mixin tablet-large {
-  @media (min-width: #{$breakpoint-md}) and (max-width: #{$breakpoint-lg}) {
-    @content;
-  }
-}
-
-@mixin tablet {
-  @media (min-width: #{$breakpoint-sm}) and (max-width: #{$breakpoint-md}) {
-    @content;
-  }
-}
+$breakpoint-xs: 360px;
 
 @mixin mobile {
   @media (min-width: #{$breakpoint-xs}) and (max-width: #{$breakpoint-sm}) {
@@ -276,70 +260,40 @@ $breakpoint-xs: 320px;
   }
 }
 
-.s-card-list {
-  width: 100%;
+.card-container {
+  transition: filter .08s ease-in-out;
 }
 
-.s-card-title {
+.card-container:hover {
+  filter: brightness(97%);
+}
+
+.card {
+  /* Credit card ratio 2.125 H by 3.375 W */
+  width: 275px; 
+  padding: 24px;
+  border-radius: 16px;
+  aspect-ratio: 3.375 / 2.125;
+  background-color: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  
+  /* Fill screen when using smaller device */
+  @media (max-width: #{$breakpoint-sm}) {
+    width: 340px; 
+  }
+  /* Fill screen when using smaller device */
+  @media (max-width: #{$breakpoint-xs}) {
+    width: 275px; 
+  }
+}
+
+.card-title {
   /* Anything larger than mobile */
   @media (min-width: #{$breakpoint-sm}) {
     min-width: 450px;
   }
   @include mobile {
     min-width: 300px;
-  }
-}
-
-.s-section {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.s-section-title {
-  width: 100%;
-  flex-shrink: 0;
-  display: inline-flex;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
-
-  h6 {
-    font-size: 16px;
-  }
-}
-
-.s-selected-icon {
- @include mobile {
-   display: none;
- }
-}
-
-.s-profile-select {
-  height: 30px;
-
-  @include mobile {
-    height: 26px;
-  }
-}
-
-.s-credentials-list {
-  flex-grow: 1;
-  overflow-y: auto;
-}
-
-.s-sort-icon {
-  margin-top: -10px;
-}
-
-.s-page-section {
-  width: 100%;
-
-  @include tablet-large {
-    max-width: 100%;
-  }
-
-  @include mobile {
-    border-radius: 0 !important;
-    box-shadow: none;
   }
 }
 </style>
