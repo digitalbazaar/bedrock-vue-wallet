@@ -1,12 +1,11 @@
 <template>
   <q-layout
     view="hHh LpR fFf"
-    class="s-page">
-    <q-header
-      v-if="ready"
-      class="shadow-3">
+    class="bg-gradient">
+    <q-header v-if="ready">
       <wallet-header
         :logout="logout"
+        class="bg-white"
         :account="account"
         :hide-navigation="chapi"
         :toggle-drawer="toggleDrawer" />
@@ -19,14 +18,6 @@
     </q-inner-loading>
 
     <q-page-container v-if="ready">
-      <q-drawer
-        v-model="showDrawer"
-        class="lt-md"
-        side="left">
-        <navigation-drawer
-          :logout="logout"
-          :account="account" />
-      </q-drawer>
       <router-view :account="account" />
     </q-page-container>
 
@@ -40,7 +31,6 @@
  */
 import {session, sessionDataRef} from '../lib/session.js';
 import {computed} from 'vue';
-import NavigationDrawer from './NavigationDrawer.vue';
 import {rootData} from '../lib/rootData.js';
 import WalletHeader from './WalletHeader.vue';
 
@@ -48,7 +38,6 @@ export default {
   name: 'WalletLayout',
   components: {
     WalletHeader,
-    NavigationDrawer
   },
   setup() {
     const account = computed(() => {
@@ -102,7 +91,13 @@ export default {
 </script>
 
 <style scoped>
-.s-page {
-  background: rgb(240, 240, 240);
+.q-layout__section--marginal {
+  /* Hides line of primary color on mobile */
+  background-color: transparent;
+}
+.bg-gradient {
+  background: #FFFFFF;  /* fallback for old browsers */
+  background: -webkit-linear-gradient(to bottom, #FFFFFF 20%, #D3D3D3);  /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to bottom, #FFFFFF 20%, #D3D3D3); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
 }
 </style>

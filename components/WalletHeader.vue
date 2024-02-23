@@ -1,48 +1,92 @@
 <template>
-  <q-toolbar class="bg-secondary">
-    <q-btn
-      v-show="account && !hideNavigation"
-      flat
-      round
-      dense
-      color="info"
-      icon="fa fa-bars"
-      class="toggle-drawer-btn lt-md"
-      @click="toggleDrawer()" />
+  <q-toolbar
+    v-if="!isLoginPage && !isRegisterPage"
+    class="text-dark"
+    :class="$q.screen.gt.xs ? 'q-px-lg' : 'q-px-xs'"
+    v-bind="$attrs">
     <q-toolbar-title
       class="row"
       @click="!hideNavigation && home()">
-      <img
+      <div
         v-if="branding.logo"
-        :src="branding.logo"
-        :style="$q.screen.lt.sm ? `height: ${branding.logoSize.mobile}` :
-          `height: ${branding.logoSize.desktop}`">
+        class="flex q-pl-xs">
+        <img
+          :src="branding.logo"
+          :style="`height: ${branding.logoSize.desktop}; filter:invert(1)`">
+      </div>
       <div v-else>
         {{branding.name}}
       </div>
     </q-toolbar-title>
-    <q-btn-toggle
-      v-if="account && !hideNavigation"
-      v-model="navRouteName"
-      color="accent"
-      toggle-color="info"
-      class="gt-sm"
-      flat
-      :options="[
-        {label: 'Credentials', value: 'home'},
-        {label: 'Profiles', value: 'profiles'},
-        {label: 'Settings', value: 'settings'},
-        {label: 'Log Out', value: 'logout'}
-      ]"
-      @click="handleNav()" />
+    <div v-if="account && !hideNavigation">
+      <q-btn-toggle
+        flat
+        no-caps
+        size="16px"
+        :ripple="false"
+        class="gt-xs q-ml-md"
+        toggle-color="primary"
+        v-model="navRouteName"
+        :options="[
+          {label: 'Credentials', value: 'home'},
+          {label: 'Profiles', value: 'profiles'},
+        ]"
+        @click="handleNav()" />
+      <q-btn-dropdown
+        v-show="account && !hideNavigation"
+        flat
+        dense
+        rounded
+        no-icon-animation
+        class="q-pa-sm q-ml-sm"
+        :size="$q.screen.gt.xs ? 'sm': 'md'"
+        :dropdown-icon="$q.screen.gt.xs ? 'far fa-user' : 'fa fa-bars'">
+        <q-list style="min-width: 300px; font-size: 16px">
+          <q-item-label header>Welcome!</q-item-label>
+          <q-item
+            v-for="menuItem in menuItems"
+            clickable
+            v-close-popup
+            :key="menuItem.route"
+            active-class="bg-grey-3"
+            :class="menuItem.class + ' q-pa-lg'"
+            :active="this.$route.path === `/${menuItem.route}`"
+            @click="navigateTo(menuItem.route)">
+            <q-item-section avatar>
+              <q-icon
+                size="xs"
+                :color="this.$route.path === `/${menuItem.route}`
+                  ? 'primary' : 'dark'"
+                :name="menuItem.icon" />
+            </q-item-section>
+            <q-item-section>{{menuItem.label}}</q-item-section>
+          </q-item>
+          <q-separator inset spaced />
+          <q-item
+            clickable
+            v-close-popup
+            class="q-pa-lg"
+            @click="logout">
+            <q-item-section avatar>
+              <q-icon
+                size="xs"
+                color="dark"
+                name="fa fa-sign-out-alt" />
+            </q-item-section>
+            <q-item-section>Log Out</q-item-section>
+          </q-item>
+        </q-list>
+      </q-btn-dropdown>
+    </div>
     <q-btn
       v-else-if="!hideNavigation"
-      flat
+      rounded
       no-wrap
-      color="info"
-      icon="fa fa-sign-in-alt"
-      label="Log in"
-      @click="login()" />
+      no-caps
+      unelevated
+      color="primary"
+      @click="login()"
+      label="Log In / Register"/>
   </q-toolbar>
 </template>
 
@@ -75,12 +119,37 @@ export default {
   data() {
     return {
       branding: config.vueWallet.branding,
-      // FIXME: enable customization of the routes that show up in the
-      // navigation drawer
-      navRouteName: ''
+      navRouteName: '',
+      menuItems: [
+        {
+          route:'home',
+          class: 'lt-sm',
+          label: 'Credentials',
+          icon: 'fa fa-address-card'
+        },
+        {
+          route:'profiles',
+          class: 'lt-sm',
+          label: 'Profiles',
+          icon: 'fa fa-users'
+        },
+        {
+          route:'settings',
+          class: '',
+          label: 'Settings',
+          icon: 'fa fa-cog'
+        },
+      ]
     };
   },
-  computed: {},
+  computed: {
+    isLoginPage() {
+      return this.$route.path === '/login'
+    },
+    isRegisterPage() {
+      return this.$route.path === '/register'
+    },
+  },
   watch: {
     $route() {
       this.navRouteName = this.$route.name;
@@ -110,8 +179,9 @@ export default {
     async login() {
       await this.routerPush({name: 'login'});
     },
-    async settings() {
-      await this.routerPush({name: 'settings'});
+    async navigateTo(routeName) {
+      this.navRouteName = routeName;
+      this.handleNav()
     },
     async handleNav() {
       if(this.navRouteName === 'logout') {
@@ -128,32 +198,4 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-$breakpoint-sm: 1023px;
-$breakpoint-xs: 599px;
-
-@mixin mobile {
-  @media (min-width: 0) and (max-width: #{$breakpoint-sm}) {
-    @content;
-  }
-}
-
-.profile-name {
-  line-height: 14px !important;
-  text-transform: none;
-}
-
-.add-persona-btn,
-.persona-btn,
-.toggle-drawer-btn {
-  padding: 4px 0px;
-  font-size: 14px !important;
-}
-
-.persona-btn {
-  .profile-text {
-    @include mobile {
-      display: none;
-    }
-  }
-}
 </style>
