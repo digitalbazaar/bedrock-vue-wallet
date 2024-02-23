@@ -1,10 +1,13 @@
 <template>
   <q-input
     v-model="text"
-    outlined
     dense
+    rounded
+    outlined
+    color="dark"
     :debounce="debounce"
     :placeholder="placeholder"
+    :input-style="{ fontSize: '16px' }"
     @update:model-value="search()">
     <template #prepend>
       <q-icon
