@@ -11,7 +11,7 @@
     <q-card-section class="column text-center text-body1 q-px-xl q-mb-lg">
       <div v-if="showEmail">
         <div v-if="showSendEmail">
-          Enter email for a code to log in.
+          Enter your email to get a login code.
           <form @submit.prevent>
             <q-input
               v-model="ctrl.email"
