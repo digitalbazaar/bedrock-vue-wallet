@@ -47,8 +47,8 @@
           </q-item-label>
           <q-item
             v-for="menuItem in menuItems"
-            v-close-popup
             :key="menuItem.route"
+            v-close-popup
             clickable
             active-class="bg-grey-3"
             :class="menuItem.class + ' q-pa-lg'"
