@@ -2,6 +2,14 @@
 
 ## 26.0.0 - 2024-xx-xx
 
+### Added
+- Add `quasarOptions` option to `initialize()`. This can be used to setup
+  Quasar `plugins` and `config`.
+  - **NOTE**: The `@bedrock/quasar` update requires that all plugins in an
+    application need to be added to the initialization call. This option is how
+    that is now performed in this release. The `Notify` plugin is known to be
+    used and added by default.
+
 ### Changed
 - **BREAKING**: Update dependencies.
   - `@bedrock/quasar-components@5`.
