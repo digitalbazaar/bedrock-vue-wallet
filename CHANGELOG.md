@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 26.0.0 - 2024-xx-xx
+## 26.0.0 - 2024-03-14
 
 ### Added
 - Add `quasarOptions` option to `initialize()`. This can be used to setup
