@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 27.0.1 - 2024-03-dd
+## 27.0.1 - 2024-03-19
 
 ### Fixed
 - Use peer dep `@bedrock/vue-vc@4`.
