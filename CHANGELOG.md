@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 27.0.0 - 2024-03-dd
+## 28.0.0 - 2024-03-dd
 
 ### Changed
 - Update credential dashboard UI style and layout.
