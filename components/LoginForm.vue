@@ -26,8 +26,7 @@
               autocomplete="email"
               :input-style="{ fontSize: '16px' }"
               :error="vuelidate.ctrl.email.$error"
-              error-message=
-                "Please enter the email address you registered with."
+              :error-message="emailInputErrorMessage"
               @keydown.enter.prevent="handleEnterForEmail" />
           </form>
           <q-btn
@@ -213,6 +212,8 @@ export default {
         twoFactorLogin: false
       },
       showEmailCodeAuthenticated: false,
+      emailInputErrorMessage:
+        'Please enter the email address you registered with.',
       customErrorMessage:
         'Too many login requests, check your email for a log in code.'
     };
