@@ -3,72 +3,71 @@
     class="card-container q-my-xs q-mx-xs"
     @mouseover="hover=true"
     @mouseleave="hover=false">
-    <q-card class="card">
-      <credential-switch
-        :credential="credentialRecord.credential"
-        :clickable="true">
-        <template #modalHeader>
-          <q-card-section class="q-pa-sm text-center card-title">
-            <div class="row">
-              <div class="col-2">
-                <div class="float-left">
-                  <q-btn
-                    flat
-                    round
-                    size="sm"
-                    color="negative"
-                    icon="far fa-trash-alt"
-                    @click="deleteCredential(credentialRecord)" />
-                </div>
-              </div>
-              <div class="col-8 q-my-auto">
-                Credential Details
-              </div>
-              <div class="col-2">
-                <div class="float-right">
-                  <q-btn
-                    v-close-popup
-                    flat
-                    round
-                    size="sm"
-                    color="black"
-                    icon="fas fa-times" />
-                </div>
-              </div>
-            </div>
-          </q-card-section>
-          <q-separator />
-        </template>
-        <template #modalFooter>
-          <q-separator />
-          <q-card-section class="text-center sticky-bottom q-pa-sm">
-            <div class="text-caption text-grey-7">
-              Issued for
-            </div>
-            <div class="text-body2">
-              {{getProfile(credentialRecord.meta.holder).name}}
-            </div>
-          </q-card-section>
-        </template>
-      </credential-switch>
+    <q-card class="card" @click="toggleDetailsWindow">
+      <credential-switch :credential="credentialRecord.credential" />
     </q-card>
+    <!-- Details dialog -->
+    <q-dialog v-model="showDetails">
+      <credential-details
+        :showDetails="showDetails"
+        :toggleDeleteWindow="toggleDeleteWindow"
+        :credential="credentialRecord.credential"
+        :toggleDetailsWindow="toggleDetailsWindow"
+        :credentialHolderName="credentialHolderName" />
+    </q-dialog>
+    <!-- Delete dialog -->
+    <q-dialog
+      v-model="showDelete"
+      persistent>
+      <q-card
+        flat
+        class="q-pa-md"
+        style="border-radius: 12px;">
+        <q-card-section class="row items-center">
+          <div class="text-body1 q-ma-md">
+            Permanently remove this credential?
+          </div>
+        </q-card-section>
+        <q-card-actions align="between">
+          <q-btn
+            v-close-popup
+            flat
+            no-caps
+            label="Remove"
+            color="negative"
+            icon="far fa-trash-alt"
+            class="text-body1"
+            @click="deleteCredential(credentialRecord)"/>
+          <q-btn
+            v-close-popup
+            flat
+            padding="sm md"
+            no-caps
+            color="primary"
+            class="q-mr-sm text-body1"
+            label="Cancel" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
 <script>
 /*!
- * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2015-2024 Digital Bazaar, Inc. All rights reserved.
  */
 // FIXME: do not import any of these, parameterize / use events instead
 import {ageCredentialHelpers, getCredentialStore} from '@bedrock/web-wallet';
 import {CredentialSwitch} from '@bedrock/vue-vc';
+import CredentialDetails from "./CredentialDetails.vue"
 
 const {generateQrCodeDataUrl, reissue} = ageCredentialHelpers;
 
 export default {
   name: 'CredentialCardBundle',
   components: {
-    CredentialSwitch
+    CredentialSwitch,
+    CredentialDetails
   },
   props: {
     credentialRecord: {
@@ -95,11 +94,25 @@ export default {
       card: false,
       hover: false,
       currentCard: {},
+      showDelete: false,
+      showDetails: false,
       currentCardProfile: {},
       qrUrl: ''
     };
   },
+  computed: {
+    credentialHolderName() {
+      const holder = this.credentialRecord.meta.holder;
+      return this.getProfile(holder).name || '';
+    }
+  },
   methods: {
+    toggleDetailsWindow() {
+      this.showDetails = !this.showDetails;
+    },
+    toggleDeleteWindow() {
+      this.showDelete = !this.showDelete;
+    },
     async deleteCredential(credentialRecord) {
       this.$q.loading.show({
         delay: 300,
@@ -139,16 +152,6 @@ export default {
       } finally {
         this.$q.loading.hide();
       }
-    },
-    getColor(holder) {
-      const DEFAULT_COLOR = '#fff';
-      const profile = this.getProfile(holder);
-      if(!profile) {
-        // could not find the profile associated with the holder, we'll
-        // return white as the default color
-        return DEFAULT_COLOR;
-      }
-      return profile.color || DEFAULT_COLOR;
     },
     getProfile(profileId) {
       const [profile] = this.profileOptions.filter(({id}) => id === profileId);
@@ -283,16 +286,6 @@ $breakpoint-xs: 360px;
   /* Fill screen when using smaller device */
   @media (max-width: #{$breakpoint-xs}) {
     width: 275px;
-  }
-}
-
-.card-title {
-  /* Anything larger than mobile */
-  @media (min-width: #{$breakpoint-sm}) {
-    min-width: 450px;
-  }
-  @include mobile {
-    min-width: 300px;
   }
 }
 </style>
