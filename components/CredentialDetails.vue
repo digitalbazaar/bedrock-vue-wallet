@@ -1,5 +1,7 @@
 <template>
-  <q-card flat class="details-dialog">
+  <q-card
+    flat
+    class="details-dialog">
     <div class="row full-height">
       <!-- Close button -->
       <q-btn
@@ -7,35 +9,39 @@
         flat
         round
         color="dark"
-        icon="fa fa-times" 
-        class="absolute-top-right q-ma-sm"/>
+        icon="fa fa-times"
+        class="absolute-top-right q-ma-sm" />
       <!-- Left side details -->
-      <div class="col-5 bg-white q-pt-xl q-pb-md q-px-xl">
-        <div class="row justify-center items-start full-height" >
+      <div class="col-xs-12 col-md-5 bg-white q-pt-xl q-pb-md q-px-xl">
+        <div class="row justify-center items-start full-height">
           <q-card-section class="q-pa-none text-body1 text-left">
             <q-card class="card q-mx-auto">
               <credential-switch :credential="credential" />
             </q-card>
-            <div class="text-grey q-mt-lg">
+            <div class="text-grey q-mt-lg text-caption">
               Description
             </div>
             <div class="text-body1">
               {{credential?.description?.length ?
-              credential.description : 'Description not available.'}}
+                credential.description : 'Description not available.'}}
             </div>
-            <div class="text-grey q-mt-md">
+            <div class="text-grey q-mt-md text-caption">
               Issued for
             </div>
-            <div class="text-body1">{{credentialHolderName}}</div>
+            <div class="text-body1">
+              {{credentialHolderName}}
+            </div>
           </q-card-section>
-          <q-btn
-            flat
-            no-caps
-            label="Remove"
-            color="negative"
-            icon="far fa-trash-alt"
-            class="q-mt-auto q-mx-auto"
-            @click="toggleDeleteWindow" />
+          <q-card-section class="flex full-width q-mt-auto">
+            <q-btn
+              flat
+              no-caps
+              label="Remove"
+              color="negative"
+              class="q-mx-auto"
+              icon="far fa-trash-alt"
+              @click="toggleDeleteWindow" />
+          </q-card-section>
         </div>
       </div>
       <!-- Right side details -->
@@ -46,8 +52,12 @@
               v-for="(value, key) in credentialDetails"
               :key="key"
               class="q-mt-sm">
-              <div class="text-grey text-caption">{{key}}</div>
-              <div class="text-body1">{{value}}</div>
+              <div class="text-grey text-caption">
+                {{key}}
+              </div>
+              <div class="text-body1">
+                {{value}}
+              </div>
             </div>
           </q-card-section>
         </div>
@@ -60,6 +70,7 @@
 /*!
  * Copyright (c) 2015-2024 Digital Bazaar, Inc. All rights reserved.
  */
+import {onMounted, reactive, ref} from 'vue';
 import {CredentialSwitch} from '@bedrock/vue-vc';
 
 export default {
@@ -89,29 +100,37 @@ export default {
       required: true
     }
   },
-  mounted() {
-    this.getCredentialDetails();
-    console.log('credential details', this.credential);
-  },
-  data() {
-    return {
-      showDelete: false,
-      qrUrl: '',
-      credentialDetails: {},
-    };
-  },
-  methods: {
-    getCredentialDetails() {
-      if(this.credential.issuer.name) {
-        this.credentialDetails['Issuer Name'] = this.credential.issuer.name;
+  setup(props) {
+    // Local state
+    const qrUrl = ref('');
+    const showDelete = ref(false);
+    const credentialDetails = reactive({});
+
+    // Fetch credential details on load
+    onMounted(() => {
+      getCredentialDetails();
+    });
+
+    // Get details from credential
+    function getCredentialDetails() {
+      const name = props.credential?.issuer?.name;
+      const issuanceDate = props.credential?.issuanceDate;
+      if(name) {
+        credentialDetails['Issuer Name'] = name;
       }
-      if(this.credential.issuanceDate) {
-        const yearMonthDay = this.credential.issuanceDate.slice(0, 10);
-        this.credentialDetails['Date Issued'] = yearMonthDay;
+      if(issuanceDate) {
+        const yearMonthDay = issuanceDate.slice(0, 10);
+        credentialDetails['Date Issued'] = yearMonthDay;
       }
     }
+
+    return {
+      qrUrl,
+      showDelete,
+      credentialDetails
+    };
   }
-}
+};
 </script>
 
 <style lang="scss" scoped>
@@ -125,11 +144,14 @@ $breakpoint-xs: 360px;
 }
 
 .details-dialog {
-  border-radius: 12px;
-  width: 800px; 
-  max-width: 80vw;
-  height: 500px;
-  max-height: 80vh;
+  /* Apply styles when dialog is not full screen */
+  @media (min-width: #{$breakpoint-sm}) {
+    border-radius: 12px;
+    width: 800px;
+    height: 500px;
+    max-width: 80vw;
+    max-height: 80vh;
+  }
 }
 
 .card {
@@ -140,13 +162,5 @@ $breakpoint-xs: 360px;
   aspect-ratio: 3.375 / 2.125;
   background-color: #FFFFFF;
   border: 1px solid rgba(0, 0, 0, 0.1);
-  /* Fill screen when using smaller device */
-  @media (max-width: #{$breakpoint-sm}) {
-    width: 340px;
-  }
-  /* Fill screen when using smaller device */
-  @media (max-width: #{$breakpoint-xs}) {
-    width: 275px;
-  }
 }
 </style>
