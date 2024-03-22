@@ -9,7 +9,11 @@
       <credential-switch :credential="credentialRecord.credential" />
     </q-card>
     <!-- Details dialog -->
-    <q-dialog v-model="showDetails">
+    <q-dialog
+      v-model="showDetails"
+      transition-show="slide-up"
+      transition-hide="slide-down"
+      :maximized="$q.screen.lt.sm">
       <credential-details
         :show-details="showDetails"
         :toggle-delete-window="toggleDeleteWindow"
