@@ -64,9 +64,14 @@
  */
 // FIXME: do not import any of these, parameterize / use events instead
 import {ageCredentialHelpers, getCredentialStore} from '@bedrock/web-wallet';
+import {computed, ref} from 'vue';
+import {createEmitExtendable} from '@digitalbazaar/vue-extendable-event';
 import CredentialDetails from './CredentialDetails.vue';
 import {CredentialSwitch} from '@bedrock/vue-vc';
+import {useQuasar} from 'quasar';
 
+// Constants
+const emitExtendable = createEmitExtendable();
 const {generateQrCodeDataUrl, reissue} = ageCredentialHelpers;
 
 export default {
@@ -80,10 +85,6 @@ export default {
       type: Object,
       required: true
     },
-    detail: {
-      type: Boolean,
-      required: false
-    },
     schemaMap: {
       type: Object,
       required: true
@@ -95,97 +96,83 @@ export default {
     }
   },
   emits: ['delete'],
-  data() {
-    return {
-      card: false,
-      hover: false,
-      currentCard: {},
-      showDelete: false,
-      showDetails: false,
-      currentCardProfile: {},
-      qrUrl: ''
-    };
-  },
-  computed: {
-    credentialHolderName() {
-      const holder = this.credentialRecord.meta.holder;
-      return this.getProfile(holder).name || '';
+  setup(props) {
+    // Hooks
+    const $q = useQuasar();
+
+    // Refs
+    const qrUrl = ref('');
+    const card = ref(false);
+    const hover = ref(false);
+    const currentCard = ref({});
+    const showDelete = ref(false);
+    const showDetails = ref(false);
+    const currentCardProfile = ref({});
+
+    // Helper functions
+    const credentialHolderName = computed(() => {
+      const holder = props.credentialRecord.meta.holder;
+      return getProfile(holder).name || '';
+    });
+
+    function toggleDetailsWindow() {
+      showDetails.value = !showDetails.value;
     }
-  },
-  methods: {
-    toggleDetailsWindow() {
-      this.showDetails = !this.showDetails;
-    },
-    toggleDeleteWindow() {
-      this.showDelete = !this.showDelete;
-    },
-    async deleteCredential(credentialRecord) {
-      this.$q.loading.show({
-        delay: 300,
-        message: 'Deleting your credential...'
-      });
+
+    function toggleDeleteWindow() {
+      showDelete.value = !showDelete.value;
+    }
+
+    async function deleteCredential(credentialRecord) {
+      $q.loading.show({delay: 300, message: 'Deleting your credential...'});
       try {
-        this.currentCard = await this.getCardData(credentialRecord);
-        this.currentCardProfile = this.getProfile(credentialRecord.meta.holder);
-        this.card = true;
+        currentCard.value = await getCardData(credentialRecord);
+        currentCardProfile.value = getProfile(credentialRecord.meta.holder);
+        card.value = true;
       } catch(e) {
         if(e.response.status !== 404) {
           console.error(e); // log unexpected error
         }
       }
-      const {id: profileId} = this.currentCardProfile;
+      const {id: profileId} = currentCardProfile.value;
       try {
-        await this.$emitExtendable('delete', {
+        debugger;
+        await emitExtendable('delete', {
           profileId,
           credentialId: credentialRecord.credential.id ??
             credentialRecord.meta.id
         });
-
         // provide user feedback denoting success
-        this.$q.notify({
+        $q.notify({
           type: 'positive',
           message: 'Credential successfully deleted.'
         });
-
-        this.card = false;
+        card.value = false;
       } catch(e) {
         console.error('Delete credential error:', e);
-        this.$q.notify({
+        $q.notify({
           type: 'negative',
           message: 'Credential failed to be deleted. ' +
             'Please try again at a later time.'
         });
       } finally {
-        this.$q.loading.hide();
+        $q.loading.hide();
       }
-    },
-    getProfile(profileId) {
-      const [profile] = this.profileOptions.filter(({id}) => id === profileId);
+    }
+
+    function getProfile(profileId) {
+      const [profile] = props.profileOptions.filter(({id}) => id === profileId);
       return profile;
-    },
-    async expandCredential(credentialRecord) {
-      this.$q.loading.show({
-        message: 'Loading your credential details.'
-      });
-      try {
-        this.currentCard = await this.getCardData(credentialRecord);
-        this.currentCardProfile = this.getProfile(credentialRecord.meta.holder);
-        this.card = true;
-      } catch(e) {
-        if(e.response.status !== 404) {
-          console.error(e); // log unexpected error
-        }
-      } finally {
-        this.$q.loading.hide();
-      }
-    },
-    async getCardData(credentialRecord) {
+    }
+
+    async function getCardData(credentialRecord) {
       return {
-        credential: await this.displayCredential(credentialRecord),
-        schema: this.schemaMap[credentialRecord.credential.type[1]] || {}
+        credential: await displayCredential(credentialRecord),
+        schema: props.schemaMap[credentialRecord.credential.type[1]] || {}
       };
-    },
-    async displayCredential(credentialRecord) {
+    }
+
+    async function displayCredential(credentialRecord) {
       let credential = JSON.parse(JSON
         .stringify(credentialRecord.credential));
       // FIXME: generalize
@@ -194,69 +181,82 @@ export default {
       }
       return credential;
     }
+
+    // FIXME: move elsewhere and refactor to make code avoid doing extra work
+    async function createBundledCredential({credentialRecord}) {
+      const credential = JSON.parse(JSON
+        .stringify(credentialRecord.credential));
+      const profileId = credentialRecord.meta.holder;
+      const credentialStore = await getCredentialStore({
+        // FIXME: determine how password will be provided / set; currently
+        // set to `profileId`
+        // FIXME: this code shouldn't be called in a component anyway
+        profileId, password: profileId
+      });
+      if(credential.type.includes('AgeVerificationContainerCredential')) {
+        // FIXME: this gets the *entire* bundle, which is likely unnecessary
+        // FIXME: it also re-fetches the container credential because its
+        // original EDV doc has not been preserved / passed through
+        const {allSubDocuments} = await credentialStore.local.getBundle({
+          id: credential.id ?? credentialRecord.meta.id
+        });
+        credential.credentialSubject = await createAgeCredential({
+          bundledCredentials: allSubDocuments.map(d => d.content),
+          credentialId: credential.id ?? credentialRecord.meta.id,
+          credentialStore
+        });
+      }
+      return credential;
+    }
+
+    // FIXME: move elsewhere and refactor to make code avoid doing extra work
+    async function createAgeCredential({
+      bundledCredentials, credentialId, credentialStore
+    }) {
+      const newCredentialSubject = {};
+      for(const credential of bundledCredentials) {
+        if(credential.type.includes('PersonalPhotoCredential')) {
+          newCredentialSubject.image = credential.credentialSubject.image;
+          continue;
+        }
+        if(credential.type.includes('AgeVerificationCredential')) {
+          newCredentialSubject.overAge = credential.credentialSubject.overAge;
+          continue;
+        }
+      }
+      const localTokenVcs = bundledCredentials.filter(
+        vc => vc.type.includes('OverAgeTokenCredential'));
+      const tokenCount = localTokenVcs.length;
+      const qr = {};
+      if(!qr.url) {
+        qr.id = localTokenVcs[0].id;
+        qr.url = await generateQrCodeDataUrl({credential: localTokenVcs[0]});
+        if(tokenCount === 1) {
+          await reissue({
+            ageVerificationContainerId: credentialId, credentialStore
+          });
+        }
+      }
+      newCredentialSubject.qr = qr;
+      newCredentialSubject.concealedIdTokenCount = localTokenVcs.length;
+      return newCredentialSubject;
+    }
+
+    return {
+      card,
+      hover,
+      qrUrl,
+      showDelete,
+      showDetails,
+      currentCard,
+      deleteCredential,
+      currentCardProfile,
+      toggleDeleteWindow,
+      toggleDetailsWindow,
+      credentialHolderName
+    };
   }
 };
-
-// FIXME: move elsewhere and refactor to make code avoid doing extra work
-async function createBundledCredential({credentialRecord}) {
-  const credential = JSON.parse(JSON
-    .stringify(credentialRecord.credential));
-  const profileId = credentialRecord.meta.holder;
-  const credentialStore = await getCredentialStore({
-    // FIXME: determine how password will be provided / set; currently
-    // set to `profileId`
-    // FIXME: this code shouldn't be called in a component anyway
-    profileId, password: profileId
-  });
-
-  if(credential.type.includes('AgeVerificationContainerCredential')) {
-    // FIXME: this gets the *entire* bundle, which is likely unnecessary
-    // FIXME: it also re-fetches the container credential because its
-    // original EDV doc has not been preserved / passed through
-    const {allSubDocuments} = await credentialStore.local.getBundle({
-      id: credential.id ?? credentialRecord.meta.id
-    });
-    credential.credentialSubject = await createAgeCredential({
-      bundledCredentials: allSubDocuments.map(d => d.content),
-      credentialId: credential.id ?? credentialRecord.meta.id,
-      credentialStore
-    });
-  }
-  return credential;
-}
-
-// FIXME: move elsewhere and refactor to make code avoid doing extra work
-async function createAgeCredential({
-  bundledCredentials, credentialId, credentialStore
-}) {
-  const newCredentialSubject = {};
-  for(const credential of bundledCredentials) {
-    if(credential.type.includes('PersonalPhotoCredential')) {
-      newCredentialSubject.image = credential.credentialSubject.image;
-      continue;
-    }
-    if(credential.type.includes('AgeVerificationCredential')) {
-      newCredentialSubject.overAge = credential.credentialSubject.overAge;
-      continue;
-    }
-  }
-  const localTokenVcs = bundledCredentials.filter(
-    vc => vc.type.includes('OverAgeTokenCredential'));
-  const tokenCount = localTokenVcs.length;
-  const qr = {};
-  if(!qr.url) {
-    qr.id = localTokenVcs[0].id;
-    qr.url = await generateQrCodeDataUrl({credential: localTokenVcs[0]});
-    if(tokenCount === 1) {
-      await reissue({
-        ageVerificationContainerId: credentialId, credentialStore
-      });
-    }
-  }
-  newCredentialSubject.qr = qr;
-  newCredentialSubject.concealedIdTokenCount = localTokenVcs.length;
-  return newCredentialSubject;
-}
 </script>
 
 <style lang="scss" scoped>
