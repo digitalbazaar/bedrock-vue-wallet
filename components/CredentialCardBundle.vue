@@ -3,17 +3,19 @@
     class="card-container q-my-xs q-mx-xs"
     @mouseover="hover=true"
     @mouseleave="hover=false">
-    <q-card class="card" @click="toggleDetailsWindow">
+    <q-card
+      class="card"
+      @click="toggleDetailsWindow">
       <credential-switch :credential="credentialRecord.credential" />
     </q-card>
     <!-- Details dialog -->
     <q-dialog v-model="showDetails">
       <credential-details
-        :showDetails="showDetails"
-        :toggleDeleteWindow="toggleDeleteWindow"
+        :show-details="showDetails"
+        :toggle-delete-window="toggleDeleteWindow"
         :credential="credentialRecord.credential"
-        :toggleDetailsWindow="toggleDetailsWindow"
-        :credentialHolderName="credentialHolderName" />
+        :toggle-details-window="toggleDetailsWindow"
+        :credential-holder-name="credentialHolderName" />
     </q-dialog>
     <!-- Delete dialog -->
     <q-dialog
@@ -37,7 +39,7 @@
             color="negative"
             icon="far fa-trash-alt"
             class="text-body1"
-            @click="deleteCredential(credentialRecord)"/>
+            @click="deleteCredential(credentialRecord)" />
           <q-btn
             v-close-popup
             flat
@@ -58,8 +60,8 @@
  */
 // FIXME: do not import any of these, parameterize / use events instead
 import {ageCredentialHelpers, getCredentialStore} from '@bedrock/web-wallet';
+import CredentialDetails from './CredentialDetails.vue';
 import {CredentialSwitch} from '@bedrock/vue-vc';
-import CredentialDetails from "./CredentialDetails.vue"
 
 const {generateQrCodeDataUrl, reissue} = ageCredentialHelpers;
 
