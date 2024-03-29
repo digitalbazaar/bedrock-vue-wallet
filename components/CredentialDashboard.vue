@@ -26,9 +26,14 @@
  * Copyright (c) 2018-2022 Digital Bazaar, Inc. All rights reserved.
  */
 import {computed, ref, toRef, watch} from 'vue';
+import {formatString, getValueFromPointer} from '../lib/helpers.js';
 import {createEmitExtendable} from '@digitalbazaar/vue-extendable-event';
 import CredentialsList from './CredentialsList.vue';
 import SearchBox from './SearchBox.vue';
+import vcViewConfigurations from '../lib/vcViewConfigurations.json';
+
+// Constants
+const emitExtendable = createEmitExtendable();
 
 export default {
   name: 'CredentialDashboard',
@@ -64,38 +69,80 @@ export default {
     'filtered-profiles'
   ],
   setup(props, {emit}) {
-    const credentials = toRef(props, 'credentials');
+    // Refs
     const search = ref('');
+    const filteredProfiles = ref([]);
+    const credentials = toRef(props, 'credentials');
+
+    // Credentials filtered by search term match
     const filteredCredentials = computed(() => {
       emit('filtered-credentials-loading', true);
       const filteredCredentials = credentials.value.filter(({credential}) => {
         if(credential) {
+          const searchTerm = search.value.toLowerCase();
           const credentialName = credential.name || credential.type[1] || '';
-          return credentialName.toLowerCase().includes(
-            search.value.toLowerCase());
+          const {
+            titleOverride, subtitleOverride
+          } = credentialOverrides(credential);
+          const searchableFields = [
+            titleOverride, subtitleOverride, credentialName
+          ];
+          return searchableFields.some(field =>
+            field.toLowerCase().includes(searchTerm)
+          );
         }
       });
       emit('filtered-credentials-loading', false);
       return filteredCredentials;
     });
+
+    // Boolean for no filtered results
     const noResults = computed(() => filteredCredentials.value.length === 0);
 
-    const emitExtendable = createEmitExtendable();
+    // Events
+    const refresh = () => {
+      emit('refresh');
+    };
 
+    // Pass delete-credential event up component chain
     const deleteCredential = async ({profileId, credentialId}) => {
-      // pass event up component chain
       return emitExtendable('delete-credential', {profileId, credentialId});
     };
 
-    function refresh() {
-      emit('refresh');
-    }
+    // Watchers
+    watch(() => filteredProfiles, () => {
+      return emit('filtered-profiles', filteredProfiles);
+    }, {immediate: true});
 
-    const filteredProfiles = ref([]);
-    watch(
-      () => filteredProfiles,
-      () => emit('filtered-profiles', filteredProfiles),
-      {immediate: true});
+    // Get each credential title and subtitle overrides
+    function credentialOverrides(credential) {
+      let titleOverride = '';
+      let subtitleOverride = '';
+      // Get credential override config
+      const vcConfig = vcViewConfigurations.find(config => {
+        const pointers = Object.keys(config.matches);
+        return pointers.every(pointer => {
+          const value = getValueFromPointer(credential, pointer);
+          return Array.isArray(value) ?
+            value.includes(config.matches[pointer]) :
+            value === config.matches[pointer];
+        });
+      });
+      if(vcConfig.overrides.title) {
+        const {title} = vcConfig.overrides;
+        const titleValue = getValueFromPointer(credential, title.pointer);
+        titleOverride = formatString(titleValue, title.format);
+      }
+      if(vcConfig.overrides.subtitle) {
+        const {subtitle} = vcConfig.overrides;
+        const stValue = getValueFromPointer(credential, subtitle.pointer);
+        subtitleOverride = formatString(stValue, subtitle.format);
+      }
+      return {
+        titleOverride,
+        subtitleOverride
+      };
+    }
 
     return {
       deleteCredential,
