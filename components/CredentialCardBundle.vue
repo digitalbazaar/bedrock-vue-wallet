@@ -25,6 +25,7 @@
       <credential-details
         :card-styles="cardStyles"
         :show-details="showDetails"
+        :card-background="cardBackground"
         :credential="credentialRecord.credential"
         :toggle-delete-window="toggleDeleteWindow"
         :credential-overrides="credentialOverrides"
