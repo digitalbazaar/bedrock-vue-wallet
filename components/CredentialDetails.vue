@@ -18,7 +18,7 @@
           <q-card-section class="q-pa-none text-body1 text-left">
             <q-card
               class="card q-mx-auto"
-              :style="cardStyles.backgroundColor">
+              :style="cardBackground">
               <credential-switch
                 :credential="credential"
                 :text-color="cardStyles.textColor"
@@ -121,6 +121,10 @@ export default {
     cardStyles: {
       type: Object,
       required: true
+    },
+    cardBackground: {
+      type: String,
+      default: ''
     },
     credentialHighlights: {
       type: Object,
