@@ -1,12 +1,20 @@
 <template>
+  <!-- Credential Card -->
   <div
-    class="card-container q-my-xs q-mx-xs"
+    class="q-my-xs q-mx-xs"
     @mouseover="hover=true"
     @mouseleave="hover=false">
     <q-card
       class="card"
+      :style="cardBackground"
+      :class="hover && 'shadow-12'"
       @click="toggleDetailsWindow">
-      <credential-switch :credential="credentialRecord.credential" />
+      <credential-switch
+        :text-color="cardStyles.textColor"
+        :credential="credentialRecord.credential"
+        :name-override="credentialOverrides.title"
+        :image-override="credentialOverrides.image"
+        :description-override="credentialOverrides.subtitle" />
     </q-card>
     <!-- Details dialog -->
     <q-dialog
@@ -15,10 +23,13 @@
       transition-hide="slide-down"
       :maximized="$q.screen.lt.sm">
       <credential-details
+        :card-styles="cardStyles"
         :show-details="showDetails"
-        :toggle-delete-window="toggleDeleteWindow"
         :credential="credentialRecord.credential"
+        :toggle-delete-window="toggleDeleteWindow"
+        :credential-overrides="credentialOverrides"
         :toggle-details-window="toggleDetailsWindow"
+        :credential-highlights="credentialHighlights"
         :credential-holder-name="credentialHolderName" />
     </q-dialog>
     <!-- Delete dialog -->
@@ -41,17 +52,17 @@
             no-caps
             label="Remove"
             color="negative"
-            icon="far fa-trash-alt"
             class="text-body1"
+            icon="far fa-trash-alt"
             @click="deleteCredential(credentialRecord)" />
           <q-btn
             v-close-popup
             flat
-            padding="sm md"
             no-caps
+            label="Cancel"
+            padding="sm md"
             color="primary"
-            class="q-mr-sm text-body1"
-            label="Cancel" />
+            class="q-mr-sm text-body1" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -64,11 +75,13 @@
  */
 // FIXME: do not import any of these, parameterize / use events instead
 import {ageCredentialHelpers, getCredentialStore} from '@bedrock/web-wallet';
-import {computed, ref} from 'vue';
+import {computed, onBeforeMount, reactive, ref} from 'vue';
+import {formatString, getValueFromPointer} from '../lib/helpers.js';
 import {createEmitExtendable} from '@digitalbazaar/vue-extendable-event';
 import CredentialDetails from './CredentialDetails.vue';
 import {CredentialSwitch} from '@bedrock/vue-vc';
 import {useQuasar} from 'quasar';
+import vcViewConfigurations from '../lib/vcViewConfigurations.json';
 
 // Constants
 const emitExtendable = createEmitExtendable();
@@ -108,8 +121,93 @@ export default {
     const showDelete = ref(false);
     const showDetails = ref(false);
     const currentCardProfile = ref({});
+    const credentialHighlights = reactive({});
+    const cardStyles = reactive({textColor: '', backgroundColor: ''});
+    const credentialOverrides = reactive({
+      title: '',
+      image: '',
+      subtitle: '',
+      description: ''
+    });
 
-    // Helper functions
+    // Fetch style, overrides, & highlights before component mounts
+    onBeforeMount(() => {
+      const vcConfig = getCredentialConfig();
+      if(vcConfig) {
+        const {styles, overrides, highlights} = vcConfig;
+        setCardStyles(styles);
+        setCardOverrides(overrides);
+        getCredentialHighlights(highlights);
+      }
+    });
+
+    // Get credential config for styles, overrides, and highlights
+    function getCredentialConfig() {
+      const credential = props.credentialRecord.credential;
+      const vcConfig = vcViewConfigurations.find(config => {
+        const pointers = Object.keys(config.matches);
+        return pointers.every(pointer => {
+          const value = getValueFromPointer(credential, pointer);
+          return Array.isArray(value) ?
+            value.includes(config.matches[pointer]) :
+            value === config.matches[pointer];
+        });
+      });
+      return vcConfig;
+    }
+
+    // Get credential card styles from configuration styles
+    function setCardStyles(styles) {
+      const {textColor, backgroundColor} = styles;
+      cardStyles.textColor = textColor || '';
+      cardStyles.backgroundColor = backgroundColor || '';
+    }
+
+    // Use overrides from credential configurations
+    function setCardOverrides(overrides) {
+      const {credential} = props.credentialRecord;
+      if(overrides.imagePointer) {
+        const {imagePointer} = overrides;
+        const image = getValueFromPointer(credential, imagePointer);
+        credentialOverrides.image = image;
+      }
+      if(overrides.title) {
+        const {title} = overrides;
+        const titleValue = getValueFromPointer(credential, title.pointer);
+        credentialOverrides.title = formatString(titleValue, title.format);
+      }
+      if(overrides.subtitle) {
+        const {subtitle} = overrides;
+        const stValue = getValueFromPointer(credential, subtitle.pointer);
+        credentialOverrides.subtitle = formatString(stValue, subtitle.format);
+      }
+      if(overrides.descriptionPointer) {
+        const {descriptionPointer} = overrides;
+        const description = getValueFromPointer(credential, descriptionPointer);
+        credentialOverrides.description = description;
+      }
+    }
+
+    // Get details from credential
+    function getCredentialHighlights(highlights = []) {
+      highlights.forEach(detail => {
+        const {credential} = props.credentialRecord;
+        const {pointer, format, joinWith} = detail;
+        const value = getValueFromPointer(credential, pointer, joinWith);
+        credentialHighlights[detail.field] = formatString(value, format);
+      });
+    }
+
+    // Add gradient if custom card color is present
+    const cardBackground = computed(() => {
+      const start = cardStyles.backgroundColor;
+      const end = cardStyles.backgroundColor + 'DF';
+      const whiteBackground = 'background-color: #FFF';
+      const gradient = `background: linear-gradient(
+        140deg, ${start} 1%, ${end} 50%, ${start} 100%)`;
+      return cardStyles.backgroundColor ? gradient : whiteBackground;
+    });
+
     const credentialHolderName = computed(() => {
       const holder = props.credentialRecord.meta.holder;
       return getProfile(holder).name || '';
@@ -136,7 +234,6 @@ export default {
       }
       const {id: profileId} = currentCardProfile.value;
       try {
-        debugger;
         await emitExtendable('delete', {
           profileId,
           credentialId: credentialRecord.credential.id ??
@@ -247,12 +344,16 @@ export default {
       hover,
       qrUrl,
       showDelete,
+      cardStyles,
       showDetails,
       currentCard,
+      cardBackground,
       deleteCredential,
       currentCardProfile,
       toggleDeleteWindow,
+      credentialOverrides,
       toggleDetailsWindow,
+      credentialHighlights,
       credentialHolderName
     };
   }
@@ -269,25 +370,18 @@ $breakpoint-xs: 360px;
   }
 }
 
-.card-container {
-  transition: filter .08s ease-in-out;
-}
-
-.card-container:hover {
-  filter: brightness(97%);
-}
-
 .card {
   /* Credit card ratio 2.125 H by 3.375 W */
   width: 275px;
-  padding: 24px;
+  padding: 16px;
   border-radius: 16px;
   aspect-ratio: 3.375 / 2.125;
-  background-color: #FFFFFF;
+  transition: all 0.15s ease-in-out;
   border: 1px solid rgba(0, 0, 0, 0.1);
   /* Fill screen when using smaller device */
   @media (max-width: #{$breakpoint-sm}) {
     width: 340px;
+    padding: 24px;
   }
   /* Fill screen when using smaller device */
   @media (max-width: #{$breakpoint-xs}) {
