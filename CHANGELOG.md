@@ -1,5 +1,14 @@
 # bedrock-vue-wallet ChangeLog
 
+## 27.1.0 - 2024-mm-dd
+
+### Add
+- New details window for credential.
+- Delete credential confirmation dialog.
+- Full screen modal for small devices.
+- Configurations to customize credential styles, overrides, & highlights.
+- Update search bar to consider credential overrides.
+
 ## 27.0.1 - 2024-03-19
 
 ### Fixed
