@@ -10,22 +10,29 @@
         round
         color="dark"
         icon="fa fa-times"
+        style="font-size: 0.75em"
         class="absolute-top-right q-ma-sm" />
       <!-- Left side details -->
       <div class="col-xs-12 col-md-5 bg-white q-pt-xl q-pb-md q-px-xl">
         <div class="row justify-center items-start full-height">
           <q-card-section class="q-pa-none text-body1 text-left">
-            <q-card class="card q-mx-auto">
-              <credential-switch :credential="credential" />
+            <q-card
+              class="card q-mx-auto"
+              :style="cardStyles.backgroundColor">
+              <credential-switch
+                :credential="credential"
+                :text-color="cardStyles.textColor"
+                :name-override="credentialOverrides.title"
+                :image-override="credentialOverrides.image"
+                :description-override="credentialOverrides.subtitle" />
             </q-card>
-            <div class="text-grey q-mt-lg text-caption">
+            <div class="text-grey q-mt-lg text-body2">
               Description
             </div>
             <div class="text-body1">
-              {{credential?.description?.length ?
-                credential.description : 'Description not available.'}}
+              {{description}}
             </div>
-            <div class="text-grey q-mt-md text-caption">
+            <div class="text-grey q-mt-md text-body2">
               Issued for
             </div>
             <div class="text-body1">
@@ -46,20 +53,32 @@
       </div>
       <!-- Right side details -->
       <div class="col bg-grey-2 q-pa-xl">
-        <div class="row justify-start items-start full-height">
-          <q-card-section class="q-pa-none text-body1 text-left">
-            <div
-              v-for="(value, key) in credentialDetails"
-              :key="key"
-              class="q-mt-sm">
-              <div class="text-grey text-caption">
-                {{key}}
+        <div class="row justify-start items-start">
+          <q-scroll-area
+            visible
+            :thumb-style="scrollBarStyles"
+            class="highlights rounded-borders">
+            <q-card-section class="q-py-none text-body1 fit">
+              <div
+                v-for="(value, key, index) in credentialHighlights"
+                :key="key"
+                :class="[index !== 0 && 'q-mt-md']">
+                <img
+                  v-if="key.includes('image')"
+                  :src="value"
+                  style="width: 130px;"
+                  class="rounded-borders">
+                <div v-else>
+                  <div class="text-grey text-body2">
+                    {{key}}
+                  </div>
+                  <div class="text-body1">
+                    {{value}}
+                  </div>
+                </div>
               </div>
-              <div class="text-body1">
-                {{value}}
-              </div>
-            </div>
-          </q-card-section>
+            </q-card-section>
+          </q-scroll-area>
         </div>
       </div>
     </div>
@@ -70,7 +89,7 @@
 /*!
  * Copyright (c) 2015-2024 Digital Bazaar, Inc. All rights reserved.
  */
-import {onMounted, reactive, ref} from 'vue';
+import {computed, ref} from 'vue';
 import {CredentialSwitch} from '@bedrock/vue-vc';
 
 export default {
@@ -98,36 +117,54 @@ export default {
     credentialHolderName: {
       type: String,
       required: true
-    }
+    },
+    cardStyles: {
+      type: Object,
+      required: true
+    },
+    credentialHighlights: {
+      type: Object,
+      required: true
+    },
+    credentialOverrides: {
+      type: Object,
+      default: () => ({
+        title: '',
+        image: '',
+        subtitle: '',
+        description: '',
+      })
+    },
   },
   setup(props) {
     // Local state
     const qrUrl = ref('');
     const showDelete = ref(false);
-    const credentialDetails = reactive({});
 
-    // Fetch credential details on load
-    onMounted(() => {
-      getCredentialDetails();
+    // Scroll area bar style
+    const scrollBarStyles = {
+      right: '2px',
+      width: '3px',
+      opacity: '0.4',
+      borderRadius: '5px',
+      backgroundColor: 'gray',
+    };
+
+    // Credential description
+    const description = computed(() => {
+      if(props.credentialOverrides.description) {
+        return props.credentialOverrides.description;
+      } else {
+        return props.credential?.description?.length ?
+          props.credential.description : 'Description not available.';
+      }
     });
-
-    // Get details from credential
-    function getCredentialDetails() {
-      const name = props.credential?.issuer?.name;
-      const issuanceDate = props.credential?.issuanceDate;
-      if(name) {
-        credentialDetails['Issuer Name'] = name;
-      }
-      if(issuanceDate) {
-        const yearMonthDay = issuanceDate.slice(0, 10);
-        credentialDetails['Date Issued'] = yearMonthDay;
-      }
-    }
 
     return {
       qrUrl,
       showDelete,
-      credentialDetails
+      description,
+      scrollBarStyles
     };
   }
 };
@@ -157,10 +194,15 @@ $breakpoint-xs: 360px;
 .card {
   /* Credit card ratio 2.125 H by 3.375 W */
   width: 275px;
-  padding: 24px;
+  padding: 16px;
   border-radius: 16px;
   aspect-ratio: 3.375 / 2.125;
   background-color: #FFFFFF;
   border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.highlights {
+  width: 100%;
+  height: 404px;
 }
 </style>
