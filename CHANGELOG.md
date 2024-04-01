@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 27.1.0 - 2024-mm-dd
+## 28.0.0 - 2024-mm-dd
 
 ### Add
 - New details window for credential.
