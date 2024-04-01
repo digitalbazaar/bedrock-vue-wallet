@@ -120,7 +120,7 @@ export default {
       let subtitleOverride = '';
       console.log({config});
       // Get credential override config
-      const vcConfig = config?.vueWallet?.vcViewConfigurations?.find(config => {
+      const vcConfig = config?.vueWallet?.cardDesigns?.find(config => {
         const pointers = Object.keys(config.matches);
         return pointers.every(pointer => {
           const value = getValueFromPointer(credential, pointer);

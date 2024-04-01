@@ -145,7 +145,7 @@ export default {
     // Get credential config for styles, overrides, and highlights
     function getCredentialConfig() {
       const credential = props.credentialRecord.credential;
-      const vcConfig = config?.vueWallet?.vcViewConfigurations?.find(config => {
+      const vcConfig = config?.vueWallet?.cardDesigns?.find(config => {
         const pointers = Object.keys(config.matches);
         return pointers.every(pointer => {
           const value = getValueFromPointer(credential, pointer);
