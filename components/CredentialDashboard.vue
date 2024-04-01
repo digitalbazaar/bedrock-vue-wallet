@@ -27,10 +27,10 @@
  */
 import {computed, ref, toRef, watch} from 'vue';
 import {formatString, getValueFromPointer} from '../lib/helpers.js';
+import {config} from '@bedrock/web';
 import {createEmitExtendable} from '@digitalbazaar/vue-extendable-event';
 import CredentialsList from './CredentialsList.vue';
 import SearchBox from './SearchBox.vue';
-import vcViewConfigurations from '../lib/vcViewConfigurations.json';
 
 // Constants
 const emitExtendable = createEmitExtendable();
@@ -118,8 +118,9 @@ export default {
     function credentialOverrides(credential) {
       let titleOverride = '';
       let subtitleOverride = '';
+      console.log({config});
       // Get credential override config
-      const vcConfig = vcViewConfigurations.find(config => {
+      const vcConfig = config?.vueWallet?.vcViewConfigurations?.find(config => {
         const pointers = Object.keys(config.matches);
         return pointers.every(pointer => {
           const value = getValueFromPointer(credential, pointer);
@@ -128,12 +129,12 @@ export default {
             value === config.matches[pointer];
         });
       });
-      if(vcConfig.overrides.title) {
+      if(vcConfig?.overrides?.title) {
         const {title} = vcConfig.overrides;
         const titleValue = getValueFromPointer(credential, title.pointer);
         titleOverride = formatString(titleValue, title.format);
       }
-      if(vcConfig.overrides.subtitle) {
+      if(vcConfig?.overrides?.subtitle) {
         const {subtitle} = vcConfig.overrides;
         const stValue = getValueFromPointer(credential, subtitle.pointer);
         subtitleOverride = formatString(stValue, subtitle.format);

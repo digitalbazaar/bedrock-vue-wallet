@@ -78,11 +78,11 @@
 import {ageCredentialHelpers, getCredentialStore} from '@bedrock/web-wallet';
 import {computed, onBeforeMount, reactive, ref} from 'vue';
 import {formatString, getValueFromPointer} from '../lib/helpers.js';
+import {config} from '@bedrock/web';
 import {createEmitExtendable} from '@digitalbazaar/vue-extendable-event';
 import CredentialDetails from './CredentialDetails.vue';
 import {CredentialSwitch} from '@bedrock/vue-vc';
 import {useQuasar} from 'quasar';
-import vcViewConfigurations from '../lib/vcViewConfigurations.json';
 
 // Constants
 const emitExtendable = createEmitExtendable();
@@ -145,7 +145,7 @@ export default {
     // Get credential config for styles, overrides, and highlights
     function getCredentialConfig() {
       const credential = props.credentialRecord.credential;
-      const vcConfig = vcViewConfigurations.find(config => {
+      const vcConfig = config?.vueWallet?.vcViewConfigurations?.find(config => {
         const pointers = Object.keys(config.matches);
         return pointers.every(pointer => {
           const value = getValueFromPointer(credential, pointer);
