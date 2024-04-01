@@ -3,9 +3,9 @@
 ## 28.0.0 - 2024-mm-dd
 
 ### Add
-- New details window for credential.
-- Delete credential confirmation dialog.
-- Full screen modal for small devices.
+- **BREAKING**: New details window for credential.
+- **BREAKING**: Delete credential confirmation dialog.
+- **BREAKING**: Full screen modal for small devices.
 - Configurations to customize credential styles, overrides, & highlights.
 - Update search bar to consider credential overrides.
 
