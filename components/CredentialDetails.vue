@@ -10,8 +10,8 @@
         round
         color="dark"
         icon="fa fa-times"
-        style="font-size: 0.75em"
-        class="absolute-top-right q-ma-sm" />
+        class="absolute-top-right q-ma-sm"
+        style="font-size: 0.75em; z-index: 1;" />
       <!-- Left side details -->
       <div class="col-xs-12 col-md-5 bg-white q-pt-xl q-pb-md q-px-xl">
         <div class="row justify-center items-start full-height">
@@ -52,35 +52,10 @@
         </div>
       </div>
       <!-- Right side details -->
-      <div class="col bg-grey-2 q-pa-xl">
-        <div class="row justify-start items-start">
-          <q-scroll-area
-            visible
-            :thumb-style="scrollBarStyles"
-            class="highlights rounded-borders">
-            <q-card-section class="q-py-none text-body1 fit">
-              <div
-                v-for="(value, key, index) in credentialHighlights"
-                :key="key"
-                :class="[index !== 0 && 'q-mt-md']">
-                <img
-                  v-if="key.includes('image')"
-                  :src="value"
-                  style="width: 130px;"
-                  class="rounded-borders">
-                <div v-else>
-                  <div class="text-grey text-body2">
-                    {{key}}
-                  </div>
-                  <div class="text-body1">
-                    {{value}}
-                  </div>
-                </div>
-              </div>
-            </q-card-section>
-          </q-scroll-area>
-        </div>
-      </div>
+      <CredentialDetailsViews
+        :credential="credential"
+        :credential-overrides="credentialOverrides"
+        :credential-highlights="credentialHighlights" />
     </div>
   </q-card>
 </template>
@@ -90,24 +65,18 @@
  * Copyright (c) 2015-2024 Digital Bazaar, Inc. All rights reserved.
  */
 import {computed, ref} from 'vue';
+import CredentialDetailsViews from './CredentialDetailsViews.vue';
 import {CredentialSwitch} from '@bedrock/vue-vc';
 
 export default {
   name: 'CredentialDetails',
   components: {
-    CredentialSwitch
+    CredentialSwitch,
+    CredentialDetailsViews
   },
   props: {
-    toggleDetailsWindow: {
-      type: Function,
-      required: true
-    },
     toggleDeleteWindow: {
       type: Function,
-      required: true
-    },
-    showDetails: {
-      type: Boolean,
       required: true
     },
     credential: {
@@ -142,17 +111,7 @@ export default {
   },
   setup(props) {
     // Local state
-    const qrUrl = ref('');
     const showDelete = ref(false);
-
-    // Scroll area bar style
-    const scrollBarStyles = {
-      right: '2px',
-      width: '3px',
-      opacity: '0.4',
-      borderRadius: '5px',
-      backgroundColor: 'gray',
-    };
 
     // Credential description
     const description = computed(() => {
@@ -165,10 +124,8 @@ export default {
     });
 
     return {
-      qrUrl,
       showDelete,
-      description,
-      scrollBarStyles
+      description
     };
   }
 };
@@ -176,14 +133,6 @@ export default {
 
 <style lang="scss" scoped>
 $breakpoint-sm: 767px;
-$breakpoint-xs: 360px;
-
-@mixin mobile {
-  @media (min-width: #{$breakpoint-xs}) and (max-width: #{$breakpoint-sm}) {
-    @content;
-  }
-}
-
 .details-dialog {
   /* Apply styles when dialog is not full screen */
   @media (min-width: #{$breakpoint-sm}) {
@@ -194,7 +143,6 @@ $breakpoint-xs: 360px;
     max-height: 80vh;
   }
 }
-
 .card {
   /* Credit card ratio 2.125 H by 3.375 W */
   width: 275px;
@@ -203,10 +151,5 @@ $breakpoint-xs: 360px;
   aspect-ratio: 3.375 / 2.125;
   background-color: #FFFFFF;
   border: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.highlights {
-  width: 100%;
-  height: 404px;
 }
 </style>
