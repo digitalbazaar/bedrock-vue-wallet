@@ -118,7 +118,6 @@ export default {
     function credentialOverrides(credential) {
       let titleOverride = '';
       let subtitleOverride = '';
-      console.log({config});
       // Get credential override config
       const vcConfig = config?.vueWallet?.cardDesigns?.find(config => {
         const pointers = Object.keys(config.matches);
