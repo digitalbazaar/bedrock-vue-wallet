@@ -54,6 +54,7 @@
       <!-- Right side details -->
       <CredentialDetailsViews
         :credential="credential"
+        :credential-images="credentialImages"
         :credential-overrides="credentialOverrides"
         :credential-highlights="credentialHighlights" />
     </div>
@@ -94,6 +95,10 @@ export default {
     cardBackground: {
       type: String,
       default: ''
+    },
+    credentialImages: {
+      type: Array,
+      default: () => []
     },
     credentialHighlights: {
       type: Object,
@@ -137,8 +142,8 @@ $breakpoint-sm: 767px;
   /* Apply styles when dialog is not full screen */
   @media (min-width: #{$breakpoint-sm}) {
     border-radius: 12px;
-    width: 800px;
-    height: 500px;
+    width: 850px;
+    height: 600px;
     max-width: 80vw;
     max-height: 80vh;
   }

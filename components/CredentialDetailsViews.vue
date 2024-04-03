@@ -22,8 +22,7 @@
         label="Details" />
     </q-tabs>
 
-    <q-separator />
-
+    <!-- Highlights -->
     <q-tab-panels
       v-model="tab"
       animated>
@@ -59,14 +58,52 @@
         </div>
       </q-tab-panel>
 
+      <!-- Image carousel -->
       <q-tab-panel
         name="images"
-        class="bg-grey-2">
-        <div class="details-view">
-          Credential images are not currently available.
+        class="bg-grey-2 q-px-none text-center">
+        <div
+          class="details-view">
+          <q-carousel
+            v-model="slideNumber"
+            v-model:fullscreen="fullscreen"
+            infinite
+            animated
+            swipeable
+            navigation
+            control-color="dark"
+            class="bg-grey-2 q-mb-none fit"
+            navigation-icon="far fa-circle">
+            <q-carousel-slide
+              v-for="(image, index) in credentialImages"
+              :key="image"
+              :name="index + 1"
+              class="q-pa-none">
+              <q-scroll-area class="fit bg-grey-2">
+                <img
+                  :src="image"
+                  class="q-mx-auto rounded-borders"
+                  style="max-width: 100%; pointer-events: none;">
+              </q-scroll-area>
+            </q-carousel-slide>
+            <template #control>
+              <q-carousel-control
+                position="bottom-right"
+                :offset="[18, 18]">
+                <q-btn
+                  round
+                  dense
+                  color="white"
+                  text-color="dark"
+                  :icon="fullscreen ? 'fa fa-compress' : 'fa fa-expand'"
+                  @click="fullscreen = !fullscreen" />
+              </q-carousel-control>
+            </template>
+          </q-carousel>
         </div>
       </q-tab-panel>
 
+      <!-- Details -->
       <q-tab-panel
         name="details"
         class="bg-grey-2">
@@ -92,7 +129,7 @@ export default {
       type: Object,
       required: true
     },
-    images: {
+    credentialImages: {
       type: Array,
       default: () => []
     },
@@ -112,7 +149,9 @@ export default {
   },
   setup() {
     // Local state
+    const slideNumber = ref(1);
     const tab = ref('highlights');
+    const fullscreen = ref(false);
 
     // Scroll area bar style
     const scrollBarStyles = {
@@ -125,6 +164,8 @@ export default {
 
     return {
       tab,
+      fullscreen,
+      slideNumber,
       scrollBarStyles
     };
   }
@@ -134,6 +175,6 @@ export default {
 <style lang="scss" scoped>
 .details-view {
   width: 100%;
-  height: 390px;
+  height: 500px;
 }
 </style>
