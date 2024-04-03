@@ -1,5 +1,10 @@
 # bedrock-vue-wallet ChangeLog
 
+## 28.1.0 - 2024-04-dd
+
+### Changed
+- Update credential details window to use three tabs for different display options.
+
 ## 28.0.1 - 2024-04-03
 
 ### Fixed
