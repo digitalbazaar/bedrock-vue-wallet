@@ -1,10 +1,10 @@
 # bedrock-vue-wallet ChangeLog
 
-## 29.0.0 - 2024-04-dd
+## 28.0.1 - 2024-04-dd
 
-### Changed
-- **BREAKING**: Update `@bedrock/vue-vc` peer dep to v5 that uses an updated
-    layout for credential card components.
+### Fixed
+- Fix `@bedrock/vue-vc` peer dep to v5 that uses an updated
+  layout for credential card components.
 
 ## 28.0.0 - 2024-04-02
 
