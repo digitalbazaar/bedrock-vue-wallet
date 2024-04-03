@@ -67,6 +67,7 @@
           <q-carousel
             v-model="slideNumber"
             v-model:fullscreen="fullscreen"
+            padding
             infinite
             animated
             swipeable
@@ -80,10 +81,12 @@
               :name="index + 1"
               class="q-pa-none">
               <q-scroll-area class="fit bg-grey-2">
-                <img
-                  :src="image"
-                  class="q-mx-auto rounded-borders"
-                  style="max-width: 100%; pointer-events: none;">
+                <div class="flex">
+                  <img
+                    :src="image"
+                    class="q-mx-auto rounded-borders"
+                    style="max-width: 100%; pointer-events: none;">
+                </div>
               </q-scroll-area>
             </q-carousel-slide>
             <template #control>
