@@ -73,6 +73,8 @@
             swipeable
             navigation
             control-color="dark"
+            transition-next="slide-left"
+            transition-prev="slide-right"
             class="bg-grey-2 q-mb-none fit"
             navigation-icon="far fa-circle">
             <q-carousel-slide
