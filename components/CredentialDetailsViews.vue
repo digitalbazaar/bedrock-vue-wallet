@@ -14,8 +14,8 @@
         label="Highlights" />
       <q-tab
         no-caps
-        name="images"
-        label="Images" />
+        name="displays"
+        label="Displays" />
       <q-tab
         no-caps
         name="details"
@@ -60,7 +60,7 @@
 
       <!-- Image carousel -->
       <q-tab-panel
-        name="images"
+        name="displays"
         class="bg-grey-2 q-px-none text-center">
         <div
           class="details-view">
