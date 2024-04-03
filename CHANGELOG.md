@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 28.0.1 - 2024-04-dd
+## 28.0.1 - 2024-04-03
 
 ### Fixed
 - Fix `@bedrock/vue-vc` peer dep to v5 that uses an updated
