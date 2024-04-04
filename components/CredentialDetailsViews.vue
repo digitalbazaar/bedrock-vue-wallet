@@ -124,7 +124,7 @@
 /*!
  * Copyright (c) 2015-2024 Digital Bazaar, Inc. All rights reserved.
  */
-import {ref} from 'vue';
+import {onBeforeMount, reactive, ref} from 'vue';
 
 export default {
   name: 'CredentialDetailsViews',
@@ -133,10 +133,6 @@ export default {
     credential: {
       type: Object,
       required: true
-    },
-    credentialImages: {
-      type: Array,
-      default: () => []
     },
     credentialHighlights: {
       type: Object,
@@ -152,11 +148,15 @@ export default {
       })
     },
   },
-  setup() {
+  setup(props) {
     // Local state
     const slideNumber = ref(1);
     const tab = ref('highlights');
     const fullscreen = ref(false);
+    const credentialImages = reactive([]);
+
+    // Constants
+    const supportedRenderMethods = ['SvgRenderingTemplate2023'];
 
     // Scroll area bar style
     const scrollBarStyles = {
@@ -167,11 +167,28 @@ export default {
       backgroundColor: 'gray',
     };
 
+    // Fetch style, overrides, & highlights before component mounts
+    onBeforeMount(() => {
+      getDisplaysFromRenderMethod();
+    });
+
+    // Extract and parse images from credential's render method property
+    async function getDisplaysFromRenderMethod() {
+      if(props.credential?.renderMethod?.length) {
+        props.credential.renderMethod.forEach(rm => {
+          if(supportedRenderMethods.includes(rm.type)) {
+            credentialImages.unshift(rm.id);
+          }
+        });
+      }
+    }
+
     return {
       tab,
       fullscreen,
       slideNumber,
-      scrollBarStyles
+      scrollBarStyles,
+      credentialImages
     };
   }
 };

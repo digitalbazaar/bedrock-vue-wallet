@@ -54,7 +54,6 @@
       <!-- Right side details -->
       <CredentialDetailsViews
         :credential="credential"
-        :credential-images="credentialImages"
         :credential-overrides="credentialOverrides"
         :credential-highlights="credentialHighlights" />
     </div>
@@ -95,10 +94,6 @@ export default {
     cardBackground: {
       type: String,
       default: ''
-    },
-    credentialImages: {
-      type: Array,
-      default: () => []
     },
     credentialHighlights: {
       type: Object,
