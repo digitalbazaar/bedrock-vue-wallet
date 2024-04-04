@@ -26,7 +26,6 @@
         :card-styles="cardStyles"
         :show-details="showDetails"
         :card-background="cardBackground"
-        :credential-images="credentialImages"
         :credential="credentialRecord.credential"
         :toggle-delete-window="toggleDeleteWindow"
         :credential-overrides="credentialOverrides"
@@ -123,7 +122,6 @@ export default {
     const showDelete = ref(false);
     const showDetails = ref(false);
     const currentCardProfile = ref({});
-    const credentialImages = reactive([]);
     const credentialHighlights = reactive({});
     const cardStyles = reactive({textColor: '', backgroundColor: ''});
     const credentialOverrides = reactive({
@@ -137,10 +135,9 @@ export default {
     onBeforeMount(() => {
       const vcConfig = getCredentialConfig();
       if(vcConfig) {
-        const {styles, images, overrides, highlights} = vcConfig;
+        const {styles, overrides, highlights} = vcConfig;
         setCardStyles(styles);
         setCardOverrides(overrides);
-        getCredentialImages(images);
         getCredentialHighlights(highlights);
       }
     });
@@ -199,17 +196,6 @@ export default {
         const {pointer, format, joinWith} = detail;
         const value = getValueFromPointer(credential, pointer, joinWith);
         credentialHighlights[detail.field] = formatString(value, format);
-      });
-    }
-
-    // Get details from credential
-    function getCredentialImages(images = []) {
-      images.forEach(imagePointer => {
-        const {credential} = props.credentialRecord;
-        const image = getValueFromPointer(credential, imagePointer);
-        if(image) {
-          credentialImages.push(image);
-        }
       });
     }
 
@@ -364,7 +350,6 @@ export default {
       currentCard,
       cardBackground,
       deleteCredential,
-      credentialImages,
       currentCardProfile,
       toggleDeleteWindow,
       credentialOverrides,
