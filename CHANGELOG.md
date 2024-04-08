@@ -4,6 +4,7 @@
 
 ### Changed
 - Update credential details window to use three tabs for different display options.
+- Parse and utilize credential's render method property for image displays.
 
 ## 28.0.1 - 2024-04-03
 
