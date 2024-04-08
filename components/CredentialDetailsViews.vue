@@ -177,6 +177,7 @@ export default {
       if(props.credential?.renderMethod?.length) {
         props.credential.renderMethod.forEach(rm => {
           if(supportedRenderMethods.includes(rm.type)) {
+            // Uses id for src value in image carousel
             credentialImages.push(rm.id);
           }
         });
