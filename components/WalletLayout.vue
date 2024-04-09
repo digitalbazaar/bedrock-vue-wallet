@@ -29,9 +29,11 @@
 /*!
  * Copyright (c) 2015-2023 Digital Bazaar, Inc. All rights reserved.
  */
+import {computed, ref, watch} from 'vue';
 import {session, sessionDataRef} from '../lib/session.js';
-import {computed} from 'vue';
+import {useRoute, useRouter} from 'vue-router';
 import {rootData} from '../lib/rootData.js';
+import {useQuasar} from 'quasar';
 import WalletHeader from './WalletHeader.vue';
 
 export default {
@@ -39,53 +41,60 @@ export default {
   components: {
     WalletHeader,
   },
+  props: {
+    cardDesigns: {
+      type: Array,
+      default: () => [],
+    },
+  },
   setup() {
-    const account = computed(() => {
-      return sessionDataRef.value?.account?.id ?? '';
+    // Refs
+    const $q = useQuasar();
+    const showDrawer = ref(false);
+
+    // Use functions
+    const route = useRoute();
+    const router = useRouter();
+
+    // Computed
+    const ready = computed(() => rootData.ready);
+    const chapi = computed(() => route.meta.chapi);
+    const displayDrawer = computed(() => $q.screen.lt.md);
+    const account = computed(() => sessionDataRef.value?.account?.id ?? '');
+
+    // Watchers
+    watch(() => displayDrawer, newVal => {
+      if(!newVal) {
+        showDrawer.value = false;
+      }
     });
 
-    return {
-      account
-    };
-  },
-  // FIXME: convert to setup()
-  data() {
-    return {
-      showDrawer: false
-    };
-  },
-  computed: {
-    chapi() {
-      return this.$route.meta.chapi;
-    },
-    displayDrawer() {
-      return this.$q.screen.lt.md;
-    },
-    ready() {
-      return rootData.ready;
+    // Helper functions
+    async function cleanup() {
+      showDrawer.value = false;
     }
-  },
-  watch: {
-    displayDrawer(newVal) {
-      if(!newVal) {
-        this.showDrawer = false;
-      }
-    }
-  },
-  methods: {
-    async cleanup() {
-      this.showDrawer = false;
-    },
-    async logout() {
-      this.cleanup();
+
+    async function logout() {
+      cleanup();
       await session.end();
-      if(this.$route.path !== '/') {
-        this.$router.push({path: '/'});
+      if(route.name !== '/') {
+        router.push({path: '/'});
       }
-    },
-    toggleDrawer() {
-      this.showDrawer = !this.showDrawer;
     }
+
+    function toggleDrawer() {
+      showDrawer.value = !showDrawer.value;
+    }
+
+    return {
+      chapi,
+      ready,
+      logout,
+      account,
+      showDrawer,
+      toggleDrawer,
+      displayDrawer,
+    };
   }
 };
 </script>
