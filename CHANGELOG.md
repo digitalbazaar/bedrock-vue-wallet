@@ -2,10 +2,18 @@
 
 ## 28.1.0 - 2024-04-dd
 
+### Added
+- Documentation for card design configurations.
+
 ### Changed
 - Update credential details window to use three tabs for different display options.
 - Parse and utilize credential's render method property for image displays.
 - Update peer deps, use `@bedrock/vue-extendable-event@4.2.0`.
+- WalletLayout component is written in the Composition API.
+
+### Removed
+- Remove extra card design configurations.
+
 
 ## 28.0.1 - 2024-04-03
 
@@ -15,7 +23,7 @@
 
 ## 28.0.0 - 2024-04-02
 
-### Add
+### Added
 - **BREAKING**: New details window for credential.
 - **BREAKING**: Delete credential confirmation dialog.
 - **BREAKING**: Full screen modal for small devices.
