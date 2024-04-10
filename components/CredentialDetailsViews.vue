@@ -125,6 +125,7 @@
  * Copyright (c) 2015-2024 Digital Bazaar, Inc. All rights reserved.
  */
 import {onBeforeMount, reactive, ref} from 'vue';
+import Mustache from 'mustache';
 
 export default {
   name: 'CredentialDetailsViews',
@@ -156,7 +157,9 @@ export default {
     const credentialImages = reactive([]);
 
     // Constants
-    const supportedRenderMethods = ['SvgRenderingTemplate2023'];
+    const supportedRenderMethods = [
+      'SvgRenderingTemplate2023', 'SvgRenderingTemplate2024'
+    ];
 
     // Scroll area bar style
     const scrollBarStyles = {
@@ -175,13 +178,56 @@ export default {
     // Extract and parse images from credential's render method property
     async function getDisplaysFromRenderMethod() {
       if(props.credential?.renderMethod?.length) {
-        props.credential.renderMethod.forEach(rm => {
+        props.credential.renderMethod.forEach(async rm => {
           if(supportedRenderMethods.includes(rm.type)) {
-            // Uses id for src value in image carousel
-            credentialImages.push(rm.id);
+            if(rm.type === 'SvgRenderingTemplate2023') {
+              useRenderTemplate2023(rm.id);
+            } else if(rm.type === 'SvgRenderingTemplate2024') {
+              const {template, url} = rm;
+              const values = props.credential;
+              await useRenderTemplate2024(template, url, values);
+            }
           }
         });
       }
+    }
+
+    /**
+     * Uses id for src value in image.
+     *
+     * @param {string} srcValue - Data URI.
+     */
+    function useRenderTemplate2023(srcValue) {
+      credentialImages.push(srcValue);
+    }
+
+    /**
+     * Load svg from url or template then hydrate with credentialSubject values.
+     *
+     * @param {string} template - Svg.
+     * @param {string} url - Url.
+     * @param {object} values - Credential.credentialSubject.
+     */
+    async function useRenderTemplate2024(template, url, values) {
+      // Example credential renderMethod property:
+      //  "renderMethod": [
+      //    {
+      //      "name": "Landscape",
+      //      "mediaQuery": "@media (orientation: landscape)",
+      //      "type": "SvgRenderingTemplate2024",
+      //      "template": "",
+      //      "url": "https://credentialTemplates.dev/example.svg",
+      //      "mediaType": "image/svg+xml",
+      //    }
+      //  ]
+      //
+      if(!template || url) {
+        const resp = await fetch(url);
+        template = await resp.text();
+      }
+      const rv = Mustache.render(template, values);
+      const image = `data:image/svg+xml;base64,${btoa(rv)}`;
+      credentialImages.push(image);
     }
 
     return {
