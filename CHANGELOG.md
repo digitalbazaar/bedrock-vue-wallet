@@ -3,6 +3,7 @@
 ## 28.1.0 - 2024-04-dd
 
 ### Added
+- Add refresh button to credential dashboard.
 - Add `mustache@4.2.0` dependency for hydrating svg templates with data.
 - Documentation for card design configurations.
 
