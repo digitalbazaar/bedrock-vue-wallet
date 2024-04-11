@@ -5,6 +5,7 @@
 ### Changed
 - Update credential details window to use three tabs for different display options.
 - Parse and utilize credential's render method property for image displays.
+- Update peer deps, use `@bedrock/vue-extendable-event@4.2.0`.
 
 ## 28.0.1 - 2024-04-03
 
