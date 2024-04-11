@@ -2,11 +2,22 @@
   <q-page
     class="row justify-center"
     style="min-height: 0px;">
-    <div class="col-sm-5 col-xs-10 row items-center q-mt-lg q-mb-sm">
-      <search-box
-        class="col-grow"
-        placeholder="Search credentials"
-        @search="search=$event.text" />
+    <div class="row justify-center  full-width q-mt-lg q-mb-sm">
+      <div class="col-md-5 col-sm-6 col-xs-9">
+        <search-box
+          class="col-grow"
+          placeholder="Search credentials"
+          @search="search=$event.text" />
+      </div>
+      <div class="q-mx-sm q-mt-xs">
+        <q-btn
+          round
+          outline
+          size="sm"
+          color="primary"
+          icon="fas fa-sync-alt"
+          @click="refresh" />
+      </div>
     </div>
     <div class="col-xs-12">
       <credentials-list
