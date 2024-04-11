@@ -85,7 +85,6 @@ import {CredentialSwitch} from '@bedrock/vue-vc';
 import {useQuasar} from 'quasar';
 
 // Constants
-const emitExtendable = createEmitExtendable();
 const {generateQrCodeDataUrl, reissue} = ageCredentialHelpers;
 
 export default {
@@ -110,7 +109,10 @@ export default {
     }
   },
   emits: ['delete'],
-  setup(props) {
+  setup(props, {emit}) {
+    // Constants
+    const emitExtendable = createEmitExtendable({emit});
+
     // Hooks
     const $q = useQuasar();
 
