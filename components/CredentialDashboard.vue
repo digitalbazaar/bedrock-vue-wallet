@@ -32,9 +32,6 @@ import {createEmitExtendable} from '@digitalbazaar/vue-extendable-event';
 import CredentialsList from './CredentialsList.vue';
 import SearchBox from './SearchBox.vue';
 
-// Constants
-const emitExtendable = createEmitExtendable();
-
 export default {
   name: 'CredentialDashboard',
   components: {
@@ -69,6 +66,9 @@ export default {
     'filtered-profiles'
   ],
   setup(props, {emit}) {
+    // Constants
+    const emitExtendable = createEmitExtendable({emit});
+
     // Refs
     const search = ref('');
     const filteredProfiles = ref([]);
