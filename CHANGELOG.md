@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 28.1.0 - 2024-04-dd
+## 28.1.0 - 2024-04-12
 
 ### Added
 - Add refresh button to credential dashboard.
@@ -15,7 +15,6 @@
 
 ### Removed
 - Remove extra card design configurations.
-
 
 ## 28.0.1 - 2024-04-03
 
