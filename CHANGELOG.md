@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 28.2.0 - 2024-04-dd
+## 28.2.0 - 2024-04-12
 
 ### Added
 - Includes ability to format dates in svg display template.
