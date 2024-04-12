@@ -125,7 +125,10 @@
  * Copyright (c) 2015-2024 Digital Bazaar, Inc. All rights reserved.
  */
 import {onBeforeMount, reactive, ref} from 'vue';
+import {date} from 'quasar';
 import Mustache from 'mustache';
+
+const {formatDate} = date;
 
 export default {
   name: 'CredentialDetailsViews',
@@ -201,6 +204,20 @@ export default {
       credentialImages.push(srcValue);
     }
 
+    /*
+     * Functions used to format Mustache template values
+     * See: https://github.com/janl/mustache.js#functions
+     *
+     * Example Mustache template use:
+     * {{#formatFnName}}{{valueToFormat}}{{/formatFnName}}
+     */
+    const formattingFunctions = {
+      formatDate: () => (text, render) => {
+        const dateString = render(text);
+        return formatDate(dateString, 'YYYY-MM-DD');
+      }
+    };
+
     /**
      * Load svg from url or template then hydrate with credentialSubject values.
      *
@@ -225,7 +242,8 @@ export default {
         const resp = await fetch(url);
         template = await resp.text();
       }
-      const rv = Mustache.render(template, values);
+
+      const rv = Mustache.render(template, {...values, ...formattingFunctions});
       const image = `data:image/svg+xml;base64,${btoa(rv)}`;
       credentialImages.push(image);
     }
