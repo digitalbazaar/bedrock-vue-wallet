@@ -1,5 +1,11 @@
 # bedrock-vue-wallet ChangeLog
 
+## 28.3.0 - 2024-06-dd
+
+### Added
+- Add loading indicator to credential details window displays.
+- Render applicable details window tabs only.
+
 ## 28.2.0 - 2024-04-12
 
 ### Added
