@@ -9,14 +9,18 @@
       class="text-grey q-px-xl"
       indicator-color="primary">
       <q-tab
+        v-if="showHighlights"
         no-caps
         name="highlights"
         label="Highlights" />
       <q-tab
+        v-if="showDisplays"
         no-caps
         name="displays"
         label="Displays" />
+      <!-- Not yet implemented -->
       <q-tab
+        v-if="showDetails"
         no-caps
         name="details"
         label="Details" />
@@ -62,9 +66,14 @@
       <q-tab-panel
         name="displays"
         class="bg-grey-2 q-px-none text-center">
-        <div
-          class="details-view">
+        <div class="details-view">
+          <q-spinner
+            v-if="showDisplays && !credentialImages.length"
+            size="48px"
+            color="primary"
+            style="margin-top: 90px" />
           <q-carousel
+            v-else
             v-model="slideNumber"
             v-model:fullscreen="fullscreen"
             padding
@@ -84,10 +93,11 @@
               class="q-pa-none">
               <q-scroll-area class="fit bg-grey-2">
                 <div class="flex">
-                  <img
+                  <q-img
                     :src="image"
+                    spinner-color="primary"
                     class="q-mx-auto rounded-borders"
-                    style="max-width: 100%; pointer-events: none;">
+                    style="max-width: 100%; pointer-events: none;" />
                 </div>
               </q-scroll-area>
             </q-carousel-slide>
@@ -124,7 +134,7 @@
 /*!
  * Copyright (c) 2015-2024 Digital Bazaar, Inc. All rights reserved.
  */
-import {onBeforeMount, reactive, ref} from 'vue';
+import {onBeforeMount, onMounted, reactive, ref} from 'vue';
 import {date} from 'quasar';
 import Mustache from 'mustache';
 
@@ -157,7 +167,21 @@ export default {
     const slideNumber = ref(1);
     const tab = ref('highlights');
     const fullscreen = ref(false);
+    const showDetails = ref(false);
+    const showDisplays = ref(false);
+    const showHighlights = ref(false);
     const credentialImages = reactive([]);
+
+    // Select initial tab
+    onMounted(() => {
+      showHighlights.value = !!Object.keys(props.credentialHighlights)?.length;
+      showDisplays.value = !!props.credential?.renderMethod?.length;
+      if(showHighlights.value) {
+        tab.value = 'highlights';
+      } else if(showDisplays.value) {
+        tab.value = 'displays';
+      }
+    });
 
     // Constants
     const supportedRenderMethods = [
@@ -239,6 +263,8 @@ export default {
       //  ]
       //
       if(!template || url) {
+        // TEMP FIX UNTIL PLAYGROUND DEPLOYS
+        url = url.replace('vcplayground.org', 'localhost:51443');
         const resp = await fetch(url);
         template = await resp.text();
       }
@@ -252,6 +278,9 @@ export default {
       tab,
       fullscreen,
       slideNumber,
+      showDetails,
+      showDisplays,
+      showHighlights,
       scrollBarStyles,
       credentialImages
     };
