@@ -263,8 +263,6 @@ export default {
       //  ]
       //
       if(!template || url) {
-        // TEMP FIX UNTIL PLAYGROUND DEPLOYS
-        url = url.replace('vcplayground.org', 'localhost:51443');
         const resp = await fetch(url);
         template = await resp.text();
       }
