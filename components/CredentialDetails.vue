@@ -40,6 +40,10 @@
             </div>
           </q-card-section>
           <q-card-section class="flex full-width q-mt-auto">
+            <NfcShare
+              :credential="credential" />
+          </q-card-section>
+          <q-card-section class="flex full-width q-mt-auto">
             <q-btn
               flat
               no-caps
@@ -67,12 +71,14 @@
 import {computed, ref} from 'vue';
 import CredentialDetailsViews from './CredentialDetailsViews.vue';
 import {CredentialSwitch} from '@bedrock/vue-vc';
+import NfcShare from './NfcShare.vue';
 
 export default {
   name: 'CredentialDetails',
   components: {
     CredentialSwitch,
-    CredentialDetailsViews
+    CredentialDetailsViews,
+    NfcShare
   },
   props: {
     toggleDeleteWindow: {
