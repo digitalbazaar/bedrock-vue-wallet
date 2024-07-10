@@ -1,24 +1,36 @@
 <template>
   <div v-if="supportsNfc">
-    <button
+    <q-btn
       v-if="!isSharing"
-      @click="writeNfc">
-      Share via NFC
-    </button>
-    <div v-if="isSharing">
+      outline
+      no-caps
+      color="primary"
+      icon="fa fa-share"
+      label="Share via NFC"
+      @click="writeNfc" />
+    <div
+      v-else
+      class="text-center">
       Hold your device near a reader to share your credential.
-      <button @click="cancelWrite">
-        Cancel
-      </button>
+      <div>
+        <q-btn
+          outline
+          no-caps
+          class="q-mt-sm"
+          @click="cancelWrite">
+          Cancel
+        </q-btn>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import {defineComponent, ref} from 'vue';
-import {Notify} from 'quasar';
+import {ref} from 'vue';
+import {useQuasar} from 'quasar';
 
-export default defineComponent({
+export default {
+  name: 'NfcShare',
   props: {
     credential: {
       type: Object,
@@ -26,10 +38,15 @@ export default defineComponent({
     }
   },
   setup(props) {
+    // Constants
     const lenMaxNfcBytes = 32768;
 
+    // Refs
     const supportsNfc = ref(false);
     const isSharing = ref(false);
+
+    // Hooks
+    const $q = useQuasar();
 
     let abortController = null;
     let ndef = null;
@@ -48,28 +65,20 @@ export default defineComponent({
     }
 
     function notifyError(message) {
-      Notify.create({
+      $q.notify({
         message,
-        color: 'red-5',
         timeout: 5000,
-        textColor: 'white',
-        actions: [{
-          label: 'Dismiss',
-          color: 'white'
-        }]
+        type: 'negative',
+        actions: [{label: 'Dismiss', color: 'white'}]
       });
     }
 
     function notifySuccess(message) {
-      Notify.create({
+      $q.notify({
         message,
-        color: 'green-5',
+        type: 'positive',
         timeout: 5000,
-        textColor: 'white',
-        actions: [{
-          label: 'Dismiss',
-          color: 'white'
-        }]
+        actions: [{label: 'Dismiss', color: 'white'}]
       });
     }
 
@@ -132,5 +141,5 @@ export default defineComponent({
       cancelWrite,
     };
   }
-});
+};
 </script>
