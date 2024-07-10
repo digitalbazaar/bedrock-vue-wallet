@@ -98,12 +98,14 @@ export default defineComponent({
         }
 
         if(ndef) {
-          await ndef.write({records: [{
-            data,
-            lang: 'en',
-            mediaType: 'application/json',
-            recordType: 'mime',
-          }]}, {
+          await ndef.write({
+            records: [{
+              data,
+              lang: 'en',
+              mediaType: 'application/json',
+              recordType: 'mime',
+            }]
+          }, {
             overwrite: true,
             signal
           });
