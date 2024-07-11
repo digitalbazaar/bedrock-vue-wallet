@@ -1,9 +1,10 @@
 # bedrock-vue-wallet ChangeLog
 
-## 28.3.0 - yyyy-mm-dd
+## 28.3.0 - 2024-07-11
 
 ### Added
 - Add `NfcShare` component for sharing credentials via NFC.
+- Expose NFC share option in credential details.
 
 ## 28.2.0 - 2024-04-12
 
