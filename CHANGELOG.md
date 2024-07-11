@@ -1,12 +1,16 @@
 # bedrock-vue-wallet ChangeLog
 
+## 28.4.0 - 2024-07-11
+
+### Added
+- Add loading indicator to credential details window displays.
+- Render applicable details window tabs only.
+
 ## 28.3.0 - 2024-07-11
 
 ### Added
 - Add `NfcShare` component for sharing credentials via NFC.
 - Expose NFC share option in credential details.
-- Add loading indicator to credential details window displays.
-- Render applicable details window tabs only.
 
 ## 28.2.0 - 2024-04-12
 
