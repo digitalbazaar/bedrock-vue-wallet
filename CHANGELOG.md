@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 28.4.1 - yyyy-mm-dd
+## 28.4.1 - 2024-07-17
 
 ### Fixed
 - Activate an NFC reader if available to suppress OS-level reads.
