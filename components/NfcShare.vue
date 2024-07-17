@@ -55,6 +55,19 @@ export default {
       supportsNfc.value = true;
       // eslint-disable-next-line no-undef
       ndef = new NDEFReader();
+
+      // Proactively setup a reader to suppress OS-level reads
+      ndef.scan().catch(error => {
+        console.error(error, 'Failed to setup NDEF reader.');
+      });
+
+      ndef.onreading = event => {
+        console.log('NFC read event:', event);
+      };
+
+      ndef.onreadingerror = event => {
+        console.log(event, 'NDEF reader error.');
+      };
     }
 
     function cancelWrite() {
