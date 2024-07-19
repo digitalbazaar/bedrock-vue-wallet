@@ -118,7 +118,7 @@ export default {
     // Local state
     const showDelete = ref(false);
 
-    console.log('Credential details', credential);
+    console.log('Credential details', props.credential);
 
     // Credential description
     const description = computed(() => {
