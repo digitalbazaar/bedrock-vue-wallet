@@ -1,5 +1,10 @@
 # bedrock-vue-wallet ChangeLog
 
+## 28.5.0 - 2024-07-dd
+
+### Added
+- Log credential details in dev tools console for development purposes.
+
 ## 28.4.1 - 2024-07-17
 
 ### Fixed

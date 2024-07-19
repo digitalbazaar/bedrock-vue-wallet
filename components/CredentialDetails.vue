@@ -118,6 +118,8 @@ export default {
     // Local state
     const showDelete = ref(false);
 
+    console.log('Credential details', credential);
+
     // Credential description
     const description = computed(() => {
       if(props.credentialOverrides.description) {
