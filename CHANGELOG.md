@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 28.5.1 - 2024-07-dd
+## 28.5.1 - 2024-07-19
 
 ### Fixed
 - Fix console logging of credential prop.
