@@ -4,17 +4,44 @@
       v-if="!isSharing"
       outline
       no-caps
+      rounded
       color="primary"
       icon="fa fa-share"
       label="Share via NFC"
       @click="writeNfc" />
     <div
-      v-else
+      v-if="isSharing && !isTransferring"
       class="text-center">
-      Hold your device near a reader to share your credential.
+      <div class="text-body1">
+        Hold your device near a reader to share your credential.
+      </div>
       <div>
         <q-btn
           outline
+          rounded
+          no-caps
+          class="q-mt-sm"
+          @click="cancelWrite">
+          Cancel
+        </q-btn>
+      </div>
+    </div>
+    <div
+      v-if="isSharing && isTransferring"
+      class="text-center">
+      <div class="q-mb-sm">
+        <q-spinner
+          size="2em"
+          class="q-mb-sm"
+          color="primary" />
+        <div class="text-body1">
+          Sharing credential, please wait...
+        </div>
+      </div>
+      <div>
+        <q-btn
+          outline
+          rounded
           no-caps
           class="q-mt-sm"
           @click="cancelWrite">
@@ -44,6 +71,7 @@ export default {
     // Refs
     const supportsNfc = ref(false);
     const isSharing = ref(false);
+    const isTransferring = ref(false);
 
     // Hooks
     const $q = useQuasar();
@@ -63,6 +91,7 @@ export default {
 
       ndef.onreading = event => {
         console.log('NFC read event:', event);
+        isTransferring.value(true);
       };
 
       ndef.onreadingerror = event => {
@@ -144,6 +173,7 @@ export default {
         }
       } finally {
         cancelWrite();
+        isTransferring.value = false;
       }
     }
 
@@ -152,6 +182,7 @@ export default {
       isSharing,
       writeNfc,
       cancelWrite,
+      isTransferring
     };
   }
 };
