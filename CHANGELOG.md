@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 28.6.0 - 2024-07-xx
+## 28.6.0 - 2024-07-26
 
 ### Added
 - Update UI to represent nfc transferring credential state. 
