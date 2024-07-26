@@ -26,7 +26,8 @@
                 :image-override="credentialOverrides.image"
                 :description-override="credentialOverrides.subtitle" />
             </q-card>
-            <q-card-section class="flex full-width q-mt-auto justify-center">
+            <q-card-section
+              class="q-px-none q-pb-none flex full-width justify-center">
               <NfcShare :credential="credential" />
             </q-card-section>
             <div class="text-grey q-mt-lg text-body2">
