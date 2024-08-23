@@ -1,9 +1,12 @@
 # bedrock-vue-wallet ChangeLog
 
-## 28.7.0 - 2024-08-xx
+## 29.0.0 - 2024-08-xx
 
 ### Changed
-- Use `@bedrock/web-wallet@14.1.0`.
+- **BREAKING**: Update peer dependencies.
+  - Use `@bedrock/web-wallet@14.1.0`.
+  - Use `@bedrock/web@3.1.0`.
+  - Use `@bedrock/web-account@6.1.0`.
 
 ## 28.6.0 - 2024-07-26
 
