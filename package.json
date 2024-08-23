@@ -28,7 +28,7 @@
     "@bedrock/quasar": "^10.0.0",
     "@bedrock/quasar-components": "^5.0.0",
     "@bedrock/vue-vc": "^5.0.0",
-    "@bedrock/web": "^3.0.0",
+    "@bedrock/web": "^3.1.0",
     "@bedrock/web-account": "^6.0.0",
     "@bedrock/web-authn-token": "^7.0.0",
     "@bedrock/web-fontawesome": "^2.0.0",
