@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 29.0.0 - 2024-08-xx
+## 29.0.0 - 2024-08-23
 
 ### Changed
 - **BREAKING**: Update peer dependencies.
