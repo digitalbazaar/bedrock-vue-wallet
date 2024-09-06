@@ -15,7 +15,7 @@
     <div
       v-if="result"
       style="border: 1px solid #000; border-radius: 12px;"
-      class="flex justify-center border q-pa-sm q-mt-md">
+      class="flex column justify-center items-center border q-pa-sm q-mt-md">
       <div
         class="q-mt-lg text-h6">
         DEVELOPMENT ONLY
@@ -37,6 +37,7 @@
         rounded
         size="16px"
         class="q-my-md"
+        style="width: 220px"
         label="Copy `text` to Clipboard"
         @click="handleCopy" />
     </div>
