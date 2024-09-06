@@ -29,6 +29,7 @@
         toggle-color="primary"
         :options="[
           {label: 'Credentials', value: 'home'},
+          {label: 'Scanner', value: 'scanner'},
           {label: 'Profiles', value: 'profiles'},
         ]"
         @click="handleNav()" />
@@ -130,6 +131,12 @@ export default {
           class: 'lt-sm',
           label: 'Credentials',
           icon: 'fa fa-address-card'
+        },
+        {
+          route: 'scanner',
+          class: 'lt-sm',
+          label: 'Scanner',
+          icon: 'fas fa-barcode'
         },
         {
           route: 'profiles',
