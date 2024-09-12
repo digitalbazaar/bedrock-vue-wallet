@@ -2,8 +2,8 @@
   <q-page
     class="row justify-center"
     style="min-height: 0px;">
-    <div class="row justify-center  full-width q-mt-lg q-mb-sm">
-      <div class="col-md-5 col-sm-6 col-xs-9">
+    <div class="row justify-center full-width q-mt-lg q-mb-sm">
+      <div class="col-md-4 col-sm-6 col-xs-9">
         <search-box
           class="col-grow"
           placeholder="Search credentials"
@@ -15,11 +15,20 @@
           outline
           size="sm"
           color="primary"
+          class="q-mr-sm"
+          icon="fas fa-barcode"
+          @click="openBarcodeDialog" />
+        <q-btn
+          round
+          outline
+          size="sm"
+          color="primary"
           icon="fas fa-sync-alt"
           @click="refresh" />
       </div>
     </div>
-    <div class="col-xs-12">
+    <div
+      class="col-xs-12 col-md-11 col-lg-10">
       <credentials-list
         :credentials="filteredCredentials"
         :profile-options="profiles"
@@ -29,6 +38,7 @@
         :error-text="errorText"
         @delete-credential="$event.waitUntil(deleteCredential($event))" />
     </div>
+    <ShowScannerModal v-model="showBarcodeDialog" />
   </q-page>
 </template>
 
@@ -42,12 +52,14 @@ import {config} from '@bedrock/web';
 import {createEmitExtendable} from '@digitalbazaar/vue-extendable-event';
 import CredentialsList from './CredentialsList.vue';
 import SearchBox from './SearchBox.vue';
+import ShowScannerModal from './ShowScannerModal.vue';
 
 export default {
   name: 'CredentialDashboard',
   components: {
     CredentialsList,
-    SearchBox
+    SearchBox,
+    ShowScannerModal
   },
   props: {
     credentials: {
@@ -83,6 +95,7 @@ export default {
     // Refs
     const search = ref('');
     const filteredProfiles = ref([]);
+    const showBarcodeDialog = ref(false);
     const credentials = toRef(props, 'credentials');
 
     // Credentials filtered by search term match
@@ -113,6 +126,10 @@ export default {
     // Events
     const refresh = () => {
       emit('refresh');
+    };
+
+    const openBarcodeDialog = () => {
+      showBarcodeDialog.value = true;
     };
 
     // Pass delete-credential event up component chain
@@ -161,7 +178,9 @@ export default {
       filteredProfiles,
       noResults,
       refresh,
-      search
+      search,
+      openBarcodeDialog,
+      showBarcodeDialog,
     };
   }
 };
