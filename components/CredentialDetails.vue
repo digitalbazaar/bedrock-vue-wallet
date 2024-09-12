@@ -5,6 +5,7 @@
     <div class="row full-height">
       <!-- Close button -->
       <q-btn
+        v-if="!nfcSharing"
         v-close-popup
         flat
         round
@@ -14,7 +15,9 @@
         style="font-size: 0.75em; z-index: 1;" />
       <!-- Left side details -->
       <div class="col-xs-12 col-md-5 bg-white q-pt-xl q-pb-md q-px-xl">
-        <div class="row justify-center items-start full-height">
+        <div
+          class="row justify-center full-height"
+          :class="nfcClass">
           <q-card-section class="q-pa-none text-body1 text-left">
             <q-card
               class="card q-mx-auto"
@@ -24,26 +27,76 @@
                 :text-color="cardStyles.textColor"
                 :name-override="credentialOverrides.title"
                 :image-override="credentialOverrides.image"
-                :description-override="credentialOverrides.subtitle" />
+                :description-override="credentialOverrides.subtitle">
+                <template
+                  v-if="hasNFCPayload({credential})"
+                  #image>
+                  <div class="row justify-between">
+                    <dynamic-image
+                      class="q-mr-auto"
+                      :src="credentialOverrides.image"
+                      size="md" />
+                    <span v-html="conctactlessSvg" />
+                  </div>
+                </template>
+              </credential-switch>
             </q-card>
+            <div
+              v-if="nfcSharing"
+              class="row justify-center items-center text-body2 disabled q-mt-md">
+              <q-spinner-ios
+                size="1em"
+                style="height: 24px; margin-right: 7px;" />
+              <div>
+                Sharing
+              </div>
+            </div>
+            <div
+              v-if="nfcSharing"
+              class="text-center q-pt-md">
+              <div class="text-body1">
+                Hold your device near a reader to share your credential.
+              </div>
+              <div>
+                <q-btn
+                  outline
+                  rounded
+                  no-caps
+                  class="q-mt-sm"
+                  @click="cancelWrite">
+                  Cancel
+                </q-btn>
+              </div>
+            </div>
             <q-card-section
+
+              v-if="hasNFCPayload({credential})"
               class="q-px-none q-pb-none flex full-width justify-center">
-              <NfcShare :credential="credential" />
+              <NfcShare
+                ref="nfcShareComponent"
+                :credential="credential"
+                @sharing="nfcSharing = $event" />
             </q-card-section>
-            <div class="text-grey q-mt-lg text-body2">
-              Description
-            </div>
-            <div class="text-body1">
-              {{description}}
-            </div>
-            <div class="text-grey q-mt-md text-body2">
-              Issued for
-            </div>
-            <div class="text-body1">
-              {{credentialHolderName}}
+            <div v-if="!nfcSharing">
+              <div>
+                <div class="text-grey q-mt-lg text-body2">
+                  Description
+                </div>
+                <div class="text-body1">
+                  {{description}}
+                </div>
+                <div class="text-grey q-mt-md text-body2">
+                  Issued for
+                </div>
+                <div class="text-body1">
+                  {{credentialHolderName}}
+                </div>
+              </div>
             </div>
           </q-card-section>
-          <q-card-section class="flex full-width q-mt-auto">
+          <q-card-section
+            v-if="!nfcSharing"
+            class="flex full-width q-mt-auto">
             <q-btn
               flat
               no-caps
@@ -57,6 +110,7 @@
       </div>
       <!-- Right side details -->
       <CredentialDetailsViews
+        v-if="!nfcSharing"
         :credential="credential"
         :credential-overrides="credentialOverrides"
         :credential-highlights="credentialHighlights" />
@@ -69,16 +123,21 @@
  * Copyright (c) 2015-2024 Digital Bazaar, Inc. All rights reserved.
  */
 import {computed, ref} from 'vue';
+import {CredentialSwitch, DynamicImage} from '@bedrock/vue-vc';
+import {svg as conctactlessSvg} from './contactless.js';
 import CredentialDetailsViews from './CredentialDetailsViews.vue';
-import {CredentialSwitch} from '@bedrock/vue-vc';
+import {helpers} from '@bedrock/web-wallet';
 import NfcShare from './NfcShare.vue';
+
+const {hasNFCPayload} = helpers;
 
 export default {
   name: 'CredentialDetails',
   components: {
     CredentialSwitch,
     CredentialDetailsViews,
-    NfcShare
+    DynamicImage,
+    NfcShare,
   },
   props: {
     toggleDeleteWindow: {
@@ -118,9 +177,18 @@ export default {
   setup(props) {
     // Local state
     const showDelete = ref(false);
-
+    const nfcSharing = ref(false);
+    const nfcShareComponent = ref(null);
     console.log('Credential details', props.credential);
 
+    const nfcClass = computed(() => {
+      const isNfcSharing = nfcSharing.value;
+      if(!isNfcSharing) {
+        return ['items-start'];
+      }
+
+      return ['items-center', 'nfc-card-position'];
+    });
     // Credential description
     const description = computed(() => {
       if(props.credentialOverrides.description) {
@@ -131,9 +199,19 @@ export default {
       }
     });
 
+    function cancelWrite() {
+      nfcShareComponent.value.cancelWrite();
+    }
+
     return {
+      cancelWrite,
+      conctactlessSvg,
       showDelete,
-      description
+      description,
+      hasNFCPayload,
+      nfcSharing,
+      nfcClass,
+      nfcShareComponent
     };
   }
 };
@@ -159,5 +237,9 @@ $breakpoint-sm: 767px;
   aspect-ratio: 3.375 / 2.125;
   background-color: #FFFFFF;
   border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.nfc-card-position {
+  margin-top: -16vh;
 }
 </style>
