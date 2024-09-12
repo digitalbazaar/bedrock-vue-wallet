@@ -1,6 +1,6 @@
 <template>
   <div
-    class="row justify-center"
+    class="row justify-center text-center"
     :class="$q.screen.lt.sm ? 'q-px-lg' : ''">
     <div class="column">
       <div class="q-mt-md text-center">

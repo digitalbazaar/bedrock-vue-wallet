@@ -2,6 +2,7 @@
   <!-- Credential Card -->
   <div
     class="q-my-xs q-mx-xs"
+    :style="{cursor: hover ? 'pointer': ''}"
     @mouseover="hover=true"
     @mouseleave="hover=false">
     <q-card
