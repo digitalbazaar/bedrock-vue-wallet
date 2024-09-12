@@ -1,6 +1,6 @@
 <template>
   <div
-    class="fixed-full bg-grey-10 q-mt-xl">
+    class="fixed-full bg-grey-10">
     <!-- Video Stream -->
     <div
       id="dce-video-container"
