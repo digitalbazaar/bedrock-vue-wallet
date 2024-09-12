@@ -15,7 +15,19 @@
         :credential="credentialRecord.credential"
         :name-override="credentialOverrides.title"
         :image-override="credentialOverrides.image"
-        :description-override="credentialOverrides.subtitle" />
+        :description-override="credentialOverrides.subtitle">
+        <template
+          v-if="hasNFCPayload({credential: credentialRecord.credential})"
+          #image>
+          <div class="row justify-between">
+            <dynamic-image
+              class="q-mr-auto"
+              :src="credentialOverrides.image"
+              size="md" />
+            <span v-html="conctactlessSvg" />
+          </div>
+        </template>
+      </credential-switch>
     </q-card>
     <!-- Details dialog -->
     <q-dialog
@@ -76,23 +88,28 @@
  * Copyright (c) 2015-2024 Digital Bazaar, Inc. All rights reserved.
  */
 // FIXME: do not import any of these, parameterize / use events instead
-import {ageCredentialHelpers, getCredentialStore} from '@bedrock/web-wallet';
+import {
+  ageCredentialHelpers, getCredentialStore, helpers
+} from '@bedrock/web-wallet';
 import {computed, onBeforeMount, reactive, ref} from 'vue';
+import {CredentialSwitch, DynamicImage} from '@bedrock/vue-vc';
 import {formatString, getValueFromPointer} from '../lib/helpers.js';
+import {svg as conctactlessSvg} from './contactless.js';
 import {config} from '@bedrock/web';
 import {createEmitExtendable} from '@digitalbazaar/vue-extendable-event';
 import CredentialDetails from './CredentialDetails.vue';
-import {CredentialSwitch} from '@bedrock/vue-vc';
 import {useQuasar} from 'quasar';
 
 // Constants
 const {generateQrCodeDataUrl, reissue} = ageCredentialHelpers;
+const {hasNFCPayload} = helpers;
 
 export default {
   name: 'CredentialCardBundle',
   components: {
     CredentialSwitch,
-    CredentialDetails
+    CredentialDetails,
+    DynamicImage,
   },
   props: {
     credentialRecord: {
@@ -358,7 +375,9 @@ export default {
       credentialOverrides,
       toggleDetailsWindow,
       credentialHighlights,
-      credentialHolderName
+      credentialHolderName,
+      conctactlessSvg,
+      hasNFCPayload
     };
   }
 };

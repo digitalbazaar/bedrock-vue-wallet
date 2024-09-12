@@ -1,59 +1,31 @@
 <template>
-  <div v-if="supportsNfc">
+  <div>
     <q-btn
-      v-if="!isSharing"
-      outline
+      v-show="!isSharing"
       no-caps
       rounded
       color="primary"
-      icon="fa fa-share"
-      label="Share via NFC"
-      @click="writeNfc" />
-    <div
-      v-if="isSharing && !isTransferring"
-      class="text-center">
-      <div class="text-body1">
-        Hold your device near a reader to share your credential.
-      </div>
-      <div>
-        <q-btn
-          outline
-          rounded
-          no-caps
-          class="q-mt-sm"
-          @click="cancelWrite">
-          Cancel
-        </q-btn>
-      </div>
-    </div>
-    <div
-      v-if="isSharing && isTransferring"
-      class="text-center">
-      <div class="q-mb-sm">
-        <q-spinner
-          size="2em"
-          class="q-mb-sm"
-          color="primary" />
-        <div class="text-body1">
-          Sharing credential, please wait...
+      :disabled="!supportsNfc"
+      outline
+      @click="writeNfc">
+      <template #default>
+        <div class="row justify-between items-center">
+          <div
+            style="height: 24px; margin-right: 8px;"
+            v-html="conctactlessSvg" />
+          <div>
+            Tap to Share
+          </div>
         </div>
-      </div>
-      <div>
-        <q-btn
-          outline
-          rounded
-          no-caps
-          class="q-mt-sm"
-          @click="cancelWrite">
-          Cancel
-        </q-btn>
-      </div>
-    </div>
+      </template>
+    </q-btn>
   </div>
 </template>
 
 <script>
-import {ref} from 'vue';
+import {ref, watch} from 'vue';
+import {svg as conctactlessSvg} from './contactless.js';
+import {helpers} from '@bedrock/web-wallet';
 import {useQuasar} from 'quasar';
 
 export default {
@@ -64,15 +36,20 @@ export default {
       required: true
     }
   },
-  setup(props) {
+  emits: ['sharing'],
+  setup(props, ctx) {
     // Constants
     const lenMaxNfcBytes = 32768;
 
     // Refs
-    const supportsNfc = ref(false);
+    const supportsNfc = ref(true);
     const isSharing = ref(false);
-    const isTransferring = ref(false);
 
+    // watch
+    watch(() => {
+      const sharing = isSharing.value;
+      ctx.emit('sharing', sharing);
+    });
     // Hooks
     const $q = useQuasar();
 
@@ -90,8 +67,20 @@ export default {
       });
 
       ndef.onreading = event => {
-        console.log('NFC read event:', event);
-        isTransferring.value(true);
+        // receives the VPR
+        const dec = new TextDecoder();
+        try {
+          // eslint-disable-next-line max-len
+          if(event && event.message && event.message.records && event.message.records[0] && event.message.records[0].data) {
+            const vpr = JSON.parse(dec.decode(event.message.records[0].data));
+            console.log('NFC read event:', event);
+            console.log('VPR received:', vpr);
+          } else {
+            console.warn('No valid data found in the NFC event.');
+          }
+        } catch(error) {
+          console.error('Error decoding or parsing NFC data:', error);
+        }
       };
 
       ndef.onreadingerror = event => {
@@ -100,6 +89,7 @@ export default {
     }
 
     function cancelWrite() {
+      console.log('Write aborted.');
       if(abortController) {
         abortController.abort();
       }
@@ -125,6 +115,7 @@ export default {
     }
 
     async function writeNfc() {
+
       if(supportsNfc.value === false) {
         notifyError('NFC is not supported on this device.');
         return;
@@ -139,28 +130,28 @@ export default {
       const {signal} = abortController;
 
       // Enqueue a write
-      try {
-        const jsonString = JSON.stringify(props.credential);
-        const encoder = new TextEncoder();
-        const data = encoder.encode(jsonString);
+      const vc = props.credential;
+      const {bytes: rawBytes} = await helpers.toNFCPayload({credential: vc});
+      console.log('Writing NFC...', {rawBytes});
 
-        if(data.length > lenMaxNfcBytes) {
+      try {
+        // FIXME: Check should be moved to vanilla-js layer and not UI layer
+        if(rawBytes.length > lenMaxNfcBytes) {
           console.warn('Payload exceeds 32 kilobytes! Attempt may fail.');
         }
-
         if(ndef) {
           await ndef.write({
             records: [{
-              data,
+              data: rawBytes,
               lang: 'en',
-              mediaType: 'application/json',
+              mediaType: 'application/octet-stream',
               recordType: 'mime',
             }]
           }, {
             overwrite: true,
             signal
           });
-          notifySuccess('Credential shared via NFC.');
+          notifySuccess('Credential shared sucessfully.');
         } else {
           throw new Error('NDEFReader not defined!');
         }
@@ -168,21 +159,20 @@ export default {
         if(error.name === 'AbortError') {
           console.log('NFC write aborted.');
         } else {
-          notifyError('An unexpected NFC error occurred. Please try again.');
+          notifyError('An unexpected error occurred. Please try again.');
           console.error(error, 'Failed to write to NFC.');
         }
       } finally {
         cancelWrite();
-        isTransferring.value = false;
       }
     }
 
     return {
+      conctactlessSvg,
       supportsNfc,
       isSharing,
       writeNfc,
       cancelWrite,
-      isTransferring
     };
   }
 };
