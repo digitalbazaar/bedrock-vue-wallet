@@ -42,7 +42,7 @@ export default {
     const lenMaxNfcBytes = 32768;
 
     // Refs
-    const supportsNfc = ref(true);
+    const supportsNfc = ref(false);
     const isSharing = ref(false);
 
     // watch
