@@ -189,25 +189,22 @@ export default {
         let protocols;
         const url = new URL(text);
         getRequestOrigin(url);
-        const isVcApi = url.pathname.includes('/exchangers/');
-        const isOpenId = url.protocol.includes('openid-credential-offer');
-        const multipleProtocols = url.pathname.includes('/interactions/');
-        if(multipleProtocols) {
+        const multiProtocol = url.protocol === 'https:';
+        const isOpenId = url.protocol === 'openid-credential-offer:';
+        if(multiProtocol) {
           const headers = {headers: {accept: 'application/json'}};
           const {data} = await httpClient.get(text, {headers});
           protocols = data.protocols;
         } else if(isOpenId) {
           protocols = {OID4VCI: text};
-        } else if(isVcApi) {
-          protocols = {vcapi: text};
         }
         if(!protocols) {
           throw new Error('Unable to handle scanned QR code.');
         }
         const event = {
+          type: 'credentialrequest',
           credential: {options: {protocols}},
           credentialRequestOptions: {web: {protocols}},
-          type: 'credentialrequest'
         };
         const promise = new Promise(res => event.respondWith = res);
         result.value = {type, text, event};
