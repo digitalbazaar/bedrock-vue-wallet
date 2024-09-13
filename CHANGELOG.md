@@ -1,5 +1,10 @@
 # bedrock-vue-wallet ChangeLog
 
+## 30.0.0 - 2024-09-xx
+
+### Added
+- Add scanner components to scan QR codes to share and store credentials.
+
 ## 29.0.0 - 2024-08-23
 
 ### Changed
