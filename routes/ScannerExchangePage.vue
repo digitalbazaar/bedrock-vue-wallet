@@ -170,16 +170,18 @@ export default {
     }
 
     function getRequestOrigin(url) {
-      const offerParam = url.searchParams.get('credential_offer');
-      const offerUrl = url.searchParams.get('credential_offer_uri');
-      if(offerParam) {
-        const offer = JSON.parse(offerParam).credential_issuer;
-        credentialRequestOrigin.value = new URL(offer).origin;
-      } else if(offerUrl) {
-        credentialRequestOrigin.value = new URL(offerUrl).origin;
-      } else {
-        credentialRequestOrigin.value = url.origin;
+      if(url.protocol === 'openid-credential-offer:') {
+        const offerParam = url.searchParams.get('credential_offer');
+        const offerUrl = url.searchParams.get('credential_offer_uri');
+        if(offerParam) {
+          const offer = JSON.parse(offerParam).credential_issuer;
+          credentialRequestOrigin.value = new URL(offer).origin;
+        } else if(offerUrl) {
+          credentialRequestOrigin.value = new URL(offerUrl).origin;
+        }
+        return;
       }
+      credentialRequestOrigin.value = url.origin;
     }
 
     async function handleQrCode({text, type}) {
