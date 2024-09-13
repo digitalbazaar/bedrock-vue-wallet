@@ -61,7 +61,6 @@
 /*!
  * Copyright (c) 2018-2024 Digital Bazaar, Inc. All rights reserved.
  */
-
 import {computed, ref, toRaw} from 'vue';
 import {exchanges, getCredentialStore, helpers} from '@bedrock/web-wallet';
 import BarcodeScanner from '../components/BarcodeScanner.vue';
