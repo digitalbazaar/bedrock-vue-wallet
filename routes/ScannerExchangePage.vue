@@ -164,9 +164,21 @@ export default {
 
     async function handleScan({type, text}) {
       enableScanning.value = false;
-      credentialRequestOrigin.value = new URL(text).origin;
       if(type === 'QR_CODE') {
         await handleQrCode({text, type});
+      }
+    }
+
+    function getRequestOrigin(url) {
+      const offerParam = url.searchParams.get('credential_offer');
+      const offerUrl = url.searchParams.get('credential_offer_uri');
+      if(offerParam) {
+        const offer = JSON.parse(offerParam).credential_issuer;
+        credentialRequestOrigin.value = new URL(offer).origin;
+      } else if(offerUrl) {
+        credentialRequestOrigin.value = new URL(offerUrl).origin;
+      } else {
+        credentialRequestOrigin.value = url.origin;
       }
     }
 
@@ -175,13 +187,19 @@ export default {
         ready.value = true;
         error.value = null;
         let protocols;
-        const isHttpRequest = text.includes('https://');
-        const isOpenId = text.includes('openid-credential-offer');
-        if(isHttpRequest) {
-          const {data} = await httpClient.post(text, {json: {}});
+        const url = new URL(text);
+        getRequestOrigin(url);
+        const isVcApi = url.pathname.includes('/exchangers/');
+        const isOpenId = url.protocol.includes('openid-credential-offer');
+        const multipleProtocols = url.pathname.includes('/interactions/');
+        if(multipleProtocols) {
+          const headers = {headers: {accept: 'application/json'}};
+          const {data} = await httpClient.get(text, {headers});
           protocols = data.protocols;
         } else if(isOpenId) {
-          protocols = {oid4vci: text};
+          protocols = {OID4VCI: text};
+        } else if(isVcApi) {
+          protocols = {vcapi: text};
         }
         if(!protocols) {
           throw new Error('Unable to handle scanned QR code.');
