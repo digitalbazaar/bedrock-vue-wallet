@@ -179,9 +179,12 @@ export default {
         } else if(offerUrl) {
           credentialRequestOrigin.value = new URL(offerUrl).origin;
         }
-        return;
+      } else if(url.protocol === 'openid4vp:') {
+        const offerUrl = url.searchParams.get('request_uri');
+        credentialRequestOrigin.value = new URL(offerUrl).origin;
+      } else {
+        credentialRequestOrigin.value = url.origin;
       }
-      credentialRequestOrigin.value = url.origin;
     }
 
     async function handleQrCode({text, type}) {
@@ -192,13 +195,16 @@ export default {
         const url = new URL(text);
         getRequestOrigin(url);
         const multiProtocol = url.protocol === 'https:';
-        const isOpenId = url.protocol === 'openid-credential-offer:';
+        const isOID4VCI = url.protocol === 'openid-credential-offer:';
+        const isOID4VP = url.protocol === 'openid4vp:';
         if(multiProtocol) {
           const headers = {headers: {accept: 'application/json'}};
           const {data} = await httpClient.get(text, {headers});
           protocols = data.protocols;
-        } else if(isOpenId) {
+        } else if(isOID4VCI) {
           protocols = {OID4VCI: text};
+        } else if(isOID4VP) {
+          protocols = {OID4VP: text};
         }
         if(!protocols) {
           throw new Error('Unable to handle scanned QR code.');
@@ -291,13 +297,14 @@ export default {
             throw e;
           }
           if(done) {
-            // exchange is finished
-            exchange.value.close();
+            const action = display.value === 'store' ? 'stored' : 'shared';
             $q.notify({
               type: 'positive',
-              message: 'Successfully stored credential',
+              message: `Successfully ${action} credential`,
             });
             router.push({name: 'home'});
+            // exchange is finished
+            exchange.value.close();
             break;
           }
         }
