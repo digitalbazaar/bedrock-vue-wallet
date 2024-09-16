@@ -301,9 +301,9 @@ export default {
               type: 'positive',
               message: `Successfully ${action} credential`,
             });
-            router.push({name: 'home'});
             // exchange is finished
             exchange.value.close();
+            router.push({name: 'home'});
             break;
           }
         }
