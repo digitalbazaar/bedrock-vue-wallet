@@ -166,12 +166,11 @@ export default {
         });
         // FIXME: use matches directly instead of using records, UI
         // should better render full matches
-        records = Array.isArray(matches.flat) ?
-          matches.flat.map(match => match.derived?.length > 0 ?
+        records = matches.flat.map(match => match.derived?.length > 0 ?
           // FIXME: temporary measure to replace content with derived VC,
           // instead UI should support both and prefer derived
-            {...match.record, content: match.derived[0].derivedCredential} :
-            match.record) : [];
+          {...match.record, content: match.derived[0].derivedCredential} :
+          match.record);
       } catch(error) {
         console.log('Error trying to process query: ', {error});
       }
