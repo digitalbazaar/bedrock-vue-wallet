@@ -36,7 +36,7 @@
                       class="q-mr-auto"
                       :src="credentialOverrides.image"
                       size="md" />
-                    <span v-html="conctactlessSvg" />
+                    <span v-html="contactlessSvg" />
                   </div>
                 </template>
               </credential-switch>
@@ -124,7 +124,7 @@
  */
 import {computed, ref} from 'vue';
 import {CredentialSwitch, DynamicImage} from '@bedrock/vue-vc';
-import {svg as conctactlessSvg} from './contactless.js';
+import {svg as contactlessSvg} from './contactless.js';
 import CredentialDetailsViews from './CredentialDetailsViews.vue';
 import {helpers} from '@bedrock/web-wallet';
 import NfcShare from './NfcShare.vue';
@@ -205,7 +205,7 @@ export default {
 
     return {
       cancelWrite,
-      conctactlessSvg,
+      contactlessSvg,
       showDelete,
       description,
       hasNFCPayload,
