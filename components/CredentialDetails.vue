@@ -43,7 +43,8 @@
             </q-card>
             <div
               v-if="nfcSharing"
-              class="row justify-center items-center text-body2 disabled q-mt-md">
+              class="row justify-center items-center text-body2 disabled
+                q-mt-md">
               <q-spinner-ios
                 size="1em"
                 style="height: 24px; margin-right: 7px;" />

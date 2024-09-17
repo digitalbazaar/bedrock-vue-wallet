@@ -94,8 +94,8 @@ import {
 import {computed, onBeforeMount, reactive, ref} from 'vue';
 import {CredentialSwitch, DynamicImage} from '@bedrock/vue-vc';
 import {formatString, getValueFromPointer} from '../lib/helpers.js';
-import {svg as contactlessSvg} from './contactless.js';
 import {config} from '@bedrock/web';
+import {svg as contactlessSvg} from './contactless.js';
 import {createEmitExtendable} from '@digitalbazaar/vue-extendable-event';
 import CredentialDetails from './CredentialDetails.vue';
 import {useQuasar} from 'quasar';
