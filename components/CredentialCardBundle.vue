@@ -24,7 +24,7 @@
               class="q-mr-auto"
               :src="credentialOverrides.image"
               size="md" />
-            <span v-html="conctactlessSvg" />
+            <span v-html="contactlessSvg" />
           </div>
         </template>
       </credential-switch>
@@ -94,7 +94,7 @@ import {
 import {computed, onBeforeMount, reactive, ref} from 'vue';
 import {CredentialSwitch, DynamicImage} from '@bedrock/vue-vc';
 import {formatString, getValueFromPointer} from '../lib/helpers.js';
-import {svg as conctactlessSvg} from './contactless.js';
+import {svg as contactlessSvg} from './contactless.js';
 import {config} from '@bedrock/web';
 import {createEmitExtendable} from '@digitalbazaar/vue-extendable-event';
 import CredentialDetails from './CredentialDetails.vue';
@@ -376,7 +376,7 @@ export default {
       toggleDetailsWindow,
       credentialHighlights,
       credentialHolderName,
-      conctactlessSvg,
+      contactlessSvg,
       hasNFCPayload
     };
   }

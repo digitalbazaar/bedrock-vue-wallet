@@ -12,7 +12,7 @@
         <div class="row justify-between items-center">
           <div
             style="height: 24px; margin-right: 8px;"
-            v-html="conctactlessSvg" />
+            v-html="contactlessSvg" />
           <div>
             Tap to Share
           </div>
@@ -24,7 +24,7 @@
 
 <script>
 import {ref, watch} from 'vue';
-import {svg as conctactlessSvg} from './contactless.js';
+import {svg as contactlessSvg} from './contactless.js';
 import {helpers} from '@bedrock/web-wallet';
 import {useQuasar} from 'quasar';
 
@@ -151,7 +151,7 @@ export default {
             overwrite: true,
             signal
           });
-          notifySuccess('Credential shared sucessfully.');
+          notifySuccess('Credential shared successfully.');
         } else {
           throw new Error('NDEFReader not defined!');
         }
@@ -168,7 +168,7 @@ export default {
     }
 
     return {
-      conctactlessSvg,
+      contactlessSvg,
       supportsNfc,
       isSharing,
       writeNfc,
