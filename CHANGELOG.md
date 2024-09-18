@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 29.2.0 - 2024-09-xx
+## 29.2.0 - 2024-09-18
 
 ### Changed
 - Update UI for NFC contactless VC presentation.
