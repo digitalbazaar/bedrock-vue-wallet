@@ -1,5 +1,10 @@
 # bedrock-vue-wallet ChangeLog
 
+## 30.0.0 - 2024-09-dd
+
+### Added
+- Added details view to credential details window.
+
 ## 29.4.1 - 2024-10-15
 
 ### Fixed
