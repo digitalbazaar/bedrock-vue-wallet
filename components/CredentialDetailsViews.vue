@@ -123,7 +123,7 @@
         name="details"
         class="bg-grey-2">
         <div class="details-view">
-          Details view is not currently available.
+          <credential-details-tree :credential="credential" />
         </div>
       </q-tab-panel>
     </q-tab-panels>
@@ -135,6 +135,7 @@
  * Copyright (c) 2015-2024 Digital Bazaar, Inc. All rights reserved.
  */
 import {onBeforeMount, onMounted, reactive, ref} from 'vue';
+import CredentialDetailsTree from './CredentialDetailsTree.vue';
 import {date} from 'quasar';
 import Mustache from 'mustache';
 
@@ -142,7 +143,7 @@ const {formatDate} = date;
 
 export default {
   name: 'CredentialDetailsViews',
-  components: {},
+  components: {CredentialDetailsTree},
   props: {
     credential: {
       type: Object,
@@ -167,7 +168,7 @@ export default {
     const slideNumber = ref(1);
     const tab = ref('highlights');
     const fullscreen = ref(false);
-    const showDetails = ref(false);
+    const showDetails = ref(true);
     const showDisplays = ref(false);
     const showHighlights = ref(false);
     const credentialImages = reactive([]);
