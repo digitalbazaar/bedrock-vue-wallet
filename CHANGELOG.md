@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 29.3.0 - 2024-10-dd
+## 29.3.0 - 2024-10-02
 
 ### Changed
 - Default to VC 2.0 context in VPs. If only 1.x VCs are selected, then the
