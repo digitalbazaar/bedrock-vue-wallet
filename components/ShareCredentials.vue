@@ -70,7 +70,7 @@
 
 <script>
 /*!
- * Copyright (c) 2015-2023 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2015-2024 Digital Bazaar, Inc. All rights reserved.
  */
 import {computed, ref, toRaw, toRef, unref} from 'vue';
 import {
@@ -82,6 +82,9 @@ import ProfileChooser from './ProfileChooser.vue';
 import ShareReview from './ShareReview.vue';
 
 const {createCapabilities} = helpers;
+
+const VC_V1_CONTEXT_URL = 'https://www.w3.org/2018/credentials/v1';
+const VC_V2_CONTEXT_URL = 'https://www.w3.org/ns/credentials/v2';
 
 /**
  * This component is generally rendered inside a CHAPI window. It is used
@@ -264,7 +267,7 @@ export default {
         // TODO: implement
         const {verifiableCredential} = this;
         const presentation = {
-          '@context': ['https://www.w3.org/2018/credentials/v1'],
+          '@context': [VC_V2_CONTEXT_URL],
           type: ['VerifiablePresentation'],
           holder: this.selectedProfile.id
         };
@@ -274,6 +277,11 @@ export default {
           // only send the VCs selected
           presentation.verifiableCredential = vcs.filter(
             vc => selections.includes(vc.id));
+          if(!_includesVersion2Context(presentation.verifiableCredential)) {
+            // for backwards compatibility, use VC 1.x context if no VC 2.0
+            // VCs were selected
+            presentation['@context'][0] = VC_V1_CONTEXT_URL;
+          }
         }
         const capabilities = await this.generateCapabilities();
         // Presentations with out capabilities will result
@@ -334,6 +342,11 @@ async function createContainers({credentialStore, records}) {
     credentials.push(record.content);
   }
   return credentials;
+}
+
+function _includesVersion2Context(credentials) {
+  return credentials.some(({'@context': ctx}) => ctx === VC_V2_CONTEXT_URL ||
+    (Array.isArray(ctx) && ctx[0] === VC_V2_CONTEXT_URL));
 }
 </script>
 
