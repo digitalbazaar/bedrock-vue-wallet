@@ -1,5 +1,12 @@
 # bedrock-vue-wallet ChangeLog
 
+## 29.3.0 - 2024-10-dd
+
+### Changed
+- Default to VC 2.0 context in VPs. If only 1.x VCs are selected, then the
+  VC 1.x context will be used on the presentation to support backwards
+  compatibility.
+
 ## 29.2.0 - 2024-09-18
 
 ### Changed
