@@ -11,7 +11,6 @@
  * Copyright (c) 2015-2024 Digital Bazaar, Inc. All rights reserved.
  */
 import {computed, toRaw} from 'vue';
-import {v4 as uuidv4} from 'uuid';
 
 export default {
   name: 'CredentialDetailsTree',
@@ -32,7 +31,7 @@ export default {
     // helper function
     function createNodeList(key, obj, list = []) {
       const value = toRaw(obj[key] || obj);
-      const node = {id: uuidv4(), label: key, children: []};
+      const node = {id: crypto.randomUUID(), label: key, children: []};
       if(Array.isArray(value)) {
         value.forEach(subValue => {
           createNodeList(subValue, value[subValue] || {}, node.children);
@@ -42,7 +41,7 @@ export default {
           createNodeList(subKey, value[subKey] || {}, node.children);
         });
       } else if(value) {
-        node.children.push({id: uuidv4(), label: value});
+        node.children.push({id: crypto.randomUUID(), label: value});
       }
       list.push(node);
       return list;
