@@ -29,6 +29,7 @@
     <!-- Highlights -->
     <q-tab-panels
       v-model="tab"
+      class="bg-grey-2"
       animated>
       <q-tab-panel
         name="highlights"
