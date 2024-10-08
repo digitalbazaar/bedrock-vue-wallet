@@ -136,6 +136,7 @@
  * Copyright (c) 2015-2024 Digital Bazaar, Inc. All rights reserved.
  */
 import {onBeforeMount, onMounted, reactive, ref} from 'vue';
+import {config} from '@bedrock/web';
 import CredentialDetailsTree from './CredentialDetailsTree.vue';
 import {date} from 'quasar';
 import Mustache from 'mustache';
@@ -172,7 +173,7 @@ export default {
     const showDisplays = ref(false);
     const showHighlights = ref(false);
     const credentialImages = reactive([]);
-    const showDetails = ref(process.env.NODE_ENV === 'development');
+    const showDetails = ref(config?.vueWallet?.developmentMode);
 
     // Select initial tab
     onMounted(() => {
