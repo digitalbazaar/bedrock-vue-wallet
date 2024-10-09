@@ -1,5 +1,10 @@
 # bedrock-vue-wallet ChangeLog
 
+## 29.3.1 - 2024-10-xx
+
+### Changed
+- Refactor render method fetch to use Promise.all.
+
 ## 29.3.0 - 2024-10-02
 
 ### Changed
