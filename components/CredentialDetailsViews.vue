@@ -134,8 +134,9 @@
 /*!
  * Copyright (c) 2015-2024 Digital Bazaar, Inc. All rights reserved.
  */
-import {onBeforeMount, onMounted, reactive, ref} from 'vue';
+import {onMounted, reactive, ref} from 'vue';
 import {date} from 'quasar';
+import {httpClient} from '@digitalbazaar/http-client';
 import Mustache from 'mustache';
 
 const {formatDate} = date;
@@ -181,6 +182,7 @@ export default {
       } else if(showDisplays.value) {
         tab.value = 'displays';
       }
+      getDisplaysFromRenderMethod();
     });
 
     // Constants
@@ -197,35 +199,26 @@ export default {
       backgroundColor: 'gray',
     };
 
-    // Fetch style, overrides, & highlights before component mounts
-    onBeforeMount(() => {
-      getDisplaysFromRenderMethod();
-    });
-
     // Extract and parse images from credential's render method property
     async function getDisplaysFromRenderMethod() {
       if(props.credential?.renderMethod?.length) {
-        props.credential.renderMethod.forEach(async rm => {
-          if(supportedRenderMethods.includes(rm.type)) {
-            if(rm.type === 'SvgRenderingTemplate2023') {
-              useRenderTemplate2023(rm.id);
-            } else if(rm.type === 'SvgRenderingTemplate2024') {
-              const {template, url} = rm;
-              const values = props.credential;
-              await useRenderTemplate2024(template, url, values);
+        const imageValues = await Promise.all(
+          props.credential.renderMethod.map(async rm => {
+            let imageValue;
+            if(supportedRenderMethods.includes(rm.type)) {
+              if(rm.type === 'SvgRenderingTemplate2023') {
+                imageValue = useRenderTemplate2023(rm.id);
+              } else if(rm.type === 'SvgRenderingTemplate2024') {
+                const {template, url} = rm;
+                const values = props.credential;
+                imageValue = await useRenderTemplate2024(template, url, values);
+              }
             }
-          }
-        });
+            return imageValue;
+          })
+        );
+        imageValues.filter(Boolean).forEach(v => credentialImages.push(v));
       }
-    }
-
-    /**
-     * Uses id for src value in image.
-     *
-     * @param {string} srcValue - Data URI.
-     */
-    function useRenderTemplate2023(srcValue) {
-      credentialImages.push(srcValue);
     }
 
     /*
@@ -243,33 +236,45 @@ export default {
     };
 
     /**
+     * Uses id for src value in image.
+     *
+     * @param {string} srcValue - Data URI.
+     * @returns {string} Src value.
+     */
+    function useRenderTemplate2023(srcValue) {
+      return srcValue;
+    }
+
+    /**
      * Load svg from url or template then hydrate with credentialSubject values.
      *
      * @param {string} template - Svg.
      * @param {string} url - Url.
      * @param {object} values - Credential.credentialSubject.
+     * @returns {string} Src value.
      */
     async function useRenderTemplate2024(template, url, values) {
-      // Example credential renderMethod property:
-      //  "renderMethod": [
-      //    {
-      //      "name": "Landscape",
-      //      "mediaQuery": "@media (orientation: landscape)",
-      //      "type": "SvgRenderingTemplate2024",
-      //      "template": "",
-      //      "url": "https://credentialTemplates.dev/example.svg",
-      //      "mediaType": "image/svg+xml",
-      //    }
-      //  ]
-      //
+      /*
+      *  Example credential renderMethod property:
+      *  "renderMethod": [
+      *    {
+      *      "name": "Landscape",
+      *      "mediaQuery": "@media (orientation: landscape)",
+      *      "type": "SvgRenderingTemplate2024",
+      *      "template": "",
+      *      "url": "https://credentialTemplates.dev/example.svg",
+      *      "mediaType": "image/svg+xml",
+      *    }
+      *  ]
+      */
       if(!template || url) {
-        const resp = await fetch(url);
-        template = await resp.text();
+        const headers = {headers: {accept: 'application/json'}};
+        const {data} = await httpClient.get(url, {headers});
+        template = await data.text();
       }
-
       const rv = Mustache.render(template, {...values, ...formattingFunctions});
       const image = `data:image/svg+xml;base64,${btoa(rv)}`;
-      credentialImages.push(image);
+      return image;
     }
 
     return {
