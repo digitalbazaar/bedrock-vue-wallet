@@ -1,8 +1,8 @@
 # bedrock-vue-wallet ChangeLog
 
-## 29.3.1 - 2024-10-xx
+## 29.3.1 - 2024-10-11
 
-### Changed
+### Fixed
 - Update quasar iconSet import statement.
 
 ## 29.3.0 - 2024-10-02
