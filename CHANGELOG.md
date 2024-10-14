@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 29.3.2 - 2024-10-dd
+## 29.3.2 - 2024-10-14
 
 ### Fixed
 - Fix call to dynamically add routes to Vue router.
