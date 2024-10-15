@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 29.4.0 - 2024-10-dd
+## 29.4.0 - 2024-10-15
 
 ### Changed
 - Update dependencies.
