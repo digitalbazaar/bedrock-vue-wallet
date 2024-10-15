@@ -36,7 +36,11 @@
                       class="q-mr-auto"
                       :src="credentialOverrides.image"
                       size="md" />
+                    <!-- eslint-disable vue/no-v-html
+                      this is ok to disable only because `contactlessSvg` has
+                      been specifically sanitized -->
                     <span v-html="contactlessSvg" />
+                    <!-- eslint-enable -->
                   </div>
                 </template>
               </credential-switch>

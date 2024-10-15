@@ -10,9 +10,13 @@
       @click="writeNfc">
       <template #default>
         <div class="row justify-between items-center">
+          <!-- eslint-disable vue/no-v-html
+            this is ok to disable only because `contactlessSvg` has been
+            specifically sanitized -->
           <div
             style="height: 24px; margin-right: 8px;"
             v-html="contactlessSvg" />
+          <!-- eslint-enable -->
           <div>
             Tap to Share
           </div>
