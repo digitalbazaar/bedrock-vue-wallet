@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 29.4.1 - 2024-10-dd
+## 29.4.1 - 2024-10-15
 
 ### Fixed
 - Disable `v-html` warning for specifically-sanitized `contactlessSvg`.
