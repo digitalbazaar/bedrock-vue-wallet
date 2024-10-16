@@ -124,6 +124,14 @@
         name="details"
         class="bg-grey-2">
         <div class="details-view">
+          <q-banner
+            dense
+            rounded
+            class="bg-orange text-white text-center">
+            <div class="text-bold text-italic">
+              Developer Only
+            </div>
+          </q-banner>
           <credential-details-tree :credential="credential" />
         </div>
       </q-tab-panel>
@@ -136,7 +144,6 @@
  * Copyright (c) 2015-2024 Digital Bazaar, Inc. All rights reserved.
  */
 import {onBeforeMount, onMounted, reactive, ref} from 'vue';
-import {config} from '@bedrock/web';
 import CredentialDetailsTree from './CredentialDetailsTree.vue';
 import {date} from 'quasar';
 import Mustache from 'mustache';
