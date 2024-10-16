@@ -170,10 +170,10 @@ export default {
     const slideNumber = ref(1);
     const tab = ref('highlights');
     const fullscreen = ref(false);
+    const showDetails = ref(true);
     const showDisplays = ref(false);
     const showHighlights = ref(false);
     const credentialImages = reactive([]);
-    const showDetails = ref(config?.vueWallet?.developmentMode);
 
     // Select initial tab
     onMounted(() => {
