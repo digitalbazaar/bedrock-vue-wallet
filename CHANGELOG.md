@@ -1,9 +1,12 @@
 # bedrock-vue-wallet ChangeLog
 
-## 30.0.0 - 2024-09-dd
+## 30.0.0 - 2024-10-dd
 
 ### Added
 - Added details view to credential details window.
+
+### Changed
+- Reword UI form error messages.
 
 ## 29.4.1 - 2024-10-15
 
