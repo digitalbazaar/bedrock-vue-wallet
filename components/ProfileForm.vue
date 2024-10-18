@@ -7,7 +7,7 @@
       type="text"
       label="Profile Name"
       :error="vuelidate.modelValue.profile.name.$error"
-      error-message="Your profile name must be at least 1 character."
+      error-message="A profile name is required."
       hint="Example: School, Family, Company Inc., etc."
       class="q-mb-md"
       @blur="vuelidate.modelValue.profile.name.$touch" />
