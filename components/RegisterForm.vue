@@ -17,7 +17,7 @@
           stack-label
           color="dark"
           :error="vuelidate.name.$error"
-          error-message="Your name must be at least 1 character."
+          error-message="A name is required."
           label="Name"
           autofocus
           bottom-slots />
