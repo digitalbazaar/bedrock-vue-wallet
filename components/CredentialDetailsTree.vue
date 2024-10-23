@@ -33,8 +33,13 @@ export default {
       const value = toRaw(obj[key] || obj);
       const node = {id: crypto.randomUUID(), label: key, children: []};
       if(Array.isArray(value)) {
-        value.forEach(subValue => {
-          createNodeList(subValue, value[subValue] || {}, node.children);
+        // if value is an array of objects, make each key its index
+        value.forEach((subValue, index) => {
+          if(typeof value[0] === 'object') {
+            createNodeList(`index ${index}`, subValue || {}, node.children);
+          } else {
+            createNodeList(subValue, value[subValue] || {}, node.children);
+          }
         });
       } else if(typeof value === 'object') {
         Object.keys(value).forEach(subKey => {
