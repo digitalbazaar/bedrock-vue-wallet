@@ -1,5 +1,10 @@
 # bedrock-vue-wallet ChangeLog
 
+## 29.5.1 - 2024-10-xx
+
+### Fixed
+- Handle arrays of objects in developer details view.
+
 ## 29.5.0 - 2024-10-18
 
 ### Added
