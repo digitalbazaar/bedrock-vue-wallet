@@ -2,8 +2,12 @@
 
 ## 29.5.1 - 2024-10-xx
 
+### Added
+- Add help text for platforms that don't support NFC.
+
 ### Fixed
 - Handle arrays of objects in developer details view.
+- Add credential image fallback for NFC renderable VCs.
 
 ## 29.5.0 - 2024-10-18
 
