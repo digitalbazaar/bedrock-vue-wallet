@@ -34,7 +34,7 @@
                   <div class="row justify-between">
                     <dynamic-image
                       class="q-mr-auto"
-                      :src="credentialOverrides.image"
+                      :src="credentialOverrides.image || credentialImage"
                       size="md" />
                     <!-- eslint-disable vue/no-v-html
                       this is ok to disable only because `contactlessSvg` has
@@ -128,7 +128,9 @@
  * Copyright (c) 2015-2024 Digital Bazaar, Inc. All rights reserved.
  */
 import {computed, ref} from 'vue';
-import {CredentialSwitch, DynamicImage} from '@bedrock/vue-vc';
+import {
+  CredentialSwitch, DynamicImage, useCredentialCommon
+} from '@bedrock/vue-vc';
 import {svg as contactlessSvg} from './contactless.js';
 import CredentialDetailsViews from './CredentialDetailsViews.vue';
 import {helpers} from '@bedrock/web-wallet';
@@ -208,9 +210,14 @@ export default {
       nfcShareComponent.value.cancelWrite();
     }
 
+    const {credentialImage} = useCredentialCommon({
+      credential: props.credential
+    });
+
     return {
       cancelWrite,
       contactlessSvg,
+      credentialImage,
       showDelete,
       description,
       hasNFCPayload,
