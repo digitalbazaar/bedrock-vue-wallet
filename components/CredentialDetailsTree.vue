@@ -34,12 +34,11 @@ export default {
       const node = {id: crypto.randomUUID(), label: key, children: []};
       if(Array.isArray(value)) {
         // if value is an array of objects, make each key its index
+        const containsObjects = typeof value[0] === 'object';
         value.forEach((subValue, index) => {
-          if(typeof value[0] === 'object') {
-            createNodeList(`index ${index}`, subValue || {}, node.children);
-          } else {
-            createNodeList(subValue, value[subValue] || {}, node.children);
-          }
+          const key = containsObjects ? `index ${index}` : subValue;
+          const obj = containsObjects ? subValue : value[subValue];
+          createNodeList(key, obj || {}, node.children);
         });
       } else if(typeof value === 'object') {
         Object.keys(value).forEach(subKey => {
