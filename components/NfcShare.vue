@@ -14,8 +14,8 @@
           this is ok to disable only because `contactlessSvg` has been
           specifically sanitized -->
           <div
-          style="height: 24px; margin-right: 8px;"
-          v-html="contactlessSvg" />
+            style="height: 24px; margin-right: 8px;"
+            v-html="contactlessSvg" />
           <!-- eslint-enable -->
           <div>
             Tap to Share
