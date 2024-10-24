@@ -1,13 +1,11 @@
 # bedrock-vue-wallet ChangeLog
 
-## 29.5.1 - 2024-10-xx
-
-### Added
-- Add help text for platforms that don't support NFC.
+## 29.5.1 - 2024-10-24
 
 ### Fixed
-- Handle arrays of objects in developer details view.
 - Add credential image fallback for NFC renderable VCs.
+- Add help text for platforms that don't support NFC.
+- Handle arrays of objects in developer details view.
 
 ## 29.5.0 - 2024-10-18
 
