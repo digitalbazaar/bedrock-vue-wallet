@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="row items-center justify-center">
     <q-btn
       v-show="!isSharing"
       no-caps
@@ -21,11 +21,14 @@
             Tap to Share
           </div>
         </div>
-        <q-tooltip>
-          Tap to Share is only available on Android devices.
-        </q-tooltip>
       </template>
     </q-btn>
+    <div
+      v-if="!supportsNfc"
+      class="text-caption text-weight-thin text-center disabled q-pt-xs"
+      style="font-size: 10px;">
+      Tap to Share is only available on Android devices.
+    </div>
   </div>
 </template>
 
