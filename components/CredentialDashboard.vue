@@ -63,7 +63,6 @@ export default {
   },
   props: {
     credentials: {
-      default: () => [],
       type: Array,
       required: true
     },
@@ -77,7 +76,6 @@ export default {
       required: false
     },
     errorText: {
-      default: '',
       type: String,
       required: true
     }
@@ -139,7 +137,7 @@ export default {
 
     // Watchers
     watch(() => filteredProfiles, () => {
-      return emit('filtered-profiles', filteredProfiles);
+      return emit('filtered-profiles', filteredProfiles.value);
     }, {immediate: true});
 
     // Get each credential title and subtitle overrides

@@ -105,7 +105,6 @@ export default {
   },
   props: {
     credentials: {
-      default: () => [],
       type: Array,
       required: true
     },

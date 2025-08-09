@@ -40,7 +40,6 @@ export default {
   name: 'CapabilitiesList',
   props: {
     capabilities: {
-      default: () => [],
       type: Array,
       required: true
     }

@@ -80,8 +80,8 @@ export default {
         // receives the VPR
         const dec = new TextDecoder();
         try {
-          // eslint-disable-next-line max-len
-          if(event && event.message && event.message.records && event.message.records[0] && event.message.records[0].data) {
+          if(event && event.message && event.message.records &&
+            event.message.records[0] && event.message.records[0].data) {
             const vpr = JSON.parse(dec.decode(event.message.records[0].data));
             console.log('NFC read event:', event);
             console.log('VPR received:', vpr);

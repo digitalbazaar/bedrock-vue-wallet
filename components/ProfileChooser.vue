@@ -54,12 +54,10 @@ export default {
   props: {
     loading: {
       type: Boolean,
-      default: true,
       required: true
     },
     profiles: {
       type: Array,
-      default: () => [],
       required: true
     },
     selected: {

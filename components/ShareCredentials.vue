@@ -100,13 +100,11 @@ export default {
   props: {
     requestOrigin: {
       type: String,
-      required: true,
-      default: ''
+      required: true
     },
     verifiablePresentationRequest: {
       type: [Object, Array],
-      required: true,
-      default: () => ({})
+      required: true
     }
   },
   emits: ['share', 'cancel'],
