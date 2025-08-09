@@ -70,18 +70,15 @@ export default {
   props: {
     account: {
       type: String,
-      required: true,
-      default: ''
+      required: true
     },
     error: {
       type: Error,
-      required: true,
-      default: undefined
+      required: true
     },
     loading: {
       type: Boolean,
-      required: true,
-      default: true
+      required: true
     }
   },
   emits: ['cancel'],

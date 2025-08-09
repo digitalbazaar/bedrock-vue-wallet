@@ -82,18 +82,15 @@ export default {
   props: {
     account: {
       type: String,
-      required: true,
-      default: ''
+      required: true
     },
     verifiableCredential: {
       type: Array,
-      default: () => [],
       required: true
     },
     holder: {
       type: String,
-      required: true,
-      default: ''
+      required: true
     }
   },
   emits: ['store', 'cancel'],

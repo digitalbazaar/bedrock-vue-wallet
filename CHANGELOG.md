@@ -5,6 +5,9 @@
 ### Changed
 - Update to `eslint@9`.
 
+### Fixed
+- Fix lint issues.
+
 ## 29.5.1 - 2024-10-24
 
 ### Fixed

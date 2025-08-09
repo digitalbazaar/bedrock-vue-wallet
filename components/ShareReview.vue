@@ -67,28 +67,23 @@ export default {
   props: {
     authentication: {
       type: Boolean,
-      required: true,
-      default: () => false
+      required: true
     },
     capabilities: {
       type: Array,
-      required: true,
-      default: () => []
+      required: true
     },
     credentials: {
       type: Array,
-      required: true,
-      default: () => []
+      required: true
     },
     loading: {
       type: Boolean,
-      required: true,
-      default: true
+      required: true
     },
     requestOrigin: {
       type: String,
-      required: true,
-      default: ''
+      required: true
     }
   }
 };

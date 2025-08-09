@@ -143,7 +143,6 @@ export default {
   props: {
     profileId: {
       type: String,
-      default: '',
       required: true
     }
   },

@@ -37,7 +37,6 @@ export default {
     },
     profileOptions: {
       type: Array,
-      default: () => [],
       required: true
     }
   },

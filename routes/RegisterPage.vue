@@ -45,7 +45,6 @@ export default {
         router.push({name: 'home'});
       } catch(e) {
         const newError = `${e.name}: ${e.message || 'No Message'}`;
-        // eslint-disable-line no-console
         console.error('Register Error:', e);
         $q.notify({
           type: 'negative',

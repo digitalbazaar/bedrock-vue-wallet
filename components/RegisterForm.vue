@@ -275,7 +275,6 @@ export default {
         // registration now complete
         await this.$emitExtendable('register');
       } catch(e) {
-        // eslint-disable-line no-console
         console.error('Register Error', e);
         const newError = `${e.name}: ${e.message || 'No Message'}`;
         this.error = newError;
