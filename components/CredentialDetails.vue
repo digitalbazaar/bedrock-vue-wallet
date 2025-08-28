@@ -144,7 +144,7 @@ export default {
     CredentialSwitch,
     CredentialDetailsViews,
     DynamicImage,
-    NfcShare,
+    NfcShare
   },
   props: {
     toggleDeleteWindow: {
@@ -177,9 +177,9 @@ export default {
         title: '',
         image: '',
         subtitle: '',
-        description: '',
+        description: ''
       })
-    },
+    }
   },
   setup(props) {
     // Local state

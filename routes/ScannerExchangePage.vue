@@ -211,7 +211,7 @@ export default {
         const event = {
           type: 'credentialrequest',
           credential: {options: {protocols}},
-          credentialRequestOptions: {web: {protocols}},
+          credentialRequestOptions: {web: {protocols}}
         };
         const promise = new Promise(res => event.respondWith = res);
         result.value = {type, text, event};
@@ -299,7 +299,7 @@ export default {
             const action = display.value === 'store' ? 'stored' : 'shared';
             $q.notify({
               type: 'positive',
-              message: `Successfully ${action} credential`,
+              message: `Successfully ${action} credential`
             });
             // exchange is finished
             exchange.value.close();

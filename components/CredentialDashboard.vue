@@ -178,7 +178,7 @@ export default {
       refresh,
       search,
       openBarcodeDialog,
-      showBarcodeDialog,
+      showBarcodeDialog
     };
   }
 };

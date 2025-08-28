@@ -55,7 +55,7 @@ export default {
         'dce-video-container', {
           fps: 60,
           formatsToSupport,
-          useBarCodeDetectorIfSupported: true,
+          useBarCodeDetectorIfSupported: true
         }
       );
       const availableCameras = await Html5Qrcode.getCameras();
@@ -142,7 +142,7 @@ export default {
       handleClose,
       updateCamera,
       loadingCamera,
-      videoContainer,
+      videoContainer
     };
   }
 };

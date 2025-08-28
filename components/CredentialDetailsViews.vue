@@ -168,9 +168,9 @@ export default {
         title: '',
         image: '',
         subtitle: '',
-        description: '',
+        description: ''
       })
-    },
+    }
   },
   setup(props) {
     // Local state
@@ -204,7 +204,7 @@ export default {
       width: '3px',
       opacity: '0.4',
       borderRadius: '5px',
-      backgroundColor: 'gray',
+      backgroundColor: 'gray'
     };
 
     // Fetch style, overrides, & highlights before component mounts
