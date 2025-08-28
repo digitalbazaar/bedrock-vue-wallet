@@ -117,7 +117,7 @@ const columns = [
     type: 'button',
     buttonLabel: 'Edit',
     buttonColor: 'primary',
-    sortable: false,
+    sortable: false
   },
   {
     name: 'remove',
@@ -127,7 +127,7 @@ const columns = [
     type: 'button',
     buttonLabel: 'Remove',
     buttonColor: 'negative',
-    sortable: false,
+    sortable: false
   }
 ];
 

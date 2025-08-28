@@ -39,7 +39,7 @@ export default {
     user: {
       type: Object,
       required: true
-    },
+    }
   },
   emits: ['update', 'update:modelValue'],
   setup(props, {emit}) {
@@ -68,12 +68,12 @@ export default {
     },
     handleDirty(dirty) {
       this.disableAcceptButton = !dirty;
-    },
+    }
   },
   validations: {
     form: {
       name: {
-        required,
+        required
       },
       email: {
         required,

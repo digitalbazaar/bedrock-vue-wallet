@@ -27,7 +27,7 @@ import {toRef} from 'vue';
 export default {
   name: 'CredentialCompactBundle',
   components: {
-    CredentialSwitch,
+    CredentialSwitch
   },
   props: {
     // FIXME: ideally the full credential record would be passed to this

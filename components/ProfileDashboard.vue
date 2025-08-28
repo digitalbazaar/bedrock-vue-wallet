@@ -94,7 +94,7 @@ const columns = [
     type: 'button',
     buttonLabel: 'Settings',
     buttonColor: 'primary',
-    sortable: false,
+    sortable: false
   }
 ];
 

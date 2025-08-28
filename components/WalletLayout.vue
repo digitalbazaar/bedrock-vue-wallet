@@ -39,13 +39,13 @@ import WalletHeader from './WalletHeader.vue';
 export default {
   name: 'WalletLayout',
   components: {
-    WalletHeader,
+    WalletHeader
   },
   props: {
     cardDesigns: {
       type: Array,
-      default: () => [],
-    },
+      default: () => []
+    }
   },
   setup() {
     // Refs
@@ -93,7 +93,7 @@ export default {
       account,
       showDrawer,
       toggleDrawer,
-      displayDrawer,
+      displayDrawer
     };
   }
 };

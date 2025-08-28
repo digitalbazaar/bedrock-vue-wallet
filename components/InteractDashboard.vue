@@ -84,7 +84,7 @@ export default {
         name: '',
         url: '',
         logo: 'https://raw.githubusercontent.com/webpack/media/master/logo/' +
-        'icon-square-big.png',
+        'icon-square-big.png'
       },
       requestUrl: null
     };

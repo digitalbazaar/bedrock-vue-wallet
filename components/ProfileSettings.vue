@@ -97,7 +97,7 @@ export default {
     activeProfile: {
       type: Object,
       required: true
-    },
+    }
   },
   data() {
     return {

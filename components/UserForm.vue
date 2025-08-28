@@ -125,7 +125,7 @@ export default {
   validations: {
     value: {
       name: {
-        required,
+        required
       },
       email: {
         required,

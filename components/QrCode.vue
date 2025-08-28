@@ -37,7 +37,7 @@ export default {
       type: Boolean,
       default: true,
       required: false
-    },
+    }
   },
   setup(props) {
     const url = toRef(props, 'url');

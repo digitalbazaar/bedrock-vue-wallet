@@ -142,7 +142,7 @@ export default {
           class: '',
           label: 'Settings',
           icon: 'fa fa-cog'
-        },
+        }
       ]
     };
   },
@@ -152,7 +152,7 @@ export default {
     },
     isRegisterPage() {
       return this.$route.path === '/register';
-    },
+    }
   },
   watch: {
     $route() {
@@ -196,7 +196,7 @@ export default {
     },
     async interact() {
       await this.routerPush({name: 'interact'});
-    },
+    }
   }
 };
 </script>

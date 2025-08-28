@@ -76,7 +76,7 @@ export default {
     return {
       help: false
     };
-  },
+  }
 };
 </script>
 

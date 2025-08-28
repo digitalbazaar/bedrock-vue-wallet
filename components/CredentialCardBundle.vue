@@ -115,7 +115,7 @@ export default {
   components: {
     CredentialSwitch,
     CredentialDetails,
-    DynamicImage,
+    DynamicImage
   },
   props: {
     credentialRecord: {

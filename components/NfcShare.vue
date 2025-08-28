@@ -155,7 +155,7 @@ export default {
               data: rawBytes,
               lang: 'en',
               mediaType: 'application/octet-stream',
-              recordType: 'mime',
+              recordType: 'mime'
             }]
           }, {
             overwrite: true,
@@ -182,7 +182,7 @@ export default {
       supportsNfc,
       isSharing,
       writeNfc,
-      cancelWrite,
+      cancelWrite
     };
   }
 };
