@@ -45,7 +45,7 @@
     "vue-router": "^4.3.0"
   },
   "devDependencies": {
-    "@digitalbazaar/eslint-config": "github:digitalbazaar/eslint-config-digitalbazaar#use-eslint-v9",
+    "@digitalbazaar/eslint-config": "^6.0.0",
     "eslint": "^9.34.0",
     "eslint-plugin-jsdoc": "^54.1.1",
     "eslint-plugin-unicorn": "^60.0.0",
