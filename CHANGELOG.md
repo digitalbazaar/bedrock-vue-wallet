@@ -1,9 +1,10 @@
 # bedrock-vue-wallet ChangeLog
 
-## 29.5.2 - 2025-08-xx
+## 29.5.2 - 2025-09-xx
 
 ### Changed
 - Update to `eslint@9`.
+- Use `@digitalbazaar/eslint-config@6`.
 
 ### Fixed
 - Fix lint issues.
