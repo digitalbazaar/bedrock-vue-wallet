@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 29.5.2 - 2025-09-xx
+## 29.5.2 - 2025-09-22
 
 ### Changed
 - Update to `eslint@9`.
