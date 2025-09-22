@@ -16,7 +16,9 @@
         style="overflow: auto"
         :style="$q.screen.lt.sm ? 'max-height: calc(100% - 67px)' :
           'max-height: calc(100vh - 102px)'">
-        <div class="full-width">
+        <div
+          v-if="!accountHasOnlyOneProfile"
+          class="full-width">
           <profile-chooser
             :loading="profilesUpdating"
             :profiles="profiles"
@@ -34,7 +36,7 @@
           <template #credentials-display="displayProps">
             <credentials-list
               :compact="true"
-              :selectable="true"
+              :selectable="false"
               :selected-credentials="selectedCredentials"
               :credentials="displayProps.credentials"
               @select-credentials="selectCredentials" />
@@ -124,6 +126,10 @@ export default {
       return [];
     }, [], profilesUpdating);
 
+    const accountHasOnlyOneProfile = computed(() => {
+      return profiles.value.length === 1;
+    });
+
     const verifiablePresentationRequest = toRef(
       props, 'verifiablePresentationRequest');
 
@@ -197,6 +203,7 @@ export default {
       sharing.value);
 
     return {
+      accountHasOnlyOneProfile,
       displayableCredentials,
       selectedCredentials,
       loading,

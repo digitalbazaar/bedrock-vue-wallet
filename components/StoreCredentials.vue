@@ -17,11 +17,13 @@
           'max-height: calc(100vh - 102px)'">
         <div class="column">
           <h6 class="text-center q-my-sm">
-            Would you like to store these credentials?
+            Would you like to store these credential(s)?
           </h6>
         </div>
         <q-separator class="s-separator" />
-        <div class="full-width">
+        <div
+          v-if="!accountHasOnlyOneProfile"
+          class="full-width">
           <profile-chooser
             :loading="profilesUpdating"
             :profiles="profiles"
@@ -103,13 +105,17 @@ export default {
     const profiles = computedAsync(
       async () => profileManager.getProfiles({useCache: true}),
       [], profilesUpdating);
-
+    const accountHasOnlyOneProfile = computed(() => {
+      return profiles.value.length === 1;
+    });
     const storing = ref(false);
 
     const loading = computed(
       () => profilesUpdating.value || storing.value);
 
-    return {loading, profiles, profilesUpdating, storing};
+    return {
+      accountHasOnlyOneProfile, loading, profiles, profilesUpdating, storing
+    };
   },
   data() {
     return {

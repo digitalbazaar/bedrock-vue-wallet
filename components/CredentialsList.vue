@@ -13,6 +13,8 @@
           <credential-switch
             class="q-ma-xs col"
             :expandable="true"
+            dense
+            single-row
             :credential="switchProps.credential" />
         </component>
       </template>

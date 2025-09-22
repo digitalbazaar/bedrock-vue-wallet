@@ -16,8 +16,16 @@
           size="sm"
           color="primary"
           class="q-mr-sm"
-          icon="fas fa-barcode"
+          icon="fas fa-camera"
           @click="openBarcodeDialog" />
+        <q-btn
+          round
+          outline
+          size="sm"
+          color="primary"
+          class="q-mr-sm"
+          icon="fas fa-shopping-cart"
+          @click="openInteractionQrDialog" />
         <q-btn
           round
           outline
@@ -39,6 +47,9 @@
         @delete-credential="$event.waitUntil(deleteCredential($event))" />
     </div>
     <ShowScannerModal v-model="showBarcodeDialog" />
+    <ShowInteractionQrModal
+      v-if="showInteractionQrDialog"
+      v-model="showInteractionQrDialog" />
   </q-page>
 </template>
 
@@ -52,6 +63,7 @@ import {config} from '@bedrock/web';
 import {createEmitExtendable} from '@digitalbazaar/vue-extendable-event';
 import CredentialsList from './CredentialsList.vue';
 import SearchBox from './SearchBox.vue';
+import ShowInteractionQrModal from './ShowInteractionQrModal.vue';
 import ShowScannerModal from './ShowScannerModal.vue';
 
 export default {
@@ -59,6 +71,7 @@ export default {
   components: {
     CredentialsList,
     SearchBox,
+    ShowInteractionQrModal,
     ShowScannerModal
   },
   props: {
@@ -96,6 +109,7 @@ export default {
     const search = ref('');
     const filteredProfiles = ref([]);
     const showBarcodeDialog = ref(false);
+    const showInteractionQrDialog = ref(false);
     const credentials = toRef(props, 'credentials');
 
     // Credentials filtered by search term match
@@ -132,6 +146,10 @@ export default {
       showBarcodeDialog.value = true;
     };
 
+    const openInteractionQrDialog = () => {
+      showInteractionQrDialog.value = true;
+    };
+
     // Pass delete-credential event up component chain
     const deleteCredential = async ({profileId, credentialId}) => {
       return emitExtendable('delete-credential', {profileId, credentialId});
@@ -139,7 +157,7 @@ export default {
 
     // Watchers
     watch(() => filteredProfiles, () => {
-      return emit('filtered-profiles', filteredProfiles);
+      return emit('filtered-profiles', filteredProfiles.value);
     }, {immediate: true});
 
     // Get each credential title and subtitle overrides
@@ -181,6 +199,8 @@ export default {
       search,
       openBarcodeDialog,
       showBarcodeDialog,
+      openInteractionQrDialog,
+      showInteractionQrDialog,
     };
   }
 };

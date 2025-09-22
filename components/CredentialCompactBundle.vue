@@ -9,6 +9,8 @@
         :credential="credential">
         <credential-switch
           class="q-ma-xs col"
+          dense
+          single-row
           :expandable="true"
           :credential="credential" />
       </slot>
@@ -91,6 +93,7 @@ async function createCompactBundledCredentials({credentials}) {
     }
     credentialsList.push(credential);
   }
+  console.log(credentialsList);
   return credentialsList;
 }
 
