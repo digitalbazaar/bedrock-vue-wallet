@@ -193,7 +193,9 @@ export default {
     // Use overrides from credential configurations
     function setCardOverrides(overrides) {
       const {credential} = props.credentialRecord;
-      if(overrides.imagePointer) {
+      if(overrides.image) {
+        credentialOverrides.image = overrides.image;
+      } else if(overrides.imagePointer) {
         const {imagePointer} = overrides;
         const image = getValueFromPointer(credential, imagePointer);
         credentialOverrides.image = image;
