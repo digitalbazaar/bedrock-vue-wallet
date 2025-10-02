@@ -1,5 +1,11 @@
 # bedrock-vue-wallet ChangeLog
 
+## 29.6.0 - 2025-10-dd
+
+### Added
+- Enable specifying a specific `image` URL as a credential card style
+  override.
+
 ## 29.5.2 - 2025-09-22
 
 ### Changed
