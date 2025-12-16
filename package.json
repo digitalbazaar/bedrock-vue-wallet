@@ -20,6 +20,7 @@
   "dependencies": {
     "@digitalbazaar/http-client": "^4.1.1",
     "@digitalbazaar/web-app-manifest-utils": "^2.0.0",
+    "ethers": "^6.16.0",
     "html5-qrcode": "^2.3.8",
     "mustache": "^4.2.0",
     "qrcode": "^1.5.4",
@@ -36,7 +37,7 @@
     "@bedrock/web-fontawesome": "^2.0.0",
     "@bedrock/web-profile": "^7.0.0",
     "@bedrock/web-session": "^6.0.0",
-    "@bedrock/web-wallet": "^14.2.0",
+    "@bedrock/web-wallet": "digitalbazaar/bedrock-web-wallet#add-ethereum-module",
     "@digitalbazaar/vue-extendable-event": "^4.2.0",
     "@vuelidate/core": "^2.0.3",
     "@vuelidate/validators": "^2.0.4",

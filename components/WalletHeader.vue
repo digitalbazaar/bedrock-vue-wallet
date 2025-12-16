@@ -30,6 +30,7 @@
         :options="[
           {label: 'Credentials', value: 'home'},
           {label: 'Profiles', value: 'profiles'},
+          {label: 'Payments', value: 'payments'},
         ]"
         @click="handleNav()" />
       <q-btn-dropdown
@@ -96,7 +97,7 @@
 
 <script>
 /*!
- * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2015-2025 Digital Bazaar, Inc. All rights reserved.
  */
 import {config} from '@bedrock/web';
 
@@ -136,6 +137,12 @@ export default {
           class: 'lt-sm',
           label: 'Profiles',
           icon: 'fa fa-users'
+        },
+        {
+          route: 'payments',
+          class: '',
+          label: 'Payments',
+          icon: 'fa fa-money-bill'
         },
         {
           route: 'settings',
