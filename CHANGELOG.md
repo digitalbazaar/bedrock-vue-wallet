@@ -1,5 +1,11 @@
 # bedrock-vue-wallet ChangeLog
 
+## X.X.X - 2026-01-dd
+
+### Changed
+- Update dependencies.
+- Use `"@bedrock/web-wallet": "^15.1.0"`.
+
 ## 29.5.2 - 2025-09-22
 
 ### Changed
