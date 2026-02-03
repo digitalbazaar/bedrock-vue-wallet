@@ -1,6 +1,6 @@
 {
   "name": "@bedrock/vue-wallet",
-  "version": "30.0.1-0",
+  "version": "30.1.0",
   "type": "module",
   "description": "Bedrock Vue.js Wallet",
   "exports": {
