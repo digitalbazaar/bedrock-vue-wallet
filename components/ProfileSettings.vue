@@ -49,7 +49,7 @@
       </template>
     </q-field>
     <q-input
-      v-model="form.didMethod"
+      v-model="form.profileType"
       readonly
       outlined
       stack-label
@@ -108,13 +108,28 @@ export default {
     activeProfile() {
       // TODO: Data model for profiles needs to include "shared"
       this.form = {...this.activeProfile};
+      this.form.didMethod = this.getDidMethod(this.activeProfile);
+      this.form.profileType = this.getTypeLabel(this.activeProfile);
     }
   },
   async created() {
     // TODO: Data model for profiles needs to include "shared"
     this.form = {...this.activeProfile};
+    this.form.didMethod = this.getDidMethod(this.activeProfile);
+    this.form.profileType = this.getTypeLabel(this.activeProfile);
   },
   methods: {
+    getDidMethod(profile) {
+      const [, didMethod] = profile?.id?.split(':') ?? [];
+      return didMethod;
+    },
+    getTypeLabel(profile) {
+      const didMethod = this.getDidMethod(profile);
+      if(didMethod === 'v1') {
+        return 'Legacy';
+      }
+      return 'Basic';
+    },
     save() {
       // TODO: Need to send form data to backend
       console.log('Form', this.form);

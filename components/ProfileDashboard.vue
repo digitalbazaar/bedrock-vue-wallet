@@ -65,10 +65,10 @@ const columns = [
     sortable: true
   },
   {
-    name: 'didMethod',
+    name: 'profileType',
     align: 'left',
     label: 'Profile Type',
-    field: 'didMethod',
+    field: 'profileType',
     sortable: true
   },
   {
@@ -156,7 +156,8 @@ export default {
     this.tableData = await profileManager.getProfiles({useCache: true});
     this.tableData.forEach(x => {
       x.created = this.getDate(x.created);
-      x.didMethod = this.getTypeLabel(x.didMethod);
+      x.didMethod = this.getDidMethod(x);
+      x.profileType = this.getTypeLabel(x);
     });
     this.loading = false;
   },
@@ -205,7 +206,8 @@ export default {
         const {profile} = await createProfile(
           {profileContent, profileAgentContent, profileOptions});
         profile.created = this.getDate(profile.created);
-        profile.didMethod = this.getTypeLabel(profile.didMethod);
+        profile.didMethod = this.getDidMethod(profile);
+        profile.profileType = this.getTypeLabel(profile);
         this.tableData.push(profile);
       } catch(e) {
         console.log('create profile error', e);
@@ -214,11 +216,16 @@ export default {
     getDate(dateString) {
       return formatDate(dateString, 'YYYY-MM-DD');
     },
-    getTypeLabel(type) {
-      if(type === 'key') {
-        return 'Temporary';
+    getDidMethod(profile) {
+      const [, didMethod] = profile?.id?.split(':') ?? [];
+      return didMethod;
+    },
+    getTypeLabel(profile) {
+      const didMethod = this.getDidMethod(profile);
+      if(didMethod === 'v1') {
+        return 'Legacy';
       }
-      return 'Permanent';
+      return 'Basic';
     },
     async handleButton(data) {
       // FIXME: emit event as this is a component not a page, do not use

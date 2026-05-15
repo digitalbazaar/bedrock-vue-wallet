@@ -1,5 +1,16 @@
 # bedrock-vue-wallet ChangeLog
 
+## 31.0.0 - 2026-mm-dd
+
+### Changed
+- Change default DID for new profiles to `did:key`.
+- Change profile "type" terminology:
+  - `Temporary` => `Basic` (`did:key`)
+  - `Permanent` => `Legacy` (`did:v1`).
+
+### Fixed
+- Display proper profile "type" on profile settings page.
+
 ## 30.1.0 - 2026-02-03
 
 ### Changed
