@@ -241,8 +241,9 @@ export default {
         type: ['User', 'Person']
       };
       const profileOptions = {
-        didMethod: 'v1', // Default to Veres One type DIDs
-        didOptions: {mode: 'test'} // Default to testnet
+        // default to simple `did:key` identified profile
+        didMethod: 'key',
+        didOptions: {}
       };
       await createProfile({profileContent, profileOptions});
     },

@@ -50,14 +50,14 @@
       <q-radio
         v-model="form.profile.didMethod"
         name="didMethod"
-        val="v1"
-        class="q-mr-md"
-        label="Permanent Profile" />
+        val="key"
+        label="Basic Profile" />
       <q-radio
         v-model="form.profile.didMethod"
         name="didMethod"
-        val="key"
-        label="Temporary Profile" />
+        val="v1"
+        class="q-mr-md"
+        label="Legacy Profile" />
     </div>
     <q-separator class="q-mt-md" />
     <div class="row items-center q-py-md">
