@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 31.0.0 - 2026-mm-dd
+## 31.0.0 - 2026-05-18
 
 ### Changed
 - Change default DID for new profiles to `did:key`.
