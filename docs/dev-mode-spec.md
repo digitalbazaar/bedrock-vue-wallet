@@ -1,6 +1,6 @@
 # Spec: Developer Mode Overlay
 
-Status: FINALIZED — ready to implement
+Status: DRAFT
 Date: 2026-06-dd
 Repo: bedrock-vue-wallet (public / treated as `green`)
 
