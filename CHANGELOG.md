@@ -1,5 +1,10 @@
 # bedrock-vue-wallet ChangeLog
 
+## 31.0.1 - 2026-06-dd
+
+### Fixed
+- Fix scanned URL processing.
+
 ## 31.0.0 - 2026-05-18
 
 ### Changed

@@ -190,13 +190,16 @@ export default {
       try {
         ready.value = true;
         error.value = null;
+        // FIXME: create `ClientInteraction` instance
         let protocols;
         const url = new URL(text);
         getRequestOrigin(url);
-        const multiProtocol = url.protocol === 'https:';
+        const interactionUrl =
+          url.protocol === 'https:' &&
+          url.searchParams.get('iuv') === '1';
         const isOID4VCI = url.protocol === 'openid-credential-offer:';
         const isOID4VP = url.protocol === 'openid4vp:';
-        if(multiProtocol) {
+        if(interactionUrl) {
           const headers = {headers: {accept: 'application/json'}};
           const {data} = await httpClient.get(text, {headers});
           protocols = data.protocols;
@@ -208,10 +211,14 @@ export default {
         if(!protocols) {
           throw new Error('Unable to handle scanned QR code.');
         }
+        // FIXME: replace with `ClientInteraction` instance instead of a
+        // CHAPI event (CHAPI not used); and do not set `origin` as its source
+        // can't be trusted
         const event = {
           type: 'credentialrequest',
           credential: {options: {protocols}},
-          credentialRequestOptions: {web: {protocols}}
+          credentialRequestOptions: {web: {protocols}},
+          credentialRequestOrigin: credentialRequestOrigin.value
         };
         const promise = new Promise(res => event.respondWith = res);
         result.value = {type, text, event};
@@ -231,6 +238,8 @@ export default {
       // that handle either share or store, showing first the `store` component
       // and then the `share` component ... for each round of the exchange
       try {
+        // FIXME: start exchange from a `ClientInteraction` instance instead
+        // of from a CHAPI event
         // start exchange
         exchange.value = await exchanges.start({event});
         let actionTaken = false;
