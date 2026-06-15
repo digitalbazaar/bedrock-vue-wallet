@@ -101,6 +101,35 @@ QR codes and running real exchanges.
   flag, the triple-backtick trigger, and the available tools). Per review (c5)
   and repo PR convention, README is updated in this branch.
 
+## Generalization (future — not built here)
+
+The `bedrock-vue-*` ecosystem is large (~24 public component libraries plus the
+apps that consume them), and the dev-mode mechanism is not wallet-specific. The
+design splits cleanly into two layers:
+
+- **Generic shell (reusable):** the `localStorage` flag gate
+  (`isDevModeEnabled()`), the triple-backtick trigger
+  (`createTripleKeyDetector()`), and the `DevModeOverlay` panel with a
+  **tool-registration API** (e.g. `registerDevTool({id, label, component})`).
+  None of this knows about credentials or exchanges.
+- **Domain tools (app/lib-specific):** paste-exchange-URL and seed-credentials
+  live in the wallet. Other consumers would register their own tools — e.g. the
+  existing `bedrock-vue-barcode-scanner` / `bedrock-vue-optical-scanner` repos
+  could register a "paste instead of scan" tool, which is evidence the
+  no-camera pain recurs beyond the wallet.
+
+**Proposed eventual home:** a new published package **`bedrock-vue-dev-mode`**,
+following the existing `bedrock-vue-*` component-library pattern (own repo, CI,
+release). It would mount the overlay via `@bedrock/vue`'s existing app-bootstrap
+`beforeMount` hook (`@bedrock/vue` already owns root-app creation for every
+bedrock web app), so any app gets the panel for free without editing its layout.
+
+**Decision for now (YAGNI):** with only one consumer, do **not** create the
+shared package yet. Build the shell wallet-locally in `lib/devMode.js` +
+`components/DevModeOverlay.vue`, but keep the generic/domain seam clean (no
+wallet concepts in the flag/trigger/overlay-shell code) so extraction to
+`bedrock-vue-dev-mode` is cheap when a second consumer appears.
+
 ## Resolved review questions
 
 1. Login-bypass — **dropped** (c1).
