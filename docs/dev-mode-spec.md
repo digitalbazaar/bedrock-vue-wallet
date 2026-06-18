@@ -1,8 +1,8 @@
 # Spec: Developer Mode Overlay
 
-Status: DRAFT
-Date: 2026-06-dd
-Repo: bedrock-vue-wallet (public / treated as `green`)
+- **Status:** DRAFT
+- **Date:** 2026-06-dd
+- **Repo:** bedrock-vue-wallet (public / treated as `green`)
 
 ## Goal
 
@@ -19,6 +19,28 @@ QR codes and running real exchanges.
   (within ~500 ms) toggles the dev panel open/closed.
 - When the flag is absent/falsy, the key listener is never installed — zero
   behavior change in production.
+
+### Keybinding ownership (per review)
+
+A module that unconditionally grabs a global key risks colliding with keys the
+host app — or another module — already uses. Even if a triple-backtick is
+unlikely to clash today, the wallet should not assume ownership of a global key
+on the app's behalf. Mitigations, smallest first:
+
+- **Scope the trigger to dev mode only.** The detector is installed *only* when
+  the `localStorage` flag is set, so production users (and the keys they rely
+  on) are never touched. This is the minimum bar and is already in the design.
+- **Make the trigger configurable, not hardcoded.** `createTripleKeyDetector`
+  already takes `{key, window, onTrigger}`; the bound key is a parameter, so an
+  app can override the default (or disable the key trigger and toggle the
+  overlay some other way).
+- **Defer ownership to the app where one exists.** The cleaner long-term shape
+  is for keybinding registration to live at the app level (or a single module
+  the app loads and configures), so one place arbitrates keys across all
+  modules. When the generic shell is extracted (see Generalization), the
+  overlay should *accept* a toggle signal rather than *install* a global
+  listener itself — the app/host decides how the overlay is opened (key, menu,
+  config). This keeps the wallet from unilaterally capturing a global key.
 
 ## Architecture
 
@@ -108,10 +130,15 @@ apps that consume them), and the dev-mode mechanism is not wallet-specific. The
 design splits cleanly into two layers:
 
 - **Generic shell (reusable):** the `localStorage` flag gate
-  (`isDevModeEnabled()`), the triple-backtick trigger
-  (`createTripleKeyDetector()`), and the `DevModeOverlay` panel with a
-  **tool-registration API** (e.g. `registerDevTool({id, label, component})`).
-  None of this knows about credentials or exchanges.
+  (`isDevModeEnabled()`), the configurable trigger
+  (`createTripleKeyDetector()` — bound key is a parameter), and the
+  `DevModeOverlay` panel with a **tool-registration API**
+  (e.g. `registerDevTool({id, label, component})`). None of this knows about
+  credentials or exchanges. Per review, the extracted overlay should **accept a
+  toggle signal** rather than unilaterally install a global key listener, so
+  keybinding ownership stays with the host app (or a single app-level module
+  that arbitrates keys across modules) — see "Keybinding ownership" under
+  Trigger.
 - **Domain tools (app/lib-specific):** paste-exchange-URL and seed-credentials
   live in the wallet. Other consumers would register their own tools — e.g. the
   existing `bedrock-vue-barcode-scanner` / `bedrock-vue-optical-scanner` repos
@@ -137,3 +164,7 @@ wallet concepts in the flag/trigger/overlay-shell code) so extraction to
 3. Fixtures — modeled on VC Playground catalog (c3); 2–3 starter VCs.
 4. Pasted-URL handoff — **route query param**, reload-safe and debuggable (c4).
 5. README — **added/updated in this branch** (c5).
+6. Keybinding ownership — **addressed.** Trigger is dev-mode-only and the bound
+   key is configurable; long term the overlay accepts a toggle signal so the app
+   (or one app-level module) owns keybindings instead of the wallet capturing a
+   global key. See "Keybinding ownership" under Trigger.
