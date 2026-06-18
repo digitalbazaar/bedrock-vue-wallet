@@ -123,7 +123,7 @@ on the app's behalf. Mitigations, smallest first:
   flag, the triple-backtick trigger, and the available tools). Per review (c5)
   and repo PR convention, README is updated in this branch.
 
-## Generalization (future — not built here)
+## Generalization (decided: fold into `bedrock-vue`)
 
 The `bedrock-vue-*` ecosystem is large (~24 public component libraries plus the
 apps that consume them), and the dev-mode mechanism is not wallet-specific. The
@@ -145,17 +145,64 @@ design splits cleanly into two layers:
   could register a "paste instead of scan" tool, which is evidence the
   no-camera pain recurs beyond the wallet.
 
-**Proposed eventual home:** a new published package **`bedrock-vue-dev-mode`**,
-following the existing `bedrock-vue-*` component-library pattern (own repo, CI,
-release). It would mount the overlay via `@bedrock/vue`'s existing app-bootstrap
-`beforeMount` hook (`@bedrock/vue` already owns root-app creation for every
-bedrock web app), so any app gets the panel for free without editing its layout.
+**Decided home: `bedrock-vue`.** The generic shell lands in `@bedrock/vue`
+rather than a new standalone package. `@bedrock/vue` already owns root-app
+creation for every bedrock web app, so it can mount the overlay via its existing
+app-bootstrap `beforeMount` hook and any app gets the panel for free without
+editing its layout. No new repo / CI / release to maintain.
 
-**Decision for now (YAGNI):** with only one consumer, do **not** create the
-shared package yet. Build the shell wallet-locally in `lib/devMode.js` +
-`components/DevModeOverlay.vue`, but keep the generic/domain seam clean (no
-wallet concepts in the flag/trigger/overlay-shell code) so extraction to
-`bedrock-vue-dev-mode` is cheap when a second consumer appears.
+### Layer ownership after the move
+
+- **`bedrock-vue` (generic shell):** the `localStorage` flag gate, the overlay
+  panel chrome, and the `registerDevTool({id, label, component})` API.
+  bedrock-vue mounts the (empty) shell and exposes the registration API; it
+  does **not** know about credentials or exchanges.
+- **Trigger (app-owned):** the overlay **accepts a toggle signal** to open/close;
+  it does **not** install a global key listener of its own. Keybinding ownership
+  stays with the host app (or a single app-level module that arbitrates keys
+  across modules), per davidlehn's review. `createTripleKeyDetector({key, ...})`
+  remains available as an opt-in helper an app can wire up, but bedrock-vue does
+  not claim a global key on every consumer's behalf.
+- **`bedrock-vue-wallet` (domain tools):** the wallet keeps owning its
+  debugging surface. On init it calls `registerDevTool(...)` for
+  paste-exchange-URL and seed-credentials. These reference wallet internals
+  (`ScannerExchangePage`, `getCredentialStore`, profile IDs, the VC fixtures)
+  and stay in this repo.
+
+### What the wallet shares for debugging is unchanged by the move
+
+Moving the trigger and shell into `bedrock-vue` does **not** move the data
+boundary. The wallet's debugging surface is defined entirely by *which tools it
+registers*, not by where the panel-open mechanism lives. The trigger only emits
+"open the panel now"; the wallet-registered tool components decide what data
+they read or write. So bedrock-vue gains "a dev panel exists and here is how it
+opens," while the wallet retains full control over what debugging info/tools are
+exposed and what data they touch.
+
+### Migration plan
+
+1. **Land the generic shell in `@bedrock/vue`:** flag gate + overlay panel +
+   `registerDevTool()` API + a `toggle()`/open signal the panel listens for.
+   Mount it from the existing `beforeMount` app-bootstrap hook.
+2. **Production-bundle handling — owned by `bedrock-vue`.** `@bedrock/vue` is
+   core runtime shipped to every end user, so the dev-only shell must not bloat
+   production builds. The exact mechanism (frontend-config gate +
+   dead-code-elimination / tree-shaking, or a separate dev entry) is a
+   `bedrock-vue` implementation decision; this spec records the requirement and
+   defers the detail to that repo.
+3. **Wallet registers its domain tools:** `bedrock-vue-wallet` depends on the
+   bedrock-vue API and calls `registerDevTool(...)` for paste-exchange-URL and
+   seed-credentials. The wallet-local `lib/devMode.js` /
+   `components/DevModeOverlay.vue` shell code is removed once bedrock-vue
+   provides it; the wallet keeps only the tool components + fixtures.
+4. **App wires the trigger:** the consuming app (or an app-level module) decides
+   how the overlay opens and signals it, instead of the wallet/bedrock-vue
+   grabbing a global key.
+
+**Build-here note:** this branch still builds the shell wallet-locally
+(`lib/devMode.js` + `components/DevModeOverlay.vue`) so dev mode is usable now,
+keeping the generic/domain seam clean (no wallet concepts in the
+flag/trigger/overlay-shell code) so the lift into `bedrock-vue` is mechanical.
 
 ## Resolved review questions
 
@@ -168,3 +215,8 @@ wallet concepts in the flag/trigger/overlay-shell code) so extraction to
    key is configurable; long term the overlay accepts a toggle signal so the app
    (or one app-level module) owns keybindings instead of the wallet capturing a
    global key. See "Keybinding ownership" under Trigger.
+7. Eventual home for the generic shell — **decided: fold into `bedrock-vue`**
+   (per review). Overlay mounts via `@bedrock/vue`'s `beforeMount` hook;
+   wallet registers its domain tools via `registerDevTool()`; the trigger is
+   app-owned. Production-bundle handling is owned by `bedrock-vue`. The wallet's
+   debugging surface is unchanged by the move. See Generalization above.
