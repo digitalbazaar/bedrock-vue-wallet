@@ -70,7 +70,7 @@
 
 <script>
 /*!
- * Copyright (c) 2015-2024 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2015-2026 Digital Bazaar, Inc.
  */
 import {computed, ref, toRaw, toRef, unref} from 'vue';
 import {
@@ -142,7 +142,7 @@ export default {
     const selectedCredentials = ref([]);
 
     const verifiableCredentialUpdating = ref(true);
-    const verifiableCredential = computedAsync(async () => {
+    const credentialRecords = computedAsync(async () => {
       if(!(verifiablePresentationRequest.value && selectedProfile.value)) {
         return [];
       }
@@ -182,9 +182,8 @@ export default {
       // creates container credentials for display only
       const displayContainers = await createContainers({records});
       displayableCredentials.value = displayContainers;
-      selectedCredentials.value = displayContainers.map(vc => vc.id);
-      const credentials = records.map(r => r.content);
-      return credentials;
+      selectedCredentials.value = displayContainers.map(r => r.meta.id);
+      return records;
     }, [], verifiableCredentialUpdating);
 
     const sharing = ref(false);
@@ -195,6 +194,7 @@ export default {
       sharing.value);
 
     return {
+      credentialRecords,
       displayableCredentials,
       selectedCredentials,
       loading,
@@ -202,20 +202,20 @@ export default {
       profilesUpdating,
       selectedProfile,
       selectedProfileId,
-      sharing,
-      verifiableCredential
+      sharing
     };
   },
   computed: {
     classObject() {
       return this.selectedProfile ? ['s-page'] : ['s-page-full'];
     },
-    // FIXME: This needs to be removed in favor of actually checking a resposne
+    // FIXME: This needs to be removed in favor of actually checking a response
     // from a vp-request. The current implementation will say we have an empty
     // response in the case of DIDAuthentication which is okay. There may be
     // other vp-reqs that don't require vcs or zcaps to be successful.
     emptyResponse() {
-      const vcs = this.verifiableCredential;
+      const rawRecords = toRaw(this.credentialRecords);
+      const vcs = rawRecords.map(r => r.content);
       const zcaps = this.capabilityQuery;
       const response = [...vcs, ...zcaps];
       return response.length === 0;
@@ -263,18 +263,18 @@ export default {
       this.sharing = true;
       try {
         // TODO: implement
-        const {verifiableCredential} = this;
         const presentation = {
           '@context': [VC_V2_CONTEXT_URL],
           type: ['VerifiablePresentation'],
           holder: this.selectedProfile.id
         };
-        if(verifiableCredential.length > 0) {
-          const vcs = toRaw(verifiableCredential);
+        const rawRecords = toRaw(this.credentialRecords);
+        if(rawRecords.length > 0) {
           const selections = toRaw(this.selectedCredentials);
           // only send the VCs selected
-          presentation.verifiableCredential = vcs.filter(
-            vc => selections.includes(vc.id));
+          presentation.verifiableCredential = rawRecords
+            .filter(r => selections.includes(r.meta.id))
+            .map(r => r.content);
           if(!_includesVersion2Context(presentation.verifiableCredential)) {
             // for backwards compatibility, use VC 1.x context if no VC 2.0
             // VCs were selected
@@ -319,7 +319,7 @@ function addChapiContext({presentation}) {
 async function createContainers({credentialStore, records}) {
   // FIXME: change this; it is hacky -- build virtual VCs instead somehow
   const recordsClone = JSON.parse(JSON.stringify(records));
-  const credentials = [];
+  const modifiedRecords = [];
   let containerCredential;
   for(const record of recordsClone) {
     const type = record.content.type;
@@ -334,12 +334,12 @@ async function createContainers({credentialStore, records}) {
         'This credential can be used to prove that you are over ' +
         'a particular age.';
       record.content.issuer = containerCredential.issuer;
-      credentials.push(record.content);
+      modifiedRecords.push(record);
       continue;
     }
-    credentials.push(record.content);
+    modifiedRecords.push(record);
   }
-  return credentials;
+  return modifiedRecords;
 }
 
 function _includesVersion2Context(credentials) {

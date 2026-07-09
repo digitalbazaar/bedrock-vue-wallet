@@ -14,6 +14,9 @@
 </template>
 
 <script>
+/*!
+ * Copyright (c) 2015-2026 Digital Bazaar, Inc.
+ */
 import {toRaw} from 'vue';
 
 export default {
@@ -33,7 +36,8 @@ export default {
     /**
      * Takes in an id and emits a set of selected credentials.
      *
-     * @param {string} id - A credential id.
+     * @param {string} id - An identifier for the selected credential (does
+     *   not have to be `credential.id`; it is determined by the `id` prop).
     */
     toggleSelect(id) {
       const selections = new Set(toRaw(this.selectedCredentials));
