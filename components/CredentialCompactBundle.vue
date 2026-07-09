@@ -53,9 +53,9 @@ export default {
     const store = toRef(props, 'store');
     const filteredCredentialRecords = computedAsync(async () => {
       // map to credential records, creating false `meta.id` as needed
-      const records = credentials.value.map(
-        maybeRecord => (maybeRecord.content && maybeRecord.meta) ?
-          maybeRecord : {credential: maybeRecord, meta: maybeRecord.id});
+      const records = credentials.value.map(maybeRecord =>
+        (maybeRecord.meta && maybeRecord.content) ?
+          maybeRecord : {content: maybeRecord, meta: maybeRecord.id});
       if(!store.value) {
         return records;
       }
@@ -83,13 +83,13 @@ const bundleCredentialTypes = new Map([
 async function createCompactBundledCredentials({records}) {
   const recordsList = [];
   const visibleRecords = JSON.parse(JSON.stringify(records))
-    .filter(credential => {
-      return !_hasTypeIn({credential, typeMap: hiddenCredentialTypes});
+    .filter(({content}) => {
+      return !_hasTypeIn({credential: content, typeMap: hiddenCredentialTypes});
     });
   for(const record of visibleRecords) {
-    const {credential} = record;
-    if(credential.type.includes('AgeVerificationContainerCredential')) {
-      credential.credentialSubject = await createAgeCredential({
+    const {content} = record;
+    if(content.type.includes('AgeVerificationContainerCredential')) {
+      content.credentialSubject = await createAgeCredential({
         bundledCredentials: records.map(r => r.content)
       });
     }
