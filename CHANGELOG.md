@@ -1,5 +1,13 @@
 # bedrock-vue-wallet ChangeLog
 
+## 31.0.3 - 2026-07-dd
+
+### Fixed
+- Fix `CredentialsList`/`CredentialCompactBundle` credential-record shape
+  detection so it recognizes both existing record shapes (`{content, meta}`
+  and `{credential, meta}`), fixing a regression on the home page credential
+  list and a crash in the store-credentials flow introduced in 31.0.2.
+
 ## 31.0.2 - 2026-07-09
 
 ### Fixed
