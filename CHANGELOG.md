@@ -1,5 +1,10 @@
 # bedrock-vue-wallet ChangeLog
 
+## 31.0.4 - 2026-07-dd
+
+### Fixed
+- Fix handling of raw credentials in `CredentialsList`.
+
 ## 31.0.3 - 2026-07-09
 
 ### Fixed
