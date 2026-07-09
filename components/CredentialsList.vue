@@ -229,9 +229,7 @@ export default {
       return 'span';
     },
     usesRecords() {
-      const maybeRecord = this.credentials?.[0];
-      return maybeRecord?.meta &&
-        (maybeRecord?.credential || maybeRecord?.content);
+      return _isCredentialRecord(this.credentials?.[0]);
     }
   },
   watch: {
@@ -244,7 +242,7 @@ export default {
       // if they are turning off manual selection then select all VCs again
       if(newAllow === false) {
         const selections = this.credentials.map(
-          maybeRecord => (maybeRecord.content && maybeRecord.meta) ?
+          maybeRecord => _isCredentialRecord(maybeRecord) ?
             maybeRecord.meta.id : maybeRecord.id);
         this.$emit('select-credentials', {selections});
       }
@@ -267,6 +265,10 @@ export default {
     }
   }
 };
+
+function _isCredentialRecord(r) {
+  return !!(r?.meta && (r?.credential ?? r?.content));
+}
 </script>
 
 <style lang="scss" scoped>
