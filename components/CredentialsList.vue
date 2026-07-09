@@ -1,22 +1,43 @@
 <template>
   <div v-if="compact">
-    <credential-compact-bundle
-      :credentials="credentials"
-      :schema-map="schemaMap"
-      :store="store">
-      <template #credential-switch="switchProps">
-        <component
-          :is="selectableComponent"
-          :id="switchProps.credential.id"
-          :selected-credentials="selectedCredentials"
-          @select-credentials="relaySelection">
-          <credential-switch
-            class="q-ma-xs col"
-            :expandable="true"
-            :credential="switchProps.credential" />
-        </component>
-      </template>
-    </credential-compact-bundle>
+    <div v-if="usesRecords">
+      <credential-compact-bundle
+        :credentials="credentialRecordsList"
+        :schema-map="schemaMap"
+        :store="store">
+        <template #credential-switch="switchProps">
+          <component
+            :is="selectableComponent"
+            :id="switchProps.record.meta.id"
+            :selected-credentials="selectedCredentials"
+            @select-credentials="relaySelection">
+            <credential-switch
+              class="q-ma-xs col"
+              :expandable="true"
+              :credential="switchProps.record.content" />
+          </component>
+        </template>
+      </credential-compact-bundle>
+    </div>
+    <div v-else>
+      <credential-compact-bundle
+        :credentials="credentialsList"
+        :schema-map="schemaMap"
+        :store="store">
+        <template #credential-switch="switchProps">
+          <component
+            :is="selectableComponent"
+            :id="switchProps.credential.id"
+            :selected-credentials="selectedCredentials"
+            @select-credentials="relaySelection">
+            <credential-switch
+              class="q-ma-xs col"
+              :expandable="true"
+              :credential="switchProps.credential" />
+          </component>
+        </template>
+      </credential-compact-bundle>
+    </div>
     <q-toggle
       v-if="selectable"
       v-model="allowSelection"
@@ -53,7 +74,7 @@
           v-else
           class="row q-gutter-md justify-center q-mb-lg">
           <div
-            v-for="credentialRecord in credentialsList"
+            v-for="credentialRecord in credentialRecordsList"
             :key="credentialRecord.credential.id ?? credentialRecord.meta.id"
             class="row">
             <component
@@ -88,7 +109,7 @@
 
 <script>
 /*!
- * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2015-2026 Digital Bazaar, Inc.
  */
 import CredentialCardBundle from './CredentialCardBundle.vue';
 import CredentialCompactBundle from './CredentialCompactBundle.vue';
@@ -170,10 +191,22 @@ export default {
   },
   computed: {
     credentialsList() {
+      const list = this.usesRecords ?
+        this.credentials.map(({credential}) => credential) :
+        this.credentials;
       if(this.limit > 0) {
-        return this.credentials.slice(0, this.limit);
+        return list.slice(0, this.limit);
       }
-      return this.credentials;
+      return list;
+    },
+    credentialRecordsList() {
+      const list = this.usesRecords ?
+        this.credentials :
+        this.credentials.map(vc => ({credential: vc, meta: {id: vc.id}}));
+      if(this.limit > 0) {
+        return list.slice(0, this.limit);
+      }
+      return list;
     },
     showViewMore() {
       return this.credentials?.length > this.limit && this.limit > 0;
@@ -188,6 +221,10 @@ export default {
         return CredentialSelect;
       }
       return 'span';
+    },
+    usesRecords() {
+      const maybeRecord = this.credentials?.[0];
+      return maybeRecord?.content && maybeRecord?.meta;
     }
   },
   watch: {
@@ -199,10 +236,10 @@ export default {
       }
       // if they are turning off manual selection then select all VCs again
       if(newAllow === false) {
-        this.$emit(
-          'select-credentials',
-          {selections: this.credentials.map(vc => vc.id)}
-        );
+        const selections = this.credentials.map(
+          maybeRecord => (maybeRecord.content && maybeRecord.meta) ?
+            maybeRecord.meta.id : maybeRecord.id);
+        this.$emit('select-credentials', {selections});
       }
     }
   },

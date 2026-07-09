@@ -53,7 +53,7 @@
 
 <script>
 /*!
- * Copyright (c) 2015-2023 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2015-2026 Digital Bazaar, Inc.
  */
 import CapabilitiesList from './CapabilitiesList.vue';
 import CredentialsList from './CredentialsList.vue';
@@ -73,6 +73,8 @@ export default {
       type: Array,
       required: true
     },
+    // FIXME: can contain credentials or credential records; future refactoring
+    // should make this consistent/clean
     credentials: {
       type: Array,
       required: true

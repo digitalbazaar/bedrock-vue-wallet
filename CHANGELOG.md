@@ -1,5 +1,12 @@
 # bedrock-vue-wallet ChangeLog
 
+## 31.0.2 - 2026-mm-dd
+
+### Fixed
+- Fix VC selections in `ShareCredentials` view. Selection is now tracked via
+  VC storage record meta IDs instead of via an ID in a VC which can both be
+  duplicative or not present.
+
 ## 31.0.1 - 2026-06-15
 
 ### Fixed

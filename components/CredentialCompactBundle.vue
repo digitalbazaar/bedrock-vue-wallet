@@ -1,12 +1,13 @@
 <template>
   <div>
     <div
-      v-for="(credential, index) in filteredCredentials"
+      v-for="(record, index) in filteredCredentialRecords"
       :key="index"
       class="q-my-sm q-gutter-y-sm column">
       <slot
         name="credential-switch"
-        :credential="credential">
+        :record="record"
+        :credential="record.content">
         <credential-switch
           class="q-ma-xs col"
           :expandable="true"
@@ -18,7 +19,7 @@
 
 <script>
 /*!
- * Copyright (c) 2015-2022 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2015-2026 Digital Bazaar, Inc.
  */
 import {computedAsync} from '@vueuse/core';
 import {CredentialSwitch} from '@bedrock/vue-vc';
@@ -30,9 +31,9 @@ export default {
     CredentialSwitch
   },
   props: {
-    // FIXME: ideally the full credential record would be passed to this
-    // component in the future to enable access to `meta.id` for credentials
-    // that do not have a direct `id` property
+    // FIXME: this can receive an array of credentials or an array of
+    // credential records; the API should be cleaned up in the future with
+    // names to match / whatever other refactoring is needed
     credentials: {
       default: () => [],
       type: Array,
@@ -50,15 +51,17 @@ export default {
   setup(props) {
     const credentials = toRef(props, 'credentials');
     const store = toRef(props, 'store');
-    const filteredCredentials = computedAsync(async () => {
+    const filteredCredentialRecords = computedAsync(async () => {
+      // map to credential records, creating false `meta.id` as needed
+      const records = credentials.value.map(
+        maybeRecord => (maybeRecord.content && maybeRecord.meta) ?
+          maybeRecord : {credential: maybeRecord, meta: maybeRecord.id});
       if(!store.value) {
-        return credentials.value;
+        return records;
       }
-      return createCompactBundledCredentials({credentials: credentials.value});
+      return createCompactBundledCredentials({records});
     }, []);
-    return {
-      filteredCredentials
-    };
+    return {filteredCredentialRecords};
   }
 };
 
@@ -77,21 +80,22 @@ const bundleCredentialTypes = new Map([
 */
 
 // FIXME: refactor and move elsewhere
-async function createCompactBundledCredentials({credentials}) {
-  const credentialsList = [];
-  const visibleCredentials = JSON.parse(JSON.stringify(credentials))
+async function createCompactBundledCredentials({records}) {
+  const recordsList = [];
+  const visibleRecords = JSON.parse(JSON.stringify(records))
     .filter(credential => {
       return !_hasTypeIn({credential, typeMap: hiddenCredentialTypes});
     });
-  for(const credential of visibleCredentials) {
+  for(const record of visibleRecords) {
+    const {credential} = record;
     if(credential.type.includes('AgeVerificationContainerCredential')) {
       credential.credentialSubject = await createAgeCredential({
         bundledCredentials: credentials
       });
     }
-    credentialsList.push(credential);
+    recordsList.push(record);
   }
-  return credentialsList;
+  return recordsList;
 }
 
 // FIXME: move elsewhere and refactor to make code avoid doing extra work
