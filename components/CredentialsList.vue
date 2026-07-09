@@ -116,6 +116,13 @@ import CredentialCompactBundle from './CredentialCompactBundle.vue';
 import CredentialSelect from './CredentialSelect.vue';
 import {CredentialSwitch} from '@bedrock/vue-vc';
 
+// a "record" pairs a VC with storage metadata; recognize either known
+// record shape (`{content, meta}` or `{credential, meta}`) vs. a plain VC
+function _isCredentialRecord(maybeRecord) {
+  return !!(maybeRecord?.meta &&
+    (maybeRecord?.content || maybeRecord?.credential));
+}
+
 export default {
   name: 'CredentialsList',
   components: {
@@ -223,8 +230,7 @@ export default {
       return 'span';
     },
     usesRecords() {
-      const maybeRecord = this.credentials?.[0];
-      return maybeRecord?.content && maybeRecord?.meta;
+      return _isCredentialRecord(this.credentials?.[0]);
     }
   },
   watch: {
@@ -237,7 +243,7 @@ export default {
       // if they are turning off manual selection then select all VCs again
       if(newAllow === false) {
         const selections = this.credentials.map(
-          maybeRecord => (maybeRecord.content && maybeRecord.meta) ?
+          maybeRecord => _isCredentialRecord(maybeRecord) ?
             maybeRecord.meta.id : maybeRecord.id);
         this.$emit('select-credentials', {selections});
       }

@@ -7,11 +7,11 @@
       <slot
         name="credential-switch"
         :record="record"
-        :credential="record.content">
+        :credential="getCredential(record)">
         <credential-switch
           class="q-ma-xs col"
           :expandable="true"
-          :credential="credential" />
+          :credential="getCredential(record)" />
       </slot>
     </div>
   </div>
@@ -54,16 +54,28 @@ export default {
     const filteredCredentialRecords = computedAsync(async () => {
       // map to credential records, creating false `meta.id` as needed
       const records = credentials.value.map(
-        maybeRecord => (maybeRecord.content && maybeRecord.meta) ?
-          maybeRecord : {credential: maybeRecord, meta: maybeRecord.id});
+        maybeRecord => _isCredentialRecord(maybeRecord) ?
+          maybeRecord : {credential: maybeRecord, meta: {id: maybeRecord.id}});
       if(!store.value) {
         return records;
       }
       return createCompactBundledCredentials({records});
     }, []);
-    return {filteredCredentialRecords};
+    return {filteredCredentialRecords, getCredential: _getCredential};
   }
 };
+
+// a "record" pairs a VC with storage metadata; recognize either known
+// record shape (`{content, meta}` or `{credential, meta}`) vs. a plain VC
+function _isCredentialRecord(maybeRecord) {
+  return !!(maybeRecord?.meta &&
+    (maybeRecord?.content || maybeRecord?.credential));
+}
+
+// extract the VC from a record of either recognized shape
+function _getCredential(record) {
+  return record.content ?? record.credential;
+}
 
 // FIXME: refactor and use config
 const hiddenCredentialTypes = new Map([
@@ -83,14 +95,16 @@ const bundleCredentialTypes = new Map([
 async function createCompactBundledCredentials({records}) {
   const recordsList = [];
   const visibleRecords = JSON.parse(JSON.stringify(records))
-    .filter(credential => {
-      return !_hasTypeIn({credential, typeMap: hiddenCredentialTypes});
+    .filter(record => {
+      return !_hasTypeIn({
+        credential: _getCredential(record), typeMap: hiddenCredentialTypes
+      });
     });
   for(const record of visibleRecords) {
-    const {credential} = record;
+    const credential = _getCredential(record);
     if(credential.type.includes('AgeVerificationContainerCredential')) {
       credential.credentialSubject = await createAgeCredential({
-        bundledCredentials: records.map(r => r.content)
+        bundledCredentials: records.map(r => _getCredential(r))
       });
     }
     recordsList.push(record);
