@@ -13,76 +13,20 @@
       class="absolute-top-right q-ma-sm"
       style="font-size: 0.75em; z-index: 1;" />
 
-    <!-- NFC sharing is its own mode, same on mobile and desktop — decoupled
-      from the structural split below so neither layout needs to account
-      for it internally. -->
-    <div
-      v-if="nfcSharing"
-      class="row justify-center items-center full-height nfc-sharing">
-      <div class="text-center">
-        <q-card
-          flat
-          class="card-banner nfc-card"
-          :style="cardBackground">
-          <credential-switch
-            :credential="credential"
-            :text-color="cardStyles.textColor"
-            :name-override="credentialOverrides.title"
-            :image-override="credentialOverrides.image"
-            :description-override="credentialOverrides.subtitle">
-            <template
-              v-if="hasNFCPayload({credential})"
-              #image>
-              <div class="row justify-between">
-                <dynamic-image
-                  class="q-mr-auto"
-                  :src="credentialOverrides.image || credentialImage"
-                  size="md" />
-                <!-- eslint-disable vue/no-v-html
-                  this is ok to disable only because `contactlessSvg` has
-                  been specifically sanitized -->
-                <span v-html="contactlessSvg" />
-                <!-- eslint-enable -->
-              </div>
-            </template>
-          </credential-switch>
-        </q-card>
-        <div
-          class="row justify-center items-center text-body2 disabled
-            q-mt-md">
-          <q-spinner-ios
-            size="1em"
-            style="height: 24px; margin-right: 7px;" />
-          <div>
-            Sharing
-          </div>
-        </div>
-        <div class="text-center q-pt-md">
-          <div class="text-body1">
-            Hold your device near a reader to share your credential.
-          </div>
-          <div>
-            <q-btn
-              outline
-              rounded
-              no-caps
-              class="q-mt-sm"
-              @click="cancelWrite">
-              Cancel
-            </q-btn>
-          </div>
-        </div>
-        <NfcShare
-          ref="nfcShareComponent"
-          :credential="credential"
-          @sharing="nfcSharing = $event" />
-      </div>
-    </div>
-
     <!-- Desktop: sidebar + tabs side by side, unchanged from the original
-      layout (only the card-banner styling below is shared/new). -->
+      layout (only the card-banner styling below is shared/new). NFC
+      sharing is NOT its own separate mode/branch — NfcShare must render
+      whenever hasNFCPayload is true REGARDLESS of nfcSharing, since its
+      own "Tap to Share" control is what sets nfcSharing to true in the
+      first place. Gating NfcShare itself behind nfcSharing (an earlier
+      version of this fix did exactly that, to "unify" the two layouts'
+      NFC handling) made it impossible to ever start a share — nfcSharing
+      only ever changes value if NfcShare exists to emit it. nfcSharing
+      instead only toggles the surrounding text and hides the rest of the
+      dialog while a share is actually in progress, matching the original
+      per-layout behavior this replaced. -->
     <div
-      v-else-if="!isMobile"
+      v-if="!isMobile"
       class="row full-height">
       <div class="col-xs-12 col-md-5 bg-grey-2 column full-height sidebar">
         <q-card
@@ -113,6 +57,43 @@
           </credential-switch>
         </q-card>
         <div
+          v-if="nfcSharing"
+          class="row justify-center items-center text-body2 disabled
+            q-mt-md">
+          <q-spinner-ios
+            size="1em"
+            style="height: 24px; margin-right: 7px;" />
+          <div>
+            Sharing
+          </div>
+        </div>
+        <div
+          v-if="nfcSharing"
+          class="text-center q-pt-md">
+          <div class="text-body1">
+            Hold your device near a reader to share your credential.
+          </div>
+          <div>
+            <q-btn
+              outline
+              rounded
+              no-caps
+              class="q-mt-sm"
+              @click="cancelWrite">
+              Cancel
+            </q-btn>
+          </div>
+        </div>
+        <q-card-section
+          v-if="hasNFCPayload({credential})"
+          class="q-px-none q-pb-none flex full-width justify-center">
+          <NfcShare
+            ref="nfcShareComponent"
+            :credential="credential"
+            @sharing="nfcSharing = $event" />
+        </q-card-section>
+        <div
+          v-if="!nfcSharing"
           class="col row justify-center q-pt-md q-pb-md q-px-xl
             sidebar-body">
           <q-card-section class="q-pa-none text-body1 text-left">
@@ -134,6 +115,7 @@
         </div>
       </div>
       <CredentialDetailsViews
+        v-if="!nfcSharing"
         :credential="credential"
         :credential-overrides="credentialOverrides"
         :credential-highlights="credentialHighlights"
@@ -182,8 +164,46 @@
             </template>
           </credential-switch>
         </q-card>
+        <div
+          v-if="nfcSharing"
+          class="row justify-center items-center text-body2 disabled
+            q-mt-md">
+          <q-spinner-ios
+            size="1em"
+            style="height: 24px; margin-right: 7px;" />
+          <div>
+            Sharing
+          </div>
+        </div>
+        <div
+          v-if="nfcSharing"
+          class="text-center q-pt-md">
+          <div class="text-body1">
+            Hold your device near a reader to share your credential.
+          </div>
+          <div>
+            <q-btn
+              outline
+              rounded
+              no-caps
+              class="q-mt-sm"
+              @click="cancelWrite">
+              Cancel
+            </q-btn>
+          </div>
+        </div>
+        <q-card-section
+          v-if="hasNFCPayload({credential})"
+          class="q-px-none q-pb-none flex full-width justify-center">
+          <NfcShare
+            ref="nfcShareComponent"
+            :credential="credential"
+            @sharing="nfcSharing = $event" />
+        </q-card-section>
       </div>
-      <div class="detail-sheet">
+      <div
+        v-if="!nfcSharing"
+        class="detail-sheet">
         <CredentialDetailsViews
           :credential="credential"
           :credential-overrides="credentialOverrides"

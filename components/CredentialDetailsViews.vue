@@ -151,9 +151,9 @@
               Developer Only
             </div>
           </q-banner>
-          <!-- Only rendered when a parent passes `show-remove`
-            (CredentialDetails.vue's mobile layout does; desktop keeps its
-            own separate Remove button in the sidebar). -->
+          <!-- Only rendered when a parent passes `show-remove` — both the
+            desktop and mobile layouts in CredentialDetails.vue do, so
+            Remove lives in the same spot (here) on both. -->
           <div
             v-if="showRemove"
             class="flex justify-center q-my-md">
@@ -204,10 +204,9 @@ export default {
         description: ''
       })
     },
-    // Renders a small Remove icon button alongside the tabs — used by
-    // CredentialDetails.vue's mobile layout only; the desktop layout has
-    // its own separate Remove button in the sidebar and does not pass
-    // this.
+    // Renders a Remove button in the Details tab panel, after the
+    // "Developer Only" banner — passed by both the desktop and mobile
+    // layouts in CredentialDetails.vue.
     showRemove: {
       type: Boolean,
       default: false
