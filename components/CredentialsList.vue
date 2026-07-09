@@ -193,11 +193,7 @@ export default {
     credentialsList() {
       const list = this.usesRecords ?
         this.credentials.map(record => record.content ?? record.credential) :
-        this.credentials.map(record => ({
-          content: record.content ?? record.credential,
-          credential: record.credential ?? record.content,
-          meta: record.meta
-        }));
+        this.credentials;
       if(this.limit > 0) {
         return list.slice(0, this.limit);
       }
