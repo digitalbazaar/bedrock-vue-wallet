@@ -1,30 +1,32 @@
 <template>
-  <div class="col bg-grey-2 q-pa-md">
-    <q-tabs
-      v-model="tab"
-      dense
-      align="justify"
-      narrow-indicator
-      active-color="primary"
-      class="text-grey q-px-xl"
-      indicator-color="primary">
-      <q-tab
-        v-if="showHighlights"
-        no-caps
-        name="highlights"
-        label="Highlights" />
-      <q-tab
-        v-if="showDisplays"
-        no-caps
-        name="displays"
-        label="Displays" />
-      <!-- Not yet implemented -->
-      <q-tab
-        v-if="showDetails"
-        no-caps
-        name="details"
-        label="Details" />
-    </q-tabs>
+  <div class="col bg-grey-2 q-pa-md details-panel-root">
+    <div class="row items-center q-px-xl tabs-header">
+      <q-tabs
+        v-model="tab"
+        dense
+        align="justify"
+        narrow-indicator
+        active-color="primary"
+        class="text-grey col"
+        indicator-color="primary">
+        <q-tab
+          v-if="showHighlights"
+          no-caps
+          name="highlights"
+          label="Highlights" />
+        <q-tab
+          v-if="showDisplays"
+          no-caps
+          name="displays"
+          label="Displays" />
+        <!-- Not yet implemented -->
+        <q-tab
+          v-if="showDetails"
+          no-caps
+          name="details"
+          label="Details" />
+      </q-tabs>
+    </div>
 
     <!-- Highlights -->
     <q-tab-panels
@@ -34,7 +36,7 @@
       <q-tab-panel
         name="highlights"
         class="bg-grey-2">
-        <div class="row justify-start items-start">
+        <div class="row justify-start items-start details-panel-row">
           <q-scroll-area
             visible
             :thumb-style="scrollBarStyles"
@@ -56,6 +58,23 @@
                   <div class="text-body1">
                     {{value}}
                   </div>
+                </div>
+              </div>
+              <!-- Holder name — only passed by CredentialDetails.vue's
+                mobile layout; desktop already shows this in its own
+                sidebar, so passing it there too would duplicate it. Not
+                part of credentialHighlights itself (that's issuer-side
+                data: Achievement/Type/Description/Criteria/Issued By) —
+                this is holder-side, so it's a separate field here rather
+                than injected into that object upstream. -->
+              <div
+                v-if="credentialHolderName"
+                class="q-mt-md">
+                <div class="text-grey text-body2">
+                  Issued for
+                </div>
+                <div class="text-body1">
+                  {{credentialHolderName}}
                 </div>
               </div>
             </q-card-section>
@@ -132,6 +151,20 @@
               Developer Only
             </div>
           </q-banner>
+          <!-- Only rendered when a parent passes `show-remove`
+            (CredentialDetails.vue's mobile layout does; desktop keeps its
+            own separate Remove button in the sidebar). -->
+          <div
+            v-if="showRemove"
+            class="flex justify-center q-my-md">
+            <q-btn
+              flat
+              no-caps
+              label="Remove"
+              color="negative"
+              icon="far fa-trash-alt"
+              @click="$emit('remove')" />
+          </div>
           <credential-details-tree :credential="credential" />
         </div>
       </q-tab-panel>
@@ -170,8 +203,24 @@ export default {
         subtitle: '',
         description: ''
       })
+    },
+    // Renders a small Remove icon button alongside the tabs — used by
+    // CredentialDetails.vue's mobile layout only; the desktop layout has
+    // its own separate Remove button in the sidebar and does not pass
+    // this.
+    showRemove: {
+      type: Boolean,
+      default: false
+    },
+    // Holder name, shown as an extra "Issued for" field in the Highlights
+    // panel — only passed by the mobile layout (see showRemove above for
+    // why: desktop already shows this elsewhere).
+    credentialHolderName: {
+      type: String,
+      default: ''
     }
   },
+  emits: ['remove'],
   setup(props) {
     // Local state
     const slideNumber = ref(1);
@@ -297,8 +346,51 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+/*
+ * DB-732: .details-view previously had a hardcoded height:500px with no
+ * relation to its ancestors' real height, while the outer dialog
+ * (CredentialDetails.vue's .details-dialog) has its own separate fixed
+ * height/max-height. Neither budget was aware of the other, so either one
+ * could independently overflow and show its own scrollbar. Making height
+ * flow through the chain as flex instead fixes that: only the actual
+ * content's real overflow (if any) triggers a scrollbar, and it does so in
+ * one place.
+ *
+ * At mobile widths, CredentialDetails.vue no longer reuses this same DOM
+ * under a media query — it renders this component inside its own
+ * purpose-built `.detail-sheet` container instead, which is the bounded/
+ * scrolling element there. So this file only needs to handle its one,
+ * consistent desktop context now; no internal breakpoint logic here.
+ */
+.details-panel-root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  :deep(.q-tab-panels) {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  :deep(.q-tab-panel) {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+  }
+}
+
+.details-panel-row {
+  align-items: stretch;
+  flex: 1;
+  min-height: 0;
+}
+
 .details-view {
   width: 100%;
-  height: 500px;
+  flex: 1;
+  min-height: 0;
 }
 </style>
