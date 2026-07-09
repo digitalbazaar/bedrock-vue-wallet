@@ -90,7 +90,7 @@ async function createCompactBundledCredentials({records}) {
     const {credential} = record;
     if(credential.type.includes('AgeVerificationContainerCredential')) {
       credential.credentialSubject = await createAgeCredential({
-        bundledCredentials: credentials
+        bundledCredentials: records.map(r => r.content)
       });
     }
     recordsList.push(record);
