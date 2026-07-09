@@ -44,7 +44,7 @@
 
 <script>
 /*!
- * Copyright (c) 2018-2024 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2018-2026 Digital Bazaar, Inc.
  */
 import {computed, ref, toRef, watch} from 'vue';
 import {formatString, getValueFromPointer} from '../lib/helpers.js';

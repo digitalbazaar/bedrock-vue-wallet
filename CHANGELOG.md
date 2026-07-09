@@ -1,5 +1,10 @@
 # bedrock-vue-wallet ChangeLog
 
+## 31.0.3 - 2026-07-dd
+
+### Fixed
+- Fix credential dashboard display bug.
+
 ## 31.0.2 - 2026-07-09
 
 ### Fixed

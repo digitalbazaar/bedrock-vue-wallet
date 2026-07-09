@@ -192,8 +192,12 @@ export default {
   computed: {
     credentialsList() {
       const list = this.usesRecords ?
-        this.credentials.map(({credential}) => credential) :
-        this.credentials;
+        this.credentials.map(record => record.content ?? record.credential) :
+        this.credentials.map(record => ({
+          content: record.content ?? record.credential,
+          credential: record.credential ?? record.content,
+          meta: record.meta
+        }));
       if(this.limit > 0) {
         return list.slice(0, this.limit);
       }
@@ -201,8 +205,14 @@ export default {
     },
     credentialRecordsList() {
       const list = this.usesRecords ?
-        this.credentials :
-        this.credentials.map(vc => ({credential: vc, meta: {id: vc.id}}));
+        this.credentials.map(record => ({
+          content: record.content ?? record.credential,
+          credential: record.credential ?? record.content,
+          meta: record.meta
+        })) :
+        this.credentials.map(vc => ({
+          content: vc, credential: vc, meta: {id: vc.id}
+        }));
       if(this.limit > 0) {
         return list.slice(0, this.limit);
       }
@@ -224,7 +234,8 @@ export default {
     },
     usesRecords() {
       const maybeRecord = this.credentials?.[0];
-      return maybeRecord?.content && maybeRecord?.meta;
+      return maybeRecord?.meta &&
+        (maybeRecord?.credential || maybeRecord?.content);
     }
   },
   watch: {
