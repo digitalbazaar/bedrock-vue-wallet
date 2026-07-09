@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 31.0.2 - 2026-mm-dd
+## 31.0.2 - 2026-07-09
 
 ### Fixed
 - Fix VC selections in `ShareCredentials` view. Selection is now tracked via
