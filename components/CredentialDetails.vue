@@ -30,7 +30,6 @@
       class="row full-height">
       <div class="col-xs-12 col-md-5 bg-grey-2 column full-height sidebar">
         <q-card
-          flat
           class="card-banner"
           :style="cardBackground">
           <credential-switch
@@ -138,7 +137,6 @@
       class="mobile-layout">
       <div class="mobile-card-wrap">
         <q-card
-          flat
           class="card-banner mobile-card"
           :style="cardBackground">
           <credential-switch
@@ -393,10 +391,14 @@ $breakpoint-sm: 767px;
   padding: 16px;
   aspect-ratio: 3.375 / 2.125;
   background-color: #FFFFFF;
-  /* The <q-card flat> prop applies Quasar's `no-shadow` class
-    (box-shadow: none !important) — `!important` here is required just to
-    beat that, not a style choice. */
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+  /* No `flat` prop on these q-cards (removed) — that prop was the only
+    reason Quasar's `no-shadow` class (box-shadow: none !important) ever
+    applied here, which then needed its own !important to beat. Simpler
+    to not create the constraint than to fight it: without `flat`, this
+    rule's own specificity (a class + the scoped data-v attribute) is
+    already higher than Quasar's plain `.q-card` default and wins on its
+    own. */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 
   /* CredentialField.vue (@bedrock/vue-vc, shared elsewhere at the old
     small fixed card width) hardcodes `max-width: 225px` plus a 1-line
@@ -405,7 +407,14 @@ $breakpoint-sm: 767px;
     text (e.g. issuer name) that would otherwise fit. `!important` is
     required to beat the inline style from here; scoped only to
     card-banner so other, still-small consumers of CredentialField
-    elsewhere in the wallet are unaffected. */
+    elsewhere in the wallet are unaffected.
+
+    TEMPORARY: bedrock-vue-vc branch worktree-credential-field-maxwidth-prop
+    (not yet merged/released) adds a real `maxWidth` prop to
+    CredentialField/CredentialBase so this won't need fighting via CSS at
+    all — once that ships and this repo's @bedrock/vue-vc dependency is
+    bumped, replace this :deep() override with passing
+    max-width="none" on the <credential-switch> elements above instead. */
   :deep(.cf-value),
   :deep(.cf-title) {
     max-width: none !important;
