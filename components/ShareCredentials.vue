@@ -162,7 +162,8 @@ export default {
       let records = [];
       try {
         const matches = await presentations.match({
-          verifiablePresentationRequest: toRaw(verifiablePresentationRequest),
+          verifiablePresentationRequest: toRaw(
+            verifiablePresentationRequest.value),
           credentialStore
         });
         // FIXME: use matches directly instead of using records, UI
