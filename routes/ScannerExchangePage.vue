@@ -43,7 +43,7 @@
             :verifiable-presentation-request="verifiablePresentationRequest"
             :request-origin="requestOrigin"
             @cancel="$event.waitUntil(cancel())"
-            @share="$event.waitUntil(share($event.presentation))" />
+            @share="$event.waitUntil(share($event))" />
           <store-credentials
             v-else-if="!loading && display === 'store'"
             :account="account"
@@ -249,8 +249,9 @@ export default {
             options.verifiablePresentation = toRaw(
               verifiablePresentation.value);
             if(options.verifiablePresentation.holder) {
-              // FIXME: enable setting of other sign options such as
-              // cryptosuite / VM to use
+              // FIXME: do not set `profileId`, instead set a `suite` based
+              // on the user's filtered (by `acceptedCryptosuites`) selection
+              // of a signer
               options.signOptions = {
                 profileId: options.verifiablePresentation.holder
               };
@@ -393,8 +394,12 @@ export default {
       }
     };
 
-    const share = async presentation => {
+    const share = async ({
+      presentation, profileId/*, shareAs, verifiablePresentationRequest */
+    }) => {
       verifiablePresentation.value = toRaw(presentation);
+      // FIXME: build sign options here instead
+      verifiablePresentation.value.holder = profileId;
       resume();
     };
 

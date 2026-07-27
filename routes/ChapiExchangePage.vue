@@ -29,7 +29,7 @@
         :verifiable-presentation-request="verifiablePresentationRequest"
         :request-origin="requestOrigin"
         @cancel="$event.waitUntil(cancel())"
-        @share="$event.waitUntil(share($event.presentation))" />
+        @share="$event.waitUntil(share($event))" />
       <store-credentials
         v-else-if="!loading && display === 'store'"
         :account="account"
@@ -56,7 +56,7 @@
 
 <script>
 /*!
- * Copyright (c) 2015-2023 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2015-2026 Digital Bazaar, Inc.
  */
 import {computed, ref, toRaw, toRef} from 'vue';
 import {
@@ -186,12 +186,21 @@ export default {
       reject(error) :
       error ? exchange.close({error}) : exchange.cancel();
 
-    const share = async presentation => {
+    const share = async ({
+      presentation/*, profileId, shareAs, verifiablePresentationRequest */
+    }) => {
       verifiablePresentation.value = toRaw(presentation);
+      // FIXME: build sign options here instead
+      verifiablePresentation.value.holder = profileId;
+      // FIXME: create new `holder` identifier as needed (create a
+      // `did:key` DID and store key material, decoupling from "holder"
+      // semantic); if share/authentication purpose is for VC-2fa then it
+      // can be stored with the received VC(s), but if for another purpose,
+      // it needs to be stored elsewhere or it won't be reusable
       resume();
     };
-    const store = async ({holder, verifiableCredential}) => {
-      holder = toRaw(holder);
+    const store = async ({profileId, verifiableCredential}) => {
+      profileId = toRaw(profileId);
       verifiableCredential = toRaw(verifiableCredential);
 
       storing.value = true;
@@ -199,7 +208,7 @@ export default {
         const credentialStore = await getCredentialStore({
           // FIXME: determine how password will be provided / set; currently
           // set to `profileId`
-          profileId: holder, password: holder
+          profileId, password: profileId
         });
         await credentialStore.add({credentials: verifiableCredential});
         resume();
@@ -248,8 +257,9 @@ export default {
             options.verifiablePresentation = toRaw(
               verifiablePresentation.value);
             if(options.verifiablePresentation.holder) {
-              // FIXME: enable setting of other sign options such as
-              // cryptosuite / VM to use
+              // FIXME: do not set `profileId`, instead set a `suite` based
+              // on the user's filtered (by `acceptedCryptosuites`) selection
+              // of a signer
               options.signOptions = {
                 profileId: options.verifiablePresentation.holder
               };

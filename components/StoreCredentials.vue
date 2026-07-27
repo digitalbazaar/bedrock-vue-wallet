@@ -68,7 +68,7 @@
 
 <script>
 /*!
- * Copyright (c) 2015-2023 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2015-2026 Digital Bazaar, Inc.
  */
 import {computed, ref} from 'vue';
 import {computedAsync} from '@vueuse/core';
@@ -88,6 +88,8 @@ export default {
       type: Array,
       required: true
     },
+    // recommended holder; does not have to be a valid profile; user must
+    // select a valid profile to hold any VC(s) before `store` is emitted
     holder: {
       type: String,
       required: true
@@ -143,8 +145,12 @@ export default {
       this.storing = true;
       try {
         const {verifiableCredential} = this;
-        const holder = this.selectedProfile.id;
-        await this.$emitExtendable('store', {holder, verifiableCredential});
+        const profileId = this.selectedProfile.id;
+        await this.$emitExtendable('store', {
+          profileId, verifiableCredential,
+          // backwards compatibility
+          holder: profileId
+        });
       } catch(e) {
         console.log('Error: ', e);
       } finally {
