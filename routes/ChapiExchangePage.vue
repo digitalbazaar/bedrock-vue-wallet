@@ -187,7 +187,7 @@ export default {
       error ? exchange.close({error}) : exchange.cancel();
 
     const share = async ({
-      presentation/*, profileId, shareAs, verifiablePresentationRequest */
+      presentation, profileId/*, shareAs, verifiablePresentationRequest */
     }) => {
       verifiablePresentation.value = toRaw(presentation);
       // FIXME: build sign options here instead
