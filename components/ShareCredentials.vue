@@ -162,7 +162,7 @@ export default {
       let records = [];
       try {
         const matches = await presentations.match({
-          verifiablePresentationRequest: unref(verifiablePresentationRequest),
+          verifiablePresentationRequest: toRaw(verifiablePresentationRequest),
           credentialStore
         });
         // FIXME: use matches directly instead of using records, UI
@@ -262,11 +262,15 @@ export default {
     async share() {
       this.sharing = true;
       try {
+        // FIXME: add other ways to set `holder` (not just be `profileId`);
+        // add support for at least one other way (based on the user picking a
+        // new key or a key that is associated with at least one of the VCs
+        // that is to be presented)
+
         // TODO: implement
         const presentation = {
           '@context': [VC_V2_CONTEXT_URL],
-          type: ['VerifiablePresentation'],
-          holder: this.selectedProfile.id
+          type: ['VerifiablePresentation']
         };
         const rawRecords = toRaw(this.credentialRecords);
         if(rawRecords.length > 0) {
@@ -288,7 +292,14 @@ export default {
           addChapiType({presentation});
           presentation.capability = capabilities;
         }
-        await this.$emitExtendable('share', {presentation});
+        await this.$emitExtendable('share', {
+          presentation,
+          profileId: this.selectedProfile.id,
+          // FIXME: could be an array in the future
+          shareAs: this.selectedProfile.id,
+          verifiablePresentationRequest: toRaw(
+            this.verifiablePresentationRequest)
+        });
       } catch(error) {
         console.log('Error trying to share credentials: ', {error});
       } finally {
