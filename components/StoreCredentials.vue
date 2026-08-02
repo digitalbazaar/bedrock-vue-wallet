@@ -22,6 +22,7 @@
         </div>
         <q-separator class="s-separator" />
         <div class="full-width">
+          <!-- FIXME: move profile chooser to parent page -->
           <profile-chooser
             :loading="profilesUpdating"
             :profiles="profiles"
@@ -120,6 +121,7 @@ export default {
       if(!this.profiles) {
         return undefined;
       }
+      // FIXME: move to parent page
       const holder = this.selectedProfileId || this.holder;
       const profile = this.profiles.find(p => p.id === holder);
       if(!profile) {

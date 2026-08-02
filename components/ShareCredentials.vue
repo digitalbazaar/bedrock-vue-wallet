@@ -17,11 +17,23 @@
         :style="$q.screen.lt.sm ? 'max-height: calc(100% - 67px)' :
           'max-height: calc(100vh - 102px)'">
         <div class="full-width">
+          <!-- FIXME: move profile chooser to parent page -->
           <profile-chooser
             :loading="profilesUpdating"
             :profiles="profiles"
             :selected="selectedProfile"
             @select="selectedProfileId = $event.profile" />
+        </div>
+        <div class="full-width">
+          <q-select
+            v-model="selectedAuthnOption"
+            dense
+            filled
+            label="Select an authentication option"
+            stack-label
+            :options="authnOptions"
+            :disable="loading"
+            class="text-subtitle1" />
         </div>
         <share-review
           :authentication="headerType === 'authentication'"
@@ -72,7 +84,7 @@
 /*!
  * Copyright (c) 2015-2026 Digital Bazaar, Inc.
  */
-import {computed, ref, toRaw, toRef, unref} from 'vue';
+import {computed, ref, toRaw, toRef} from 'vue';
 import {
   getCredentialStore, helpers, presentations, profileManager
 } from '@bedrock/web-wallet';
@@ -194,9 +206,76 @@ export default {
       profilesUpdating.value ||
       sharing.value);
 
+    // FIXME: compute `authnOptions` in parent page and pass in for selection
+    const authnOptions = computedAsync(async () => {
+      const authnOptions = [];
+
+      if(selectedProfile.value) {
+        // FIXME: call a function to determine if profile is compatible with
+        // VPR's DIDAuthn `acceptedCryptosuites`
+        const profileId = selectedProfile.value.id;
+        authnOptions.push({
+          label: `Use my profile identifier ${profileId}`,
+          value: {
+            type: 'Profile',
+            value: {id: profileId}
+          }
+        });
+      }
+
+      for(const records of credentialRecords.value) {
+        const {meta} = records;
+        if(meta.confidenceMethods) {
+          // FIXME:
+        }
+      }
+
+      // FIXME: get any identifiers from VCs to be shared that are also
+      // compatible with VPR's DIDAuthn `acceptedCryptosuites`
+      authnOptions.push({
+        label: 'Use identifier from INSERT-VC-2-NAME credential',
+        value: {
+          type: 'ConfidenceMethod',
+          value: {
+            id: 'did:key:123', type: 'DecentralizedIdentifierDocument'
+          }
+        }
+      }, {
+        label: 'Use identifier from INSERT-VC-1-NAME credential',
+        value: {
+          type: 'ConfidenceMethod',
+          value: {
+            id: 'did:key:456', type: 'DecentralizedIdentifierDocument'
+          }
+        }
+      });
+
+      // FIXME:
+      authnOptions.push({
+        label: 'Create a new identifier',
+        value: {
+          type: 'ConfidenceMethod',
+          value: {
+            id: null, type: 'DecentralizedIdentifierDocument'
+          }
+        }
+      });
+
+      // set default selection whenever options are recomputed
+      if(selectedAuthnOption.value === null && selectedProfile.value) {
+        // FIXME: if there are no acceptable authn options, then throw error
+        selectedAuthnOption.value = authnOptions[0] ?? null;
+      }
+
+      return authnOptions;
+    });
+    const selectedAuthnOption = ref(null);
+
     return {
+      authnOptions,
       credentialRecords,
       displayableCredentials,
+      selectedAuthnOption,
       selectedCredentials,
       loading,
       profiles,
@@ -296,12 +375,12 @@ export default {
         await this.$emitExtendable('share', {
           presentation,
           profileId: this.selectedProfile.id,
-          // FIXME: could be an array in the future
-          shareAs: this.selectedProfile.id,
+          authnOption: toRaw(this.selectedAuthnOption).value,
           verifiablePresentationRequest: toRaw(
             this.verifiablePresentationRequest)
         });
       } catch(error) {
+        console.trace(error);
         console.log('Error trying to share credentials: ', {error});
       } finally {
         this.sharing = false;

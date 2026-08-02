@@ -60,7 +60,7 @@
  */
 import {computed, ref, toRaw, toRef} from 'vue';
 import {
-  exchanges, getCredentialStore, helpers, profileManager
+  exchanges, getCredentialStore, helpers, presentations, profileManager
 } from '@bedrock/web-wallet';
 import ChapiHeader from '../components/ChapiHeader.vue';
 import LoginForm from '../components/LoginForm.vue';
@@ -115,6 +115,9 @@ export default {
       display.value = value;
       registering.value = value === 'register';
     };
+
+    // presentation signing options
+    let signOptions;
 
     // utils for waiting for user interaction
     let resume;
@@ -187,16 +190,17 @@ export default {
       error ? exchange.close({error}) : exchange.cancel();
 
     const share = async ({
-      presentation, profileId/*, shareAs, verifiablePresentationRequest */
+      presentation, profileId, authnOption, verifiablePresentationRequest
     }) => {
       verifiablePresentation.value = toRaw(presentation);
-      // FIXME: build sign options here instead
-      verifiablePresentation.value.holder = profileId;
-      // FIXME: create new `holder` identifier as needed (create a
-      // `did:key` DID and store key material, decoupling from "holder"
-      // semantic); if share/authentication purpose is for VC-2fa then it
-      // can be stored with the received VC(s), but if for another purpose,
-      // it needs to be stored elsewhere or it won't be reusable
+      if(authnOption) {
+        signOptions = await presentations.createSignOptions({
+          profileId, authnOption, verifiablePresentationRequest
+        });
+        verifiablePresentation.value.holder = profileId;
+        // FIXME: remove me
+        await new Promise(r => setTimeout(r, 1000));
+      }
       resume();
     };
     const store = async ({profileId, verifiableCredential}) => {
@@ -210,7 +214,25 @@ export default {
           // set to `profileId`
           profileId, password: profileId
         });
-        await credentialStore.add({credentials: verifiableCredential});
+        // build credential records to add
+        let meta;
+        console.log('signOptions', signOptions);
+        await new Promise(r => setTimeout(r, 2000));
+        if(signOptions?.newConfidenceMethod) {
+          // FIXME: if share/authentication purpose for `newConfidenceMethod`
+          // is for VC-2FA then it can be stored with received VC(s), but if
+          // for another purpose, it needs to be stored elsewhere or it won't
+          // be reusable
+          const {id, type, multikey, jwk} = signOptions.newConfidenceMethod;
+          meta = {
+            // 2FA confidence methods; add first one
+            confidenceMethods: [{id, type, multikey, jwk}]
+          };
+        }
+        const records = verifiableCredential.map(credential => ({
+          credential, meta
+        }));
+        await credentialStore.add({records});
         resume();
       } catch(e) {
         if(e.name === 'DuplicateError') {
@@ -222,7 +244,7 @@ export default {
         const error = new Error('Credential storage failed.');
         error.name = 'OperationError';
         error.details = e;
-        console.log('storage error(s): ', prettify(e, null, 2));
+        console.log('storage error(s): ', e, prettify(e, null, 2));
         error.value = error;
       } finally {
         storing.value = false;
@@ -256,27 +278,21 @@ export default {
           if(verifiablePresentation.value) {
             options.verifiablePresentation = toRaw(
               verifiablePresentation.value);
-            if(options.verifiablePresentation.holder) {
-              // FIXME: do not set `profileId`, instead set a `suite` based
-              // on the user's filtered (by `acceptedCryptosuites`) selection
-              // of a signer
-              options.signOptions = {
-                profileId: options.verifiablePresentation.holder
-              };
-            }
+            options.signOptions = signOptions;
           }
           exchanging.value = true;
           const {value, done} = await exchange.next(options);
           exchanging.value = false;
 
-          // clear share-related state
+          // clear share-related state, modulo `signOptions` which includes
+          // might include information that needs to be stored
           verifiablePresentationRequest.value = undefined;
           verifiablePresentation.value = undefined;
 
           if(value?.verifiablePresentation) {
             // set store-related state
             const {verifiablePresentation: presentation} = value;
-            holder.value = presentation.holder;
+            holder.value = presentation.holder ?? '';
             const {verifiableCredential: credentials} = presentation;
             if(!credentials) {
               verifiableCredential.value = [];
