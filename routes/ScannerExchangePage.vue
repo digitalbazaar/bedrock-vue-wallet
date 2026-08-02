@@ -59,10 +59,12 @@
 
 <script>
 /*!
- * Copyright (c) 2018-2024 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2018-2026 Digital Bazaar, Inc.
  */
 import {computed, ref, toRaw} from 'vue';
-import {exchanges, getCredentialStore, helpers} from '@bedrock/web-wallet';
+import {
+  exchanges, getCredentialStore, helpers, presentations
+  } from '@bedrock/web-wallet';
 import BarcodeScanner from '../components/BarcodeScanner.vue';
 import ChapiHeader from '../components/ChapiHeader.vue';
 import {Html5QrcodeSupportedFormats} from 'html5-qrcode';
@@ -136,6 +138,9 @@ export default {
         }
         return 'would like to interact with you';
       });
+
+    // presentation sign options
+    let signOptions;
 
     // utils for waiting for user interaction
     let resume;
@@ -248,19 +253,13 @@ export default {
           if(verifiablePresentation.value) {
             options.verifiablePresentation = toRaw(
               verifiablePresentation.value);
-            if(options.verifiablePresentation.holder) {
-              // FIXME: do not set `profileId`, instead set a `suite` based
-              // on the user's filtered (by `acceptedCryptosuites`) selection
-              // of a signer
-              options.signOptions = {
-                profileId: options.verifiablePresentation.holder
-              };
-            }
+            options.signOptions = signOptions;
           }
           exchanging.value = true;
           const {value, done} = await exchange.value.next(options);
           exchanging.value = false;
-          // clear share-related state
+          // clear share-related state, modulo `signOptions` which includes
+          // might include information that needs to be stored
           verifiablePresentationRequest.value = undefined;
           verifiablePresentation.value = undefined;
           if(value?.verifiablePresentation) {
@@ -375,7 +374,23 @@ export default {
           // set to `profileId`
           profileId: holder, password: holder
         });
-        await credentialStore.add({credentials: verifiableCredential});
+        // build credential records to add
+        let meta;
+        if(signOptions?.newConfidenceMethod) {
+          // FIXME: if share/authentication purpose for `newConfidenceMethod`
+          // is for VC-2FA then it can be stored with received VC(s), but if
+          // for another purpose, it needs to be stored elsewhere or it won't
+          // be reusable
+          const {id, type, multikey, jwk} = signOptions.newConfidenceMethod;
+          meta = {
+            // 2FA confidence methods; add first one
+            confidenceMethods: [{id, type, multikey, jwk}]
+          };
+        }
+        const records = verifiableCredential.map(credential => ({
+          credential, meta
+        }));
+        await credentialStore.add({records});
         resume();
       } catch(e) {
         if(e.name === 'DuplicateError') {
@@ -395,11 +410,17 @@ export default {
     };
 
     const share = async ({
-      presentation, profileId/*, shareAs, verifiablePresentationRequest */
+      presentation, profileId, authnOption, verifiablePresentationRequest
     }) => {
       verifiablePresentation.value = toRaw(presentation);
-      // FIXME: build sign options here instead
-      verifiablePresentation.value.holder = profileId;
+      if(authnOption) {
+        signOptions = await presentations.createSignOptions({
+          profileId, authnOption, verifiablePresentationRequest
+        });
+        verifiablePresentation.value.holder = profileId;
+        // FIXME: remove me
+        await new Promise(r => setTimeout(r, 1000));
+      }
       resume();
     };
 
