@@ -64,7 +64,7 @@
 import {computed, ref, toRaw} from 'vue';
 import {
   exchanges, getCredentialStore, helpers, presentations
-  } from '@bedrock/web-wallet';
+} from '@bedrock/web-wallet';
 import BarcodeScanner from '../components/BarcodeScanner.vue';
 import ChapiHeader from '../components/ChapiHeader.vue';
 import {Html5QrcodeSupportedFormats} from 'html5-qrcode';
