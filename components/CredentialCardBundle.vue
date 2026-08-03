@@ -89,7 +89,7 @@
 
 <script>
 /*!
- * Copyright (c) 2015-2024 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2015-2026 Digital Bazaar, Inc.
  */
 // FIXME: do not import any of these, parameterize / use events instead
 import {

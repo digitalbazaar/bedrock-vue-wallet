@@ -417,9 +417,7 @@ export default {
         signOptions = await presentations.createSignOptions({
           profileId, authnOption, verifiablePresentationRequest
         });
-        verifiablePresentation.value.holder = profileId;
-        // FIXME: remove me
-        await new Promise(r => setTimeout(r, 1000));
+        verifiablePresentation.value.holder = signOptions.controller;
       }
       resume();
     };
