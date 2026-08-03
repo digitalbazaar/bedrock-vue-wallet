@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 31.1.0 - 2026-mm-dd
+## 31.1.0 - 2026-08-02
 
 ### Added
 - Add authentication selector when sharing VCs. The selector allows a user
