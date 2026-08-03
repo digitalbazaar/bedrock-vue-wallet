@@ -235,10 +235,11 @@ export default {
       profilesUpdating.value ||
       sharing.value);
 
+    const selectedAuthnOption = ref(null);
+
     // FIXME: compute `authnOptions` in parent page and pass in for selection
     const authnOptions = computedAsync(async () => {
       // get `authnOptions` for profile and available confidence methods
-      let result;
       const params = {
         verifiablePresentationRequest: toRaw(
           verifiablePresentationRequest.value)
@@ -268,7 +269,7 @@ export default {
       } = await presentations.getCompatibleAuthnOptions(params);
 
       // create authn options w/labels for values
-      result = authnOptionValues.map(authnOption => {
+      const result = authnOptionValues.map(authnOption => {
         let label;
         if(authnOption.type === 'Profile') {
           label = 'Use my profile identifier';
@@ -298,7 +299,6 @@ export default {
 
       return result;
     });
-    const selectedAuthnOption = ref(null);
 
     return {
       authnOptions,
