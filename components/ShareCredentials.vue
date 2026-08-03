@@ -24,7 +24,9 @@
             :selected="selectedProfile"
             @select="selectedProfileId = $event.profile" />
         </div>
-        <div class="full-width">
+        <div
+          class="full-width"
+          style="min-height: 75px; max-width: 450px">
           <q-select
             v-model="selectedAuthnOption"
             dense
@@ -33,7 +35,34 @@
             stack-label
             :options="authnOptions"
             :disable="loading"
-            class="text-subtitle1" />
+            class="s-authn-select text-subtitle1">
+            <template #prepend>
+              <q-icon
+                v-if="loading"
+                name="fas fa-circle-notch fa-spin" />
+            </template>
+            <template
+              v-if="selectedAuthnOption"
+              #selected>
+              <q-item
+                class="q-pl-none q-pt-sm q-pb-xs q-pr-sm row"
+                style="min-height: 24px; max-width: 400px">
+                <q-item-section>
+                  <q-item-label
+                    lines="1">
+                    {{selectedAuthnOption.label}}
+                  </q-item-label>
+                  <q-item-label
+                    v-if="selectedAuthnOption.value.value.id"
+                    caption
+                    lines="1"
+                    style="max-width: 350px">
+                    {{selectedAuthnOption.value.value.id}}
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+            </template>
+          </q-select>
         </div>
         <share-review
           :authentication="headerType === 'authentication'"
@@ -208,66 +237,66 @@ export default {
 
     // FIXME: compute `authnOptions` in parent page and pass in for selection
     const authnOptions = computedAsync(async () => {
-      const authnOptions = [];
-
+      // get `authnOptions` for profile and available confidence methods
+      let result;
+      const params = {
+        verifiablePresentationRequest: toRaw(
+          verifiablePresentationRequest.value)
+      };
       if(selectedProfile.value) {
-        // FIXME: call a function to determine if profile is compatible with
-        // VPR's DIDAuthn `acceptedCryptosuites`
-        const profileId = selectedProfile.value.id;
-        authnOptions.push({
-          label: `Use my profile identifier ${profileId}`,
-          value: {
-            type: 'Profile',
-            value: {id: profileId}
-          }
-        });
+        params.profileId = selectedProfile.value.id;
       }
-
-      for(const records of credentialRecords.value) {
-        const {meta} = records;
+      const confidenceMethodMap = new Map();
+      for(const record of credentialRecords.value) {
+        const {content: credential, meta} = record;
         if(meta.confidenceMethods) {
-          // FIXME:
+          for(const confidenceMethod of meta.confidenceMethods) {
+            if(confidenceMethodMap.has(confidenceMethod.id)) {
+              continue;
+            }
+            confidenceMethodMap.set(confidenceMethod.id, {
+              forCredential: credential.name ?? credential.type?.[1] ??
+                credential.id ?? meta.credentialId,
+              ...confidenceMethod
+            });
+          }
         }
       }
+      params.confidenceMethods = [...confidenceMethodMap.values()];
+      const {
+        authnOptions: authnOptionValues
+      } = await presentations.getCompatibleAuthnOptions(params);
 
-      // FIXME: get any identifiers from VCs to be shared that are also
-      // compatible with VPR's DIDAuthn `acceptedCryptosuites`
-      authnOptions.push({
-        label: 'Use identifier from INSERT-VC-2-NAME credential',
-        value: {
-          type: 'ConfidenceMethod',
-          value: {
-            id: 'did:key:123', type: 'DecentralizedIdentifierDocument'
+      // create authn options w/labels for values
+      result = authnOptionValues.map(authnOption => {
+        let label;
+        if(authnOption.type === 'Profile') {
+          label = 'Use my profile identifier';
+        } else if(authnOption.type === 'ConfidenceMethod') {
+          const forCredential = authnOption.value.forCredential;
+          if(forCredential) {
+            label = `Use a confidence method for credential "${forCredential}"`;
+          } else {
+            label = 'Create a new confidence method';
           }
+        } else {
+          label = undefined;
         }
-      }, {
-        label: 'Use identifier from INSERT-VC-1-NAME credential',
-        value: {
-          type: 'ConfidenceMethod',
-          value: {
-            id: 'did:key:456', type: 'DecentralizedIdentifierDocument'
-          }
-        }
-      });
+        return {label, value: authnOption};
+      }).filter(authnOption => authnOption.label !== undefined);
 
-      // FIXME:
-      authnOptions.push({
-        label: 'Create a new identifier',
-        value: {
-          type: 'ConfidenceMethod',
-          value: {
-            id: null, type: 'DecentralizedIdentifierDocument'
-          }
-        }
-      });
+      if(result.length === 0) {
+        // FIXME: if authn requested and no authn options, display error
+        throw new Error('No acceptable authentication options.');
+      }
 
       // set default selection whenever options are recomputed
-      if(selectedAuthnOption.value === null && selectedProfile.value) {
-        // FIXME: if there are no acceptable authn options, then throw error
-        selectedAuthnOption.value = authnOptions[0] ?? null;
+      if(selectedAuthnOption.value === null && selectedProfile.value &&
+        result[0]?.value?.type === 'Profile') {
+        selectedAuthnOption.value = result[0];
       }
 
-      return authnOptions;
+      return result;
     });
     const selectedAuthnOption = ref(null);
 
@@ -485,5 +514,11 @@ $breakpoint-xs: 320px;
 
 .s-separator {
   background: rgba(157, 157, 157, 0.75);
+}
+
+.s-authn-select {
+  height: 46px;
+  min-width: 250px;
+  width: 100%;
 }
 </style>

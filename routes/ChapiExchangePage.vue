@@ -197,9 +197,7 @@ export default {
         signOptions = await presentations.createSignOptions({
           profileId, authnOption, verifiablePresentationRequest
         });
-        verifiablePresentation.value.holder = profileId;
-        // FIXME: remove me
-        await new Promise(r => setTimeout(r, 1000));
+        verifiablePresentation.value.holder = signOptions.controller;
       }
       resume();
     };
@@ -216,8 +214,6 @@ export default {
         });
         // build credential records to add
         let meta;
-        console.log('signOptions', signOptions);
-        await new Promise(r => setTimeout(r, 2000));
         if(signOptions?.newConfidenceMethod) {
           // FIXME: if share/authentication purpose for `newConfidenceMethod`
           // is for VC-2FA then it can be stored with received VC(s), but if

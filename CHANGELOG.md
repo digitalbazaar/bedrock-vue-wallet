@@ -1,5 +1,12 @@
 # bedrock-vue-wallet ChangeLog
 
+## 31.1.0 - 2026-mm-dd
+
+### Added
+- Add authentication selector when sharing VCs. The selector allows a user
+  to decide to authenticate using their profile identifier or by using
+  a confidence method, including creating and using a new confidence method.
+
 ## 31.0.4 - 2026-07-09
 
 ### Fixed
