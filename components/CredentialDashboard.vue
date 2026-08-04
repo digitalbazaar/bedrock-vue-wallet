@@ -110,7 +110,7 @@ export default {
             titleOverride, subtitleOverride, credentialName
           ];
           return searchableFields.some(
-            field =>field.toLowerCase().includes(searchTerm));
+            field => field.toLowerCase().includes(searchTerm));
         }
       });
       emit('filtered-credentials-loading', false);

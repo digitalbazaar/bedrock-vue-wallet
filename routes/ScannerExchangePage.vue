@@ -394,7 +394,12 @@ export default {
 
     const store = async ({holder, verifiableCredential}) => {
       holder = toRaw(holder);
-      verifiableCredential = toRaw(verifiableCredential);
+
+      // filter by credentials chosen for storage
+      const credentialSet = new Set(toRaw(verifiableCredential));
+      credentialRecords = credentialRecords.filter(
+        record => credentialSet.has(record.credential));
+
       storing.value = true;
       try {
         const credentialStore = await getCredentialStore({
