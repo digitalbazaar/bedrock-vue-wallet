@@ -1,6 +1,9 @@
 # bedrock-vue-wallet ChangeLog
 
-## 31.1.1 - 2026-08-dd
+## 31.2.0 - 2026-08-dd
+
+### Added
+- Store supported enveloped credentials received during an exchange.
 
 ### Fixed
 - Do not throw an error for credential title/subtitle if values are missing.
