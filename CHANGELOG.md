@@ -1,5 +1,10 @@
 # bedrock-vue-wallet ChangeLog
 
+## 31.1.1 - 2026-08-dd
+
+### Fixed
+- Do not throw an error for credential title/subtitle if values are missing.
+
 ## 31.1.0 - 2026-08-02
 
 ### Added
