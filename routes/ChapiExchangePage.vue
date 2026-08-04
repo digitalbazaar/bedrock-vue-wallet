@@ -206,7 +206,11 @@ export default {
     };
     const store = async ({profileId, verifiableCredential}) => {
       profileId = toRaw(profileId);
-      verifiableCredential = toRaw(verifiableCredential);
+
+      // filter by credentials chosen for storage
+      const credentialSet = new Set(toRaw(verifiableCredential));
+      credentialRecords = credentialRecords.filter(
+        record => credentialSet.has(record.credential));
 
       storing.value = true;
       try {
