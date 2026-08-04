@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 31.2.0 - 2026-08-dd
+## 31.2.0 - 2026-08-03
 
 ### Added
 - Store supported enveloped credentials received during an exchange.
