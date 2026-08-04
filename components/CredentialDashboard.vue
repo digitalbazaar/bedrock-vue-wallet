@@ -109,9 +109,8 @@ export default {
           const searchableFields = [
             titleOverride, subtitleOverride, credentialName
           ];
-          return searchableFields.some(field =>
-            field.toLowerCase().includes(searchTerm)
-          );
+          return searchableFields.some(
+            field =>field.toLowerCase().includes(searchTerm));
         }
       });
       emit('filtered-credentials-loading', false);
@@ -157,12 +156,12 @@ export default {
       if(vcConfig?.overrides?.title) {
         const {title} = vcConfig.overrides;
         const titleValue = getValueFromPointer(credential, title.pointer);
-        titleOverride = formatString(titleValue, title.format);
+        titleOverride = formatString(titleValue, title.format) ?? '';
       }
       if(vcConfig?.overrides?.subtitle) {
         const {subtitle} = vcConfig.overrides;
         const stValue = getValueFromPointer(credential, subtitle.pointer);
-        subtitleOverride = formatString(stValue, subtitle.format);
+        subtitleOverride = formatString(stValue, subtitle.format) ?? '';
       }
       return {
         titleOverride,
