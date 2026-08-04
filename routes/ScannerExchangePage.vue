@@ -63,7 +63,7 @@
  */
 import {computed, ref, toRaw} from 'vue';
 import {
-  exchanges, getCredentialStore, helpers, presentations
+  envelopes, exchanges, getCredentialStore, helpers, presentations
 } from '@bedrock/web-wallet';
 import BarcodeScanner from '../components/BarcodeScanner.vue';
 import ChapiHeader from '../components/ChapiHeader.vue';
@@ -108,6 +108,8 @@ export default {
     const verifiablePresentation = ref();
     const credentialRequestOrigin = ref('');
     const verifiablePresentationRequest = ref();
+
+    let credentialRecords;
 
     const loading = computed(() => {
       return !ready.value || exchanging.value || storing.value;
@@ -266,14 +268,40 @@ export default {
             // set store-related state
             const {verifiablePresentation: presentation} = value;
             holder.value = presentation.holder;
-            const {verifiableCredential: credentials} = presentation;
+            let credentials = presentation.verifiableCredential;
             if(!credentials) {
-              verifiableCredential.value = [];
+              credentials = [];
             } else if(!Array.isArray(credentials)) {
-              verifiableCredential.value = [credentials];
-            } else {
-              verifiableCredential.value = credentials;
+              credentials = [credentials];
             }
+
+            // create credential records
+            let meta;
+            if(signOptions?.newConfidenceMethod) {
+              // FIXME: if share/authentication purpose for
+              // `newConfidenceMethod` is for VC-2FA then it can be stored with
+              // received VC(s), but if for another purpose, it needs to be
+              // stored elsewhere or it won't be reusable
+              const {id, type, multikey, jwk} = signOptions.newConfidenceMethod;
+              meta = {
+                // 2FA confidence methods; add first one
+                confidenceMethods: [{id, type, multikey, jwk}]
+              };
+            }
+            credentialRecords = await Promise.all(
+              credentials.map(credential => {
+                if(credential?.type !== 'EnvelopedVerifiableCredential') {
+                  return {credential, meta};
+                }
+                return envelopes.transformEnvelopedCredential({
+                  credential, meta
+                });
+              }));
+
+            // use transformed VCs in display
+            verifiableCredential.value = credentialRecords.map(
+              ({credential}) => credential);
+
             // if there is something to store, wait for user to approve storage
             // FIXME: enable storage of capabilities as well
             if(verifiableCredential.value.length > 0) {
@@ -374,23 +402,7 @@ export default {
           // set to `profileId`
           profileId: holder, password: holder
         });
-        // build credential records to add
-        let meta;
-        if(signOptions?.newConfidenceMethod) {
-          // FIXME: if share/authentication purpose for `newConfidenceMethod`
-          // is for VC-2FA then it can be stored with received VC(s), but if
-          // for another purpose, it needs to be stored elsewhere or it won't
-          // be reusable
-          const {id, type, multikey, jwk} = signOptions.newConfidenceMethod;
-          meta = {
-            // 2FA confidence methods; add first one
-            confidenceMethods: [{id, type, multikey, jwk}]
-          };
-        }
-        const records = verifiableCredential.map(credential => ({
-          credential, meta
-        }));
-        await credentialStore.add({records});
+        await credentialStore.add({records: credentialRecords});
         resume();
       } catch(e) {
         if(e.name === 'DuplicateError') {
