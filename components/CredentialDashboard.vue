@@ -19,6 +19,7 @@
           icon="fas fa-barcode"
           @click="openBarcodeDialog" />
         <q-btn
+          v-if="!isMobile"
           round
           outline
           size="sm"
@@ -51,7 +52,22 @@
         </q-chip>
       </div>
     </div>
+    <q-pull-to-refresh
+      v-if="isMobile"
+      class="col-xs-12 col-md-11 col-lg-10"
+      @refresh="onPullRefresh">
+      <credentials-list
+        :credentials="filteredCredentials"
+        :profile-options="profiles"
+        :no-results="noResults"
+        :search="search"
+        :loading="loading"
+        :error-text="errorText"
+        @select="onSelect"
+        @delete-credential="$event.waitUntil(deleteCredential($event))" />
+    </q-pull-to-refresh>
     <div
+      v-else
       class="col-xs-12 col-md-11 col-lg-10">
       <credentials-list
         :credentials="filteredCredentials"
@@ -90,6 +106,8 @@ import {computed, onMounted, onUnmounted, ref, toRef, watch} from 'vue';
 import {formatString, getValueFromPointer} from '../lib/helpers.js';
 import {config} from '@bedrock/web';
 import {createEmitExtendable} from '@digitalbazaar/vue-extendable-event';
+import {QBtn, QPullToRefresh} from 'quasar';
+import CredentialDetails from './CredentialDetails.vue';
 import CredentialsList from './CredentialsList.vue';
 import SearchBox from './SearchBox.vue';
 import ShowScannerModal from './ShowScannerModal.vue';
@@ -97,7 +115,10 @@ import ShowScannerModal from './ShowScannerModal.vue';
 export default {
   name: 'CredentialDashboard',
   components: {
+    CredentialDetails,
     CredentialsList,
+    QBtn,
+    QPullToRefresh,
     SearchBox,
     ShowScannerModal
   },
@@ -134,6 +155,8 @@ export default {
     const search = ref('');
     const filteredProfiles = ref([]);
     const showBarcodeDialog = ref(false);
+    const showDetails = ref(false);
+    const selectedCredential = ref(null);
     const credentials = toRef(props, 'credentials');
     const activeCategory = ref(null);
     const isMobile = ref(false);
@@ -199,8 +222,18 @@ export default {
       emit('refresh');
     };
 
+    const onPullRefresh = (done) => {
+      refresh();
+      done?.();
+    };
+
     const openBarcodeDialog = () => {
       showBarcodeDialog.value = true;
+    };
+
+    const onSelect = credential => {
+      selectedCredential.value = credential;
+      showDetails.value = true;
     };
 
     // Pass delete-credential event up component chain
@@ -251,10 +284,14 @@ export default {
       filteredProfiles,
       isMobile,
       noResults,
+      onPullRefresh,
+      onSelect,
       refresh,
       search,
       openBarcodeDialog,
-      showBarcodeDialog
+      selectedCredential,
+      showBarcodeDialog,
+      showDetails
     };
   }
 };
