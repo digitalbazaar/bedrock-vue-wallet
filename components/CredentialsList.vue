@@ -72,18 +72,20 @@
         </div>
         <div
           v-else
-          class="row q-gutter-md justify-center q-mb-lg">
+          :class="isMobile ?
+            'column full-width q-mb-lg' :
+            'row q-gutter-md justify-center q-mb-lg'">
           <div
             v-for="credentialRecord in credentialRecordsList"
             :key="credentialRecord.credential.id ?? credentialRecord.meta.id"
-            class="row">
+            :class="isMobile ? 'full-width' : 'row'">
             <credential-list-row
               v-if="isMobile"
               :credential-record="credentialRecord"
               @select="$emit('select', $event)" />
             <component
-              v-else
               :is="selectableComponent"
+              v-else
               :id="credentialRecord.credential.id ?? credentialRecord.meta.id"
               :selected-credentials="selectedCredentials"
               @select-credentials="relaySelection">
@@ -196,15 +198,6 @@ export default {
       isMobile: false
     };
   },
-  created() {
-    this._mq = window.matchMedia('(max-width: 767px)');
-    this.isMobile = this._mq.matches;
-    this._onMqChange = e => { this.isMobile = e.matches; };
-    this._mq.addEventListener('change', this._onMqChange);
-  },
-  beforeUnmount() {
-    this._mq?.removeEventListener('change', this._onMqChange);
-  },
   computed: {
     credentialsList() {
       const list = this.usesRecords ?
@@ -263,6 +256,17 @@ export default {
         this.$emit('select-credentials', {selections});
       }
     }
+  },
+  created() {
+    this._mq = window.matchMedia('(max-width: 767px)');
+    this.isMobile = this._mq.matches;
+    this._onMqChange = e => {
+      this.isMobile = e.matches;
+    };
+    this._mq.addEventListener('change', this._onMqChange);
+  },
+  beforeUnmount() {
+    this._mq?.removeEventListener('change', this._onMqChange);
   },
   methods: {
     // FIXME: this should be emitting an event; it should not require
