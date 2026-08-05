@@ -28,6 +28,30 @@
       </div>
     </div>
     <div
+      v-if="isMobile && credentialCategories.length > 1"
+      class="col-xs-12 s-category-band">
+      <div class="s-category-chips">
+        <q-chip
+          :outline="activeCategory !== null && activeCategory !== 'all'"
+          clickable
+          color="primary"
+          text-color="white"
+          @click="activeCategory = null">
+          All
+        </q-chip>
+        <q-chip
+          v-for="category in credentialCategories"
+          :key="category"
+          :outline="activeCategory !== category"
+          clickable
+          color="primary"
+          text-color="white"
+          @click="activeCategory = category">
+          {{category}}
+        </q-chip>
+      </div>
+    </div>
+    <div
       class="col-xs-12 col-md-11 col-lg-10">
       <credentials-list
         :credentials="filteredCredentials"
@@ -36,9 +60,25 @@
         :search="search"
         :loading="loading"
         :error-text="errorText"
+        @select="onSelect"
         @delete-credential="$event.waitUntil(deleteCredential($event))" />
     </div>
     <ShowScannerModal v-model="showBarcodeDialog" />
+    <q-dialog
+      v-model="showDetails"
+      transition-show="slide-up"
+      transition-hide="slide-down"
+      :maximized="$q.screen.lt.sm">
+      <credential-details
+        :credential="selectedCredential"
+        :card-styles="{}"
+        :card-background="''"
+        :credential-overrides="{}"
+        :credential-highlights="{}"
+        :credential-holder-name="''"
+        :toggle-delete-window="() => {}"
+        :toggle-details-window="() => showDetails = false" />
+    </q-dialog>
   </q-page>
 </template>
 
@@ -46,7 +86,7 @@
 /*!
  * Copyright (c) 2018-2026 Digital Bazaar, Inc.
  */
-import {computed, ref, toRef, watch} from 'vue';
+import {computed, onMounted, onUnmounted, ref, toRef, watch} from 'vue';
 import {formatString, getValueFromPointer} from '../lib/helpers.js';
 import {config} from '@bedrock/web';
 import {createEmitExtendable} from '@digitalbazaar/vue-extendable-event';
@@ -95,26 +135,60 @@ export default {
     const filteredProfiles = ref([]);
     const showBarcodeDialog = ref(false);
     const credentials = toRef(props, 'credentials');
+    const activeCategory = ref(null);
+    const isMobile = ref(false);
 
-    // Credentials filtered by search term match
+    // Mobile breakpoint using matchMedia (max-width: 767px)
+    let _mq = null;
+    const _onMqChange = e => { isMobile.value = e.matches; };
+    onMounted(() => {
+      _mq = window.matchMedia('(max-width: 767px)');
+      isMobile.value = _mq.matches;
+      _mq.addEventListener('change', _onMqChange);
+    });
+    onUnmounted(() => {
+      _mq?.removeEventListener('change', _onMqChange);
+    });
+
+    // Distinct credential types present in the current list
+    const credentialCategories = computed(() => {
+      return Array.from(new Set(
+        credentials.value
+          .filter(({credential}) => credential?.type?.[1])
+          .map(({credential}) => credential.type[1])
+      ));
+    });
+
+    // Credentials filtered by category (AND) search term
     const filteredCredentials = computed(() => {
       emit('filtered-credentials-loading', true);
-      const filteredCredentials = credentials.value.filter(({credential}) => {
-        if(credential) {
-          const searchTerm = search.value.toLowerCase();
-          const credentialName = credential.name || credential.type[1] || '';
+      const category = activeCategory.value;
+      const result = credentials.value.filter(({credential}) => {
+        if(!credential) {
+          return false;
+        }
+        if(category && category !== 'all' &&
+          credential.type?.[1] !== category) {
+          return false;
+        }
+        const searchTerm = search.value.toLowerCase();
+        if(searchTerm) {
+          const credentialName = credential.name || credential.type?.[1] || '';
           const {
             titleOverride, subtitleOverride
           } = credentialOverrides(credential);
           const searchableFields = [
             titleOverride, subtitleOverride, credentialName
           ];
-          return searchableFields.some(
-            field => field.toLowerCase().includes(searchTerm));
+          if(!searchableFields.some(
+            field => field.toLowerCase().includes(searchTerm))) {
+            return false;
+          }
         }
+        return true;
       });
       emit('filtered-credentials-loading', false);
-      return filteredCredentials;
+      return result;
     });
 
     // Boolean for no filtered results
@@ -170,9 +244,12 @@ export default {
     }
 
     return {
+      activeCategory,
+      credentialCategories,
       deleteCredential,
       filteredCredentials,
       filteredProfiles,
+      isMobile,
       noResults,
       refresh,
       search,
@@ -184,4 +261,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.s-category-band {
+  overflow-x: auto;
+  white-space: nowrap;
+  padding: 0 8px 4px;
+}
+
+.s-category-chips {
+  display: inline-flex;
+  gap: 4px;
+}
 </style>
