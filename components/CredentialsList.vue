@@ -77,7 +77,12 @@
             v-for="credentialRecord in credentialRecordsList"
             :key="credentialRecord.credential.id ?? credentialRecord.meta.id"
             class="row">
+            <credential-list-row
+              v-if="isMobile"
+              :credential-record="credentialRecord"
+              @select="$emit('select', $event)" />
             <component
+              v-else
               :is="selectableComponent"
               :id="credentialRecord.credential.id ?? credentialRecord.meta.id"
               :selected-credentials="selectedCredentials"
@@ -113,6 +118,7 @@
  */
 import CredentialCardBundle from './CredentialCardBundle.vue';
 import CredentialCompactBundle from './CredentialCompactBundle.vue';
+import CredentialListRow from './CredentialListRow.vue';
 import CredentialSelect from './CredentialSelect.vue';
 import {CredentialSwitch} from '@bedrock/vue-vc';
 
@@ -121,6 +127,7 @@ export default {
   components: {
     CredentialCardBundle,
     CredentialCompactBundle,
+    CredentialListRow,
     CredentialSelect,
     CredentialSwitch
   },
@@ -181,13 +188,22 @@ export default {
       default: () => []
     }
   },
-  emits: ['delete-credential', 'select-credentials'],
+  emits: ['delete-credential', 'select-credentials', 'select'],
   data() {
     return {
       schemaMap: {},
-      // init credentialSelection to prop
-      allowSelection: this.selectable
+      allowSelection: this.selectable,
+      isMobile: false
     };
+  },
+  created() {
+    this._mq = window.matchMedia('(max-width: 767px)');
+    this.isMobile = this._mq.matches;
+    this._onMqChange = e => { this.isMobile = e.matches; };
+    this._mq.addEventListener('change', this._onMqChange);
+  },
+  beforeUnmount() {
+    this._mq?.removeEventListener('change', this._onMqChange);
   },
   computed: {
     credentialsList() {
