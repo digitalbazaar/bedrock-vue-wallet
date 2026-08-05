@@ -54,7 +54,7 @@
     </div>
     <q-pull-to-refresh
       v-if="isMobile"
-      class="col-xs-12 col-md-11 col-lg-10"
+      class="col-xs-12 col-md-11 col-lg-10 s-pull-area"
       @refresh="onPullRefresh">
       <credentials-list
         :credentials="filteredCredentials"
@@ -108,8 +108,24 @@ import {config} from '@bedrock/web';
 import {createEmitExtendable} from '@digitalbazaar/vue-extendable-event';
 import CredentialDetails from './CredentialDetails.vue';
 import CredentialsList from './CredentialsList.vue';
+import {getCredentialConfig} from '../lib/useCredentialCardConfig.js';
 import SearchBox from './SearchBox.vue';
 import ShowScannerModal from './ShowScannerModal.vue';
+
+// catch-all for credentials with no matching `cardDesigns` entry; always sorts
+// last in the chip band
+const OTHER_CATEGORY = 'Other';
+
+// display order for the category chips, independent of the order credentials
+// happen to load in
+const CATEGORY_ORDER = [
+  'IDs',
+  'Certifications',
+  'Payment & Loyalty',
+  'Tickets',
+  'Insurance',
+  OTHER_CATEGORY
+];
 
 export default {
   name: 'CredentialDashboard',
@@ -160,7 +176,9 @@ export default {
 
     // Mobile breakpoint using matchMedia (max-width: 767px)
     let _mq = null;
-    const _onMqChange = e => { isMobile.value = e.matches; };
+    const _onMqChange = e => {
+      isMobile.value = e.matches;
+    };
     onMounted(() => {
       _mq = window.matchMedia('(max-width: 767px)');
       isMobile.value = _mq.matches;
@@ -170,13 +188,32 @@ export default {
       _mq?.removeEventListener('change', _onMqChange);
     });
 
-    // Distinct credential types present in the current list
+    // Human-facing category for a credential, from its `cardDesigns` entry;
+    // credentials with no matching entry group under `Other`
+    function credentialCategory(credential) {
+      if(!credential) {
+        return undefined;
+      }
+      const cardDesigns = config?.vueWallet?.cardDesigns;
+      const vcConfig = getCredentialConfig({credential, cardDesigns});
+      return vcConfig?.category ?? OTHER_CATEGORY;
+    }
+
+    // Categories actually present, in a stable display order so chips do not
+    // reorder as credentials are added or removed
     const credentialCategories = computed(() => {
-      return Array.from(new Set(
+      const present = new Set(
         credentials.value
-          .filter(({credential}) => credential?.type?.[1])
-          .map(({credential}) => credential.type[1])
-      ));
+          .map(({credential}) => credentialCategory(credential))
+          .filter(category => category !== undefined)
+      );
+      const ordered = CATEGORY_ORDER.filter(category => present.has(category));
+      // any category not in the known order (e.g. one added to cardDesigns
+      // later) still shows, after the known ones and before `Other`
+      const unknown = [...present].filter(
+        category => !CATEGORY_ORDER.includes(category));
+      return [...ordered.filter(c => c !== OTHER_CATEGORY), ...unknown,
+        ...(present.has(OTHER_CATEGORY) ? [OTHER_CATEGORY] : [])];
     });
 
     // Credentials filtered by category (AND) search term
@@ -188,7 +225,7 @@ export default {
           return false;
         }
         if(category && category !== 'all' &&
-          credential.type?.[1] !== category) {
+          credentialCategory(credential) !== category) {
           return false;
         }
         const searchTerm = search.value.toLowerCase();
@@ -219,7 +256,7 @@ export default {
       emit('refresh');
     };
 
-    const onPullRefresh = (done) => {
+    const onPullRefresh = done => {
       refresh();
       done?.();
     };
@@ -299,10 +336,33 @@ export default {
   overflow-x: auto;
   white-space: nowrap;
   padding: 0 8px 4px;
+
+  // the band stays swipeable; the scrollbar itself is hidden, since a visible
+  // one reads as a stray horizontal rule under the chips
+  scrollbar-width: none; // Firefox
+  -ms-overflow-style: none; // legacy Edge/IE
+
+  &::-webkit-scrollbar {
+    display: none; // Chrome/Safari
+  }
 }
 
 .s-category-chips {
   display: inline-flex;
   gap: 4px;
+}
+
+// the pull-to-refresh target must cover the whole remaining viewport, not just
+// the rows -- otherwise dragging anywhere in the empty space below a short list
+// does nothing. `align-self: stretch` overrides the flex parent's default
+// `align-items` so this still fills the row when the list is short.
+.s-pull-area {
+  flex: 1 1 auto;
+  align-self: stretch;
+  min-height: 60vh;
+
+  :deep(.q-pull-to-refresh__content) {
+    min-height: inherit;
+  }
 }
 </style>
