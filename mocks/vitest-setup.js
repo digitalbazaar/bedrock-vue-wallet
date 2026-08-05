@@ -19,10 +19,28 @@ const QDialog = defineComponent({
   template: '<div><slot /></div>'
 });
 
+const QBtn = defineComponent({
+  name: 'QBtn',
+  props: {
+    icon: String,
+    color: String,
+    size: String,
+    round: Boolean,
+    outline: Boolean
+  },
+  template: '<button />'
+});
+
+const QPullToRefresh = defineComponent({
+  name: 'QPullToRefresh',
+  props: {onRefresh: Function},
+  template: '<div><slot /></div>'
+});
+
 config.global.components = {
   QDialog,
-  QBtn: {name: 'QBtn', template: '<button />'},
+  QBtn,
   QChip: {name: 'QChip', template: '<span />'},
   QPage: {name: 'QPage', template: '<div><slot /></div>'},
-  QPullToRefresh: {name: 'QPullToRefresh', template: '<div><slot /></div>'}
+  QPullToRefresh
 };

@@ -98,7 +98,7 @@ describe('CredentialDashboard — refresh button (T06)', () => {
         return btn.props('icon') === 'fas fa-sync-alt';
       });
 
-      expect(refreshButton?.exists()).toBe(false);
+      expect(refreshButton?.exists()).toBeFalsy();
     });
   });
 

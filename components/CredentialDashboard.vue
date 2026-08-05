@@ -106,7 +106,6 @@ import {computed, onMounted, onUnmounted, ref, toRef, watch} from 'vue';
 import {formatString, getValueFromPointer} from '../lib/helpers.js';
 import {config} from '@bedrock/web';
 import {createEmitExtendable} from '@digitalbazaar/vue-extendable-event';
-import {QBtn, QPullToRefresh} from 'quasar';
 import CredentialDetails from './CredentialDetails.vue';
 import CredentialsList from './CredentialsList.vue';
 import SearchBox from './SearchBox.vue';
@@ -117,8 +116,6 @@ export default {
   components: {
     CredentialDetails,
     CredentialsList,
-    QBtn,
-    QPullToRefresh,
     SearchBox,
     ShowScannerModal
   },
