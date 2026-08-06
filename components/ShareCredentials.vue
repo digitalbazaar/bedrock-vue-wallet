@@ -189,7 +189,8 @@ export default {
       }
       const {id: profileId} = selectedProfile.value;
 
-      // FIXME: event should be emitted to deal with the query at the page
+      // FIXME: event should be emitted to deal with the query at the page;
+      // query and store should all be engaged with at page level
 
       // get credential store for selected profile
       const credentialStore = await getCredentialStore({
@@ -203,17 +204,34 @@ export default {
       let records = [];
       try {
         const matches = await presentations.match({
+          requestOrigin: toRaw(props.requestOrigin),
           verifiablePresentationRequest: toRaw(
             verifiablePresentationRequest.value),
           credentialStore
         });
-        // FIXME: use matches directly instead of using records, UI
-        // should better render full matches
-        records = matches.flat.map(match => match.derived?.length > 0 ?
-          // FIXME: temporary measure to replace content with derived VC,
-          // instead UI should support both and prefer derived
-          {...match.record, content: match.derived[0].derivedCredential} :
-          match.record);
+        // FIXME: render matches directly instead of using records and hacky
+        // record overrides; it would improve the UI (e.g., show information
+        // that users need to identify VCs that won't be shared but clearly
+        // mark it as not to be shared)
+        records = matches.flat.map(match => {
+          if(match.derived?.length > 0) {
+            // FIXME: temporary measure to replace content with derived VC,
+            // and meta.envelope with derived envelope; instead UI should
+            // receive a datastructure with all of the options and enable the
+            // user to make a decision with `derived` as the default; also
+            // needs to handle different envelope formats and derivations
+            const meta = {...match.record.meta};
+            if(match.derived[0].derivedEnvelope) {
+              meta.envelope = match.derived[0].derivedEnvelope;
+            }
+            return {
+              ...match.record,
+              content: match.derived[0].derivedCredential,
+              meta
+            };
+          }
+          return match.record;
+        });
       } catch(error) {
         console.log('Error trying to process query: ', {error});
       }
@@ -371,11 +389,6 @@ export default {
     async share() {
       this.sharing = true;
       try {
-        // FIXME: add other ways to set `holder` (not just be `profileId`);
-        // add support for at least one other way (based on the user picking a
-        // new key or a key that is associated with at least one of the VCs
-        // that is to be presented)
-
         // TODO: implement
         const presentation = {
           '@context': [VC_V2_CONTEXT_URL],
@@ -387,7 +400,24 @@ export default {
           // only send the VCs selected
           presentation.verifiableCredential = rawRecords
             .filter(r => selections.includes(r.meta.id))
-            .map(r => r.content);
+            .map(r => {
+              // FIXME: support selection of the VC proof vs. envelope based
+              // on VPR `acceptedCryptosuites`; current state is either/or
+              let credential = r.content;
+              // if there is no `proof` on the credential and it has an
+              // associated enveloped credential, use that instead
+              // FIXME: note there is a hack elsewhere in this file that
+              // ensures that the envelope is a derived envelope it will be
+              // used here
+              // FIXME: this is a hack while records passed directly, in the
+              // future some other data structure expressing different
+              // metadata and options (derived, full, envelope this/that, etc.)
+              // per credential should be used instead
+              if(!credential?.proof && r.meta.envelope.credential) {
+                credential = r.meta.envelope.credential;
+              }
+              return credential;
+            });
           if(!_includesVersion2Context(presentation.verifiableCredential)) {
             // for backwards compatibility, use VC 1.x context if no VC 2.0
             // VCs were selected
@@ -409,7 +439,6 @@ export default {
             this.verifiablePresentationRequest)
         });
       } catch(error) {
-        console.trace(error);
         console.log('Error trying to share credentials: ', {error});
       } finally {
         this.sharing = false;

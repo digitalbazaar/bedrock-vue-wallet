@@ -1,5 +1,10 @@
 # bedrock-vue-wallet ChangeLog
 
+## 31.3.0 - 2026-08-dd
+
+### Added
+- Include derived enveloped credentials in `ShareCredentials` component.
+
 ## 31.2.0 - 2026-08-03
 
 ### Added
