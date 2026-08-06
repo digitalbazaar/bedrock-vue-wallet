@@ -314,15 +314,21 @@ export default {
             verifiableCredential.value = [];
             holder.value = '';
           }
-          if(value?.verifiablePresentationRequest) {
+
+          const nonEmptyVpr = Object.keys(
+            value?.verifiablePresentationRequest ?? {}).length > 0;
+          if(nonEmptyVpr) {
             // user must approve share...
             setDisplay('share');
+
             // set share-related state
             verifiablePresentationRequest.value =
               value.verifiablePresentationRequest;
+
             await wait();
             actionTaken = true;
           }
+
           // if no action was taken then nothing actionable was in in `value`
           // (no VPR, no VP / empty VP); so set an error condition and `wait()`
           // to let the user see something went wrong

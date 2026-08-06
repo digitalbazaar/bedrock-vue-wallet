@@ -327,7 +327,10 @@ export default {
             verifiableCredential.value = [];
             holder.value = '';
           }
-          if(value?.verifiablePresentationRequest) {
+
+          const nonEmptyVpr = Object.keys(
+            value?.verifiablePresentationRequest ?? {}).length > 0;
+          if(nonEmptyVpr) {
             // user must approve share...
             setDisplay('share');
 
