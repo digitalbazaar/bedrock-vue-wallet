@@ -1,291 +1,152 @@
 /*!
  * Copyright (c) 2026 Digital Bazaar, Inc. All rights reserved.
  */
-import {expect} from 'chai';
+import {beforeEach, describe, expect, it, vi} from 'vitest';
+import {config} from '@bedrock/web';
+import CredentialDashboard from '../CredentialDashboard.vue';
+import {defineComponent} from 'vue';
+import {mount} from '@vue/test-utils';
+import {Quasar} from 'quasar';
 
-describe('CredentialDashboard.vue - Category Filtering', function() {
-  // Mock credential factory
-  function createMockCredential(type, name = 'Test Credential') {
-    return {
-      credential: {
-        type: Array.isArray(type) ? type : ['VerifiableCredential', type],
-        name
-      },
-      meta: {
-        holder: 'did:example:holder123'
+// the rules carry the vocabulary and the component only matches them, so the
+// spec supplies its own rather than depending on the app's config
+// deliberately not in alphabetical order: if the declared order matched a
+// sorted one, a component that sorted its chips would pass these tests
+const CATEGORIES = [
+  // narrow before broad: a payment token is also a `RetailCredential`
+  {category: 'Payment', matches: {'/credentialSubject/type': 'PaymentToken'}},
+  {category: 'Retail', matches: {'/type': 'RetailCredential'}},
+  {category: 'Retail', matches: {'/type': 'MovieTicketCredential'}},
+  {category: 'Identity', matches: {'/type': 'PermanentResidentCard'}}
+];
+
+function record({type = ['VerifiableCredential'], name, subjectType} = {}) {
+  return {
+    credential: {
+      type, name,
+      credentialSubject: subjectType ? {type: subjectType} : {}
+    },
+    meta: {id: `urn:uuid:${name ?? 'plain'}`, holder: 'urn:uuid:profile'}
+  };
+}
+
+const RECORDS = {
+  prc: record({
+    type: ['VerifiableCredential', 'PermanentResidentCard'],
+    name: 'Permanent Resident Card'
+  }),
+  token: record({
+    type: ['VerifiableCredential', 'RetailCredential'],
+    name: 'Digital Payment Token', subjectType: 'PaymentToken'
+  }),
+  ticket: record({
+    type: ['VerifiableCredential', 'MovieTicketCredential'],
+    name: 'Movie Ticket'
+  }),
+  plain: record({name: 'Plain Credential'})
+};
+
+const CredentialsListStub = defineComponent({
+  name: 'CredentialsList',
+  props: ['credentials'],
+  emits: ['select', 'delete-credential'],
+  template: '<div />'
+});
+
+function mountDashboard(credentials) {
+  return mount(CredentialDashboard, {
+    props: {credentials, errorText: '', loading: false},
+    global: {
+      plugins: [[Quasar, {}]],
+      stubs: {
+        CredentialsList: CredentialsListStub,
+        CredentialDetails: true,
+        SearchBox: true,
+        ShowScannerModal: true,
+        QrCode: true
       }
-    };
-  }
+    }
+  });
+}
 
-  describe('credentialCategories computed', function() {
-    it('should derive distinct credential types from the credentials list', function() {
-      const credentials = [
-        createMockCredential('DriverLicense', 'License 1'),
-        createMockCredential('DriverLicense', 'License 2'),
-        createMockCredential('UniversityDegree', 'Degree 1')
-      ];
+const chipTexts = wrapper => wrapper.findAll('.s-type-chips .q-chip')
+  .map(chip => chip.text().trim());
 
-      // credentialCategories should extract the second element of type array
-      // for each credential and return unique values
-      const categories = Array.from(new Set(
-        credentials.map(c => c.credential.type[1])
-      ));
+const chip = (wrapper, label) => wrapper.findAll('.s-type-chips .q-chip')
+  .find(c => c.text().trim() === label);
 
-      expect(categories).to.have.lengthOf(2);
-      expect(categories).to.include('DriverLicense');
-      expect(categories).to.include('UniversityDegree');
-    });
+const listedNames = wrapper => wrapper
+  .findComponent(CredentialsListStub).props('credentials')
+  .map(({credential}) => credential.name);
 
-    it('should contain no duplicates even if many credentials share the same type', function() {
-      const credentials = [
-        createMockCredential('DriverLicense', 'License 1'),
-        createMockCredential('DriverLicense', 'License 2'),
-        createMockCredential('DriverLicense', 'License 3'),
-        createMockCredential('DriverLicense', 'License 4')
-      ];
-
-      const categories = Array.from(new Set(
-        credentials.map(c => c.credential.type[1])
-      ));
-
-      expect(categories).to.have.lengthOf(1);
-      expect(categories[0]).to.equal('DriverLicense');
-    });
-
-    it('should return an empty array when the credentials list is empty', function() {
-      const credentials = [];
-
-      const categories = Array.from(new Set(
-        credentials.map(c => c.credential.type[1])
-      ));
-
-      expect(categories).to.have.lengthOf(0);
-    });
-
-    it('should handle credentials with different type array structures', function() {
-      const credentials = [
-        createMockCredential(['VerifiableCredential', 'DriverLicense']),
-        createMockCredential(['VerifiableCredential', 'UniversityDegree']),
-        createMockCredential(['VerifiableCredential', 'Passport'])
-      ];
-
-      const categories = Array.from(new Set(
-        credentials.map(c => c.credential.type[1])
-      ));
-
-      expect(categories).to.have.lengthOf(3);
-      expect(categories).to.include('DriverLicense');
-      expect(categories).to.include('UniversityDegree');
-      expect(categories).to.include('Passport');
+describe('CredentialDashboard category chips', () => {
+  beforeEach(() => {
+    config.vueWallet = {credentialCategories: CATEGORIES};
+    // the chip band is mobile-only
+    window.matchMedia = vi.fn().mockReturnValue({
+      matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn()
     });
   });
 
-  describe('activeCategory filtering', function() {
-    it('should filter credentials to only those matching activeCategory when set', function() {
-      const credentials = [
-        createMockCredential('DriverLicense', 'License 1'),
-        createMockCredential('DriverLicense', 'License 2'),
-        createMockCredential('UniversityDegree', 'Degree 1')
-      ];
-
-      const activeCategory = 'DriverLicense';
-
-      const filtered = credentials.filter(c =>
-        c.credential.type[1] === activeCategory
-      );
-
-      expect(filtered).to.have.lengthOf(2);
-      filtered.forEach(c => {
-        expect(c.credential.type[1]).to.equal('DriverLicense');
-      });
-    });
-
-    it('should return all credentials when activeCategory is null', function() {
-      const credentials = [
-        createMockCredential('DriverLicense', 'License 1'),
-        createMockCredential('UniversityDegree', 'Degree 1'),
-        createMockCredential('Passport', 'Passport 1')
-      ];
-
-      const activeCategory = null;
-
-      const filtered = credentials.filter(c =>
-        !activeCategory || c.credential.type[1] === activeCategory
-      );
-
-      expect(filtered).to.have.lengthOf(3);
-    });
-
-    it('should return all credentials when activeCategory is the string "all"', function() {
-      const credentials = [
-        createMockCredential('DriverLicense', 'License 1'),
-        createMockCredential('UniversityDegree', 'Degree 1'),
-        createMockCredential('Passport', 'Passport 1')
-      ];
-
-      const activeCategory = 'all';
-
-      const filtered = credentials.filter(c =>
-        activeCategory === 'all' || c.credential.type[1] === activeCategory
-      );
-
-      expect(filtered).to.have.lengthOf(3);
-    });
-
-    it('should return an empty array when activeCategory matches no credentials', function() {
-      const credentials = [
-        createMockCredential('DriverLicense', 'License 1'),
-        createMockCredential('UniversityDegree', 'Degree 1')
-      ];
-
-      const activeCategory = 'NonExistentType';
-
-      const filtered = credentials.filter(c =>
-        c.credential.type[1] === activeCategory
-      );
-
-      expect(filtered).to.have.lengthOf(0);
-    });
+  it('shows a chip for each category held, plus All', () => {
+    const wrapper = mountDashboard([RECORDS.prc, RECORDS.token]);
+    expect(chipTexts(wrapper)).toEqual(['All', 'Payment', 'Identity']);
   });
 
-  describe('category and search filter composition', function() {
-    it('should apply both category and search filters as an intersection', function() {
-      const credentials = [
-        createMockCredential('DriverLicense', 'California License'),
-        createMockCredential('DriverLicense', 'Nevada License'),
-        createMockCredential('UniversityDegree', 'California State University')
-      ];
-
-      const searchText = 'california';
-      const activeCategory = 'DriverLicense';
-
-      const filtered = credentials.filter(c => {
-        // Category filter
-        const categoryMatch = !activeCategory || c.credential.type[1] === activeCategory;
-
-        // Search filter
-        const searchTerm = searchText.toLowerCase();
-        const credentialName = c.credential.name || c.credential.type[1] || '';
-        const searchMatch = credentialName.toLowerCase().includes(searchTerm);
-
-        // Both must be true (intersection)
-        return categoryMatch && searchMatch;
-      });
-
-      expect(filtered).to.have.lengthOf(1);
-      expect(filtered[0].credential.name).to.equal('California License');
-      expect(filtered[0].credential.type[1]).to.equal('DriverLicense');
-    });
-
-    it('should return all credentials when only search filter matches without category', function() {
-      const credentials = [
-        createMockCredential('DriverLicense', 'California License'),
-        createMockCredential('UniversityDegree', 'California State University')
-      ];
-
-      const searchText = 'california';
-      const activeCategory = null;
-
-      const filtered = credentials.filter(c => {
-        const categoryMatch = !activeCategory || c.credential.type[1] === activeCategory;
-        const searchTerm = searchText.toLowerCase();
-        const credentialName = c.credential.name || c.credential.type[1] || '';
-        const searchMatch = credentialName.toLowerCase().includes(searchTerm);
-        return categoryMatch && searchMatch;
-      });
-
-      expect(filtered).to.have.lengthOf(2);
-    });
-
-    it('should return only category matches when search is empty', function() {
-      const credentials = [
-        createMockCredential('DriverLicense', 'License 1'),
-        createMockCredential('DriverLicense', 'License 2'),
-        createMockCredential('UniversityDegree', 'Degree 1')
-      ];
-
-      const searchText = '';
-      const activeCategory = 'DriverLicense';
-
-      const filtered = credentials.filter(c => {
-        const categoryMatch = !activeCategory || c.credential.type[1] === activeCategory;
-        const searchTerm = searchText.toLowerCase();
-        const credentialName = c.credential.name || c.credential.type[1] || '';
-        const searchMatch = searchTerm === '' || credentialName.toLowerCase().includes(searchTerm);
-        return categoryMatch && searchMatch;
-      });
-
-      expect(filtered).to.have.lengthOf(2);
-      filtered.forEach(c => {
-        expect(c.credential.type[1]).to.equal('DriverLicense');
-      });
-    });
-
-    it('should return empty when search and category filters conflict', function() {
-      const credentials = [
-        createMockCredential('DriverLicense', 'California License'),
-        createMockCredential('UniversityDegree', 'Harvard Degree')
-      ];
-
-      const searchText = 'california';
-      const activeCategory = 'UniversityDegree';
-
-      const filtered = credentials.filter(c => {
-        const categoryMatch = !activeCategory || c.credential.type[1] === activeCategory;
-        const searchTerm = searchText.toLowerCase();
-        const credentialName = c.credential.name || c.credential.type[1] || '';
-        const searchMatch = credentialName.toLowerCase().includes(searchTerm);
-        return categoryMatch && searchMatch;
-      });
-
-      expect(filtered).to.have.lengthOf(0);
-    });
-
-    it('should apply filters case-insensitively', function() {
-      const credentials = [
-        createMockCredential('DriverLicense', 'CALIFORNIA LICENSE'),
-        createMockCredential('DriverLicense', 'Nevada License')
-      ];
-
-      const searchText = 'CaLiFoRnIa';
-      const activeCategory = 'DriverLicense';
-
-      const filtered = credentials.filter(c => {
-        const categoryMatch = !activeCategory || c.credential.type[1] === activeCategory;
-        const searchTerm = searchText.toLowerCase();
-        const credentialName = c.credential.name || c.credential.type[1] || '';
-        const searchMatch = credentialName.toLowerCase().includes(searchTerm);
-        return categoryMatch && searchMatch;
-      });
-
-      expect(filtered).to.have.lengthOf(1);
-      expect(filtered[0].credential.name).to.equal('CALIFORNIA LICENSE');
-    });
+  it('shows no chip for a category nothing is held in', () => {
+    const wrapper = mountDashboard([RECORDS.prc, RECORDS.token]);
+    expect(chipTexts(wrapper)).not.toContain('Retail');
   });
 
-  describe('integration with existing search filter', function() {
-    it('should not affect existing search filter behavior when activeCategory is null', function() {
-      const credentials = [
-        createMockCredential('DriverLicense', 'California License'),
-        createMockCredential('DriverLicense', 'Nevada License'),
-        createMockCredential('UniversityDegree', 'University Degree')
-      ];
+  it('orders chips by the rules, not by the order credentials load in', () => {
+    const wrapper = mountDashboard(
+      [RECORDS.ticket, RECORDS.token, RECORDS.prc]);
+    // the rules declare Payment, then Retail, then Identity; sorted
+    // alphabetically these would come back in the opposite order
+    expect(chipTexts(wrapper))
+      .toEqual(['All', 'Payment', 'Retail', 'Identity']);
+  });
 
-      const searchText = 'license';
-      const activeCategory = null;
+  it('groups credentials no rule claims under one catch-all', () => {
+    const wrapper = mountDashboard([RECORDS.prc, RECORDS.plain]);
+    expect(chipTexts(wrapper)).toEqual(['All', 'Identity', 'Other']);
+  });
 
-      const filtered = credentials.filter(c => {
-        const searchTerm = searchText.toLowerCase();
-        const credentialName = c.credential.name || c.credential.type[1] || '';
-        const searchMatch = credentialName.toLowerCase().includes(searchTerm);
-        const categoryMatch = !activeCategory || c.credential.type[1] === activeCategory;
-        return searchMatch && categoryMatch;
-      });
+  it('collapses several credentials of one category into one chip', () => {
+    // a second category is needed for the band to show at all
+    const wrapper = mountDashboard(
+      [RECORDS.ticket, RECORDS.ticket, RECORDS.prc]);
+    expect(chipTexts(wrapper).filter(text => text === 'Retail'))
+      .toHaveLength(1);
+  });
 
-      expect(filtered).to.have.lengthOf(2);
-      filtered.forEach(c => {
-        expect(c.credential.name.toLowerCase()).to.include('license');
-      });
+  it('hides the band when everything falls in one category', () => {
+    const wrapper = mountDashboard([RECORDS.prc]);
+    expect(wrapper.find('.s-type-band').exists()).toBe(false);
+  });
+
+  describe('filtering', () => {
+    it('lists only the chosen category', async () => {
+      const wrapper = mountDashboard(
+        [RECORDS.prc, RECORDS.token, RECORDS.ticket]);
+      await chip(wrapper, 'Payment').trigger('click');
+      expect(listedNames(wrapper)).toEqual(['Digital Payment Token']);
+    });
+
+    it('applies a narrower rule before a broader one it overlaps', async () => {
+      // a payment token is also a `RetailCredential` and must not appear
+      // under Retail
+      const wrapper = mountDashboard([RECORDS.token, RECORDS.ticket]);
+      await chip(wrapper, 'Retail').trigger('click');
+      expect(listedNames(wrapper)).toEqual(['Movie Ticket']);
+    });
+
+    it('restores the full list when All is chosen again', async () => {
+      const wrapper = mountDashboard([RECORDS.prc, RECORDS.token]);
+      await chip(wrapper, 'Identity').trigger('click');
+      expect(listedNames(wrapper)).toHaveLength(1);
+      await chip(wrapper, 'All').trigger('click');
+      expect(listedNames(wrapper)).toHaveLength(2);
     });
   });
 });

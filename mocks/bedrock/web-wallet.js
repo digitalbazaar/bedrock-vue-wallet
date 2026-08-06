@@ -1,5 +1,7 @@
 export const helpers = {hasNFCPayload: () => false};
-export const ageCredentialHelpers = {generateQrCodeDataUrl: () => '', reissue: () => {}};
+export const ageCredentialHelpers = {
+  generateQrCodeDataUrl: () => '', reissue: () => {}
+};
 export const getCredentialStore = () => ({});
 export const capabilities = {};
 export const profileManager = {};

@@ -1,6 +1,6 @@
 import {computed, defineComponent, unref} from 'vue';
 
-const stub = defineComponent({name: 'Stub', template: '<div />'});
+const stub = defineComponent({name: 'StubComponent', template: '<div />'});
 export const CredentialSwitch = stub;
 export const DynamicImage = stub;
 

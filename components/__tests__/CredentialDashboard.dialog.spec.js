@@ -1,11 +1,11 @@
 /*!
  * Copyright (c) 2026 Digital Bazaar, Inc. All rights reserved.
  */
-import {Quasar} from 'quasar';
 import {describe, expect, it, vi} from 'vitest';
+import CredentialDashboard from '../CredentialDashboard.vue';
 import {defineComponent} from 'vue';
 import {mount} from '@vue/test-utils';
-import CredentialDashboard from '../CredentialDashboard.vue';
+import {Quasar} from 'quasar';
 
 vi.mock('@bedrock/web', () => ({config: {}}));
 vi.mock('@digitalbazaar/vue-extendable-event', () => ({
@@ -28,18 +28,18 @@ const mockCredentialRecord = {
 // Named stubs let findComponent locate them by definition after stubbing
 const CredentialsListStub = defineComponent({
   name: 'CredentialsList',
-  template: '<div />',
-  emits: ['select', 'delete-credential']
+  emits: ['select', 'delete-credential'],
+  template: '<div />'
 });
 
 const CredentialDetailsStub = defineComponent({
   name: 'CredentialDetails',
-  template: '<div />',
   props: [
     'credential', 'showDetails', 'cardStyles', 'cardBackground',
     'credentialOverrides', 'credentialHighlights', 'credentialHolderName',
     'toggleDetailsWindow', 'toggleDeleteWindow'
-  ]
+  ],
+  template: '<div />'
 });
 
 const globalOptions = {
@@ -65,18 +65,25 @@ describe('CredentialDashboard — credential-details dialog (T02)', () => {
   // --- 1. Single dialog instance, gated by showDetails, initially closed ---
 
   describe('initial state', () => {
-    it('renders exactly one credential-details instance', () => {
+    it('mounts no credential-details until one is selected', () => {
       const wrapper = mountDashboard();
-      const details = wrapper.findAllComponents(CredentialDetailsStub);
-      expect(details).toHaveLength(1);
+      expect(wrapper.findAllComponents(CredentialDetailsStub)).toHaveLength(0);
     });
 
-    it('q-dialog wrapping credential-details exists and is closed on mount', () => {
+    it('mounts exactly one credential-details once selected', async () => {
       const wrapper = mountDashboard();
-      const dialog = wrapper.findComponent({name: 'QDialog'});
-      expect(dialog.exists()).toBe(true);
-      expect(dialog.props('modelValue')).toBe(false);
+      const list = wrapper.findComponent(CredentialsListStub);
+      await list.vm.$emit('select', mockCredentialRecord);
+      expect(wrapper.findAllComponents(CredentialDetailsStub)).toHaveLength(1);
     });
+
+    it('q-dialog wrapping credential-details exists and is closed on mount',
+      () => {
+        const wrapper = mountDashboard();
+        const dialog = wrapper.findComponent({name: 'QDialog'});
+        expect(dialog.exists()).toBe(true);
+        expect(dialog.props('modelValue')).toBe(false);
+      });
   });
 
   // --- 2. Emitting select from CredentialsList opens the dialog ---
@@ -85,31 +92,34 @@ describe('CredentialDashboard — credential-details dialog (T02)', () => {
     it('sets showDetails to true', async () => {
       const wrapper = mountDashboard();
       const list = wrapper.findComponent(CredentialsListStub);
-      await list.vm.$emit('select', mockCredential);
+      await list.vm.$emit('select', mockCredentialRecord);
       const dialog = wrapper.findComponent({name: 'QDialog'});
       expect(dialog.props('modelValue')).toBe(true);
     });
 
-    it('passes the emitted credential to the credential-details prop', async () => {
-      const wrapper = mountDashboard();
-      const list = wrapper.findComponent(CredentialsListStub);
-      await list.vm.$emit('select', mockCredential);
-      const details = wrapper.findComponent(CredentialDetailsStub);
-      expect(details.props('credential')).toStrictEqual(mockCredential);
-    });
+    it('unwraps the record and passes its credential to the details view',
+      async () => {
+        const wrapper = mountDashboard();
+        const list = wrapper.findComponent(CredentialsListStub);
+        // the list emits the record; the details view takes a credential
+        await list.vm.$emit('select', mockCredentialRecord);
+        const details = wrapper.findComponent(CredentialDetailsStub);
+        expect(details.props('credential')).toStrictEqual(mockCredential);
+      });
   });
 
   // --- 3. Closing the dialog resets state for a subsequent select ---
 
   describe('dialog close and reopen', () => {
-    it('resets showDetails to false when q-dialog emits update:modelValue false', async () => {
-      const wrapper = mountDashboard();
-      const list = wrapper.findComponent(CredentialsListStub);
-      await list.vm.$emit('select', mockCredential);
-      const dialog = wrapper.findComponent({name: 'QDialog'});
-      await dialog.vm.$emit('update:modelValue', false);
-      expect(dialog.props('modelValue')).toBe(false);
-    });
+    it('resets showDetails when q-dialog emits update:modelValue false',
+      async () => {
+        const wrapper = mountDashboard();
+        const list = wrapper.findComponent(CredentialsListStub);
+        await list.vm.$emit('select', mockCredentialRecord);
+        const dialog = wrapper.findComponent({name: 'QDialog'});
+        await dialog.vm.$emit('update:modelValue', false);
+        expect(dialog.props('modelValue')).toBe(false);
+      });
 
     it('accepts a different credential after closing', async () => {
       const secondCredential = {
@@ -117,13 +127,17 @@ describe('CredentialDashboard — credential-details dialog (T02)', () => {
         id: 'urn:test:credential:2',
         name: 'Second Credential'
       };
+      const secondRecord = {
+        credential: secondCredential,
+        meta: {id: 'urn:test:meta:2', holder: 'urn:test:profile:1'}
+      };
       const wrapper = mountDashboard();
       const list = wrapper.findComponent(CredentialsListStub);
 
-      await list.vm.$emit('select', mockCredential);
+      await list.vm.$emit('select', mockCredentialRecord);
       const dialog = wrapper.findComponent({name: 'QDialog'});
       await dialog.vm.$emit('update:modelValue', false);
-      await list.vm.$emit('select', secondCredential);
+      await list.vm.$emit('select', secondRecord);
 
       const details = wrapper.findComponent(CredentialDetailsStub);
       expect(dialog.props('modelValue')).toBe(true);

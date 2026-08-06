@@ -58,7 +58,9 @@ describe('CredentialListRow', () => {
       },
       {
         from: 'the credential name when no design matches',
-        credential: {type: ['VerifiableCredential'], name: 'Utopia Fire Fighter'},
+        credential: {
+          type: ['VerifiableCredential'], name: 'Utopia Fire Fighter'
+        },
         expected: 'Utopia Fire Fighter'
       },
       {
@@ -95,12 +97,14 @@ describe('CredentialListRow', () => {
     });
 
     it('falls back to the issuer image', () => {
-      const wrapper = render(record({credential: {issuer: {image: ISSUER_LOGO}}}));
+      const wrapper = render(
+        record({credential: {issuer: {image: ISSUER_LOGO}}}));
       expect(wrapper.find('img').attributes('src')).toBe(ISSUER_LOGO);
     });
 
     it('falls back to the issuer logo', () => {
-      const wrapper = render(record({credential: {issuer: {logo: ISSUER_LOGO}}}));
+      const wrapper = render(
+        record({credential: {issuer: {logo: ISSUER_LOGO}}}));
       expect(wrapper.find('img').attributes('src')).toBe(ISSUER_LOGO);
     });
 

@@ -5,6 +5,9 @@ import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {defineComponent} from 'vue';
 import {mount} from '@vue/test-utils';
 import {Quasar} from 'quasar';
+// eslint-disable-next-line sort-imports -- the `vi.mock` factories below are
+// hoisted above these imports and reference them, so the component under test
+// has to be imported after everything the mocks close over
 import CredentialsList from '../CredentialsList.vue';
 
 // Mock external packages that are peer-dependencies not installed in devDeps.
@@ -121,21 +124,21 @@ describe('CredentialsList.vue — matchMedia breakpoint (T05)', () => {
       expect(rows).toHaveLength(2);
     });
 
-    it('re-emits select from CredentialListRow with the same credential payload', async () => {
-      const wrapper = mountList();
-      const row = wrapper.findComponent({name: 'CredentialListRow'});
-      // Fails today (row not rendered); passes once W05 wires CredentialListRow in.
-      expect(row.exists()).toBe(true);
-      if(row.exists()) {
-        await row.vm.$emit('select', mockCredential);
-        const emitted = wrapper.emitted('select');
-        expect(emitted).toBeTruthy();
-        expect(emitted[0][0]).toStrictEqual(mockCredential);
-      }
-    });
+    it('re-emits select from CredentialListRow with the same payload',
+      async () => {
+        const wrapper = mountList();
+        const row = wrapper.findComponent({name: 'CredentialListRow'});
+        expect(row.exists()).toBe(true);
+        if(row.exists()) {
+          await row.vm.$emit('select', mockCredential);
+          const emitted = wrapper.emitted('select');
+          expect(emitted).toBeTruthy();
+          expect(emitted[0][0]).toStrictEqual(mockCredential);
+        }
+      });
   });
 
-  describe('desktop width — matchMedia(max-width: 767px) does not match', () => {
+  describe('desktop width — matchMedia(767px) does not match', () => {
     beforeEach(() => {
       mockMatchMedia(false);
     });

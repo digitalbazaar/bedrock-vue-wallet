@@ -40,7 +40,15 @@ const QPullToRefresh = defineComponent({
 config.global.components = {
   QDialog,
   QBtn,
-  QChip: {name: 'QChip', template: '<span />'},
+  // renders its slot and carries the class the component selects on: a stub
+  // that renders nothing cannot tell a chip with a label from one without
+  QChip: defineComponent({
+    name: 'QChip',
+    props: {
+      outline: Boolean, clickable: Boolean, color: String, textColor: String
+    },
+    template: '<span class="q-chip"><slot /></span>'
+  }),
   QPage: {name: 'QPage', template: '<div><slot /></div>'},
   QPullToRefresh
 };

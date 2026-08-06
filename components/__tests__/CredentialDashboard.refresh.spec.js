@@ -1,11 +1,12 @@
 /*!
  * Copyright (c) 2026 Digital Bazaar, Inc. All rights reserved.
  */
-import {Quasar} from 'quasar';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
+import CredentialDashboard from '../CredentialDashboard.vue';
 import {defineComponent} from 'vue';
 import {mount} from '@vue/test-utils';
-import CredentialDashboard from '../CredentialDashboard.vue';
+import PullToRefresh from '../PullToRefresh.vue';
+import {Quasar} from 'quasar';
 
 vi.mock('@bedrock/web', () => ({config: {}}));
 vi.mock('@digitalbazaar/vue-extendable-event', () => ({
@@ -28,13 +29,12 @@ const mockCredentialRecord = {
 // Named stubs let findComponent locate them by definition after stubbing
 const CredentialsListStub = defineComponent({
   name: 'CredentialsList',
-  template: '<div />',
-  emits: ['select', 'delete-credential']
+  emits: ['select', 'delete-credential'],
+  template: '<div />'
 });
 
 const CredentialDetailsStub = defineComponent({
   name: 'CredentialDetails',
-  template: '<div />',
   props: {
     credential: null,
     showDetails: null,
@@ -45,7 +45,8 @@ const CredentialDetailsStub = defineComponent({
     credentialHolderName: null,
     toggleDetailsWindow: null,
     toggleDeleteWindow: null
-  }
+  },
+  template: '<div />'
 });
 
 const globalOptions = {
@@ -154,7 +155,6 @@ describe('CredentialDashboard — refresh button (T06)', () => {
 
   describe('pull-to-refresh control', () => {
     it('should render pull-to-refresh at mobile width', async () => {
-      // Mock matchMedia to return mobile width (matches: true)
       matchMediaMock.mockReturnValue({
         matches: true,
         addEventListener: vi.fn(),
@@ -164,16 +164,23 @@ describe('CredentialDashboard — refresh button (T06)', () => {
       const wrapper = mountDashboard();
       await wrapper.vm.$nextTick();
 
-      // Look for pull-to-refresh component (by name or testid)
-      const pullToRefresh = wrapper.findComponent(
-        {name: 'QPullToRefresh'}
-      ) || wrapper.find('[data-testid="pull-to-refresh"]');
+      expect(wrapper.findComponent(PullToRefresh).exists()).toBe(true);
+    });
 
-      expect(pullToRefresh?.exists()).toBe(true);
+    it('should not render pull-to-refresh at desktop width', async () => {
+      matchMediaMock.mockReturnValue({
+        matches: false,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn()
+      });
+
+      const wrapper = mountDashboard();
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.findComponent(PullToRefresh).exists()).toBe(false);
     });
 
     it('should emit refresh when pull-to-refresh triggered', async () => {
-      // Mock matchMedia to return mobile width (matches: true)
       matchMediaMock.mockReturnValue({
         matches: true,
         addEventListener: vi.fn(),
@@ -183,21 +190,30 @@ describe('CredentialDashboard — refresh button (T06)', () => {
       const wrapper = mountDashboard();
       await wrapper.vm.$nextTick();
 
-      // Find pull-to-refresh and trigger its callback
-      const pullToRefresh = wrapper.findComponent(
-        {name: 'QPullToRefresh'}
-      );
+      // no conditional: if the gesture component is missing, this must fail
+      // rather than quietly assert nothing
+      const pullToRefresh = wrapper.findComponent(PullToRefresh);
+      expect(pullToRefresh.exists()).toBe(true);
+      await pullToRefresh.vm.$emit('refresh', () => {});
 
-      if(pullToRefresh?.exists()) {
-        // Get the onRefresh prop and call it
-        const onRefresh = pullToRefresh.props('onRefresh');
-        if(typeof onRefresh === 'function') {
-          await onRefresh();
-        }
-      }
-
-      // Assert refresh event was emitted
       expect(wrapper.emitted('refresh')).toBeTruthy();
+    });
+
+    it('should tell the gesture the refresh is done', async () => {
+      matchMediaMock.mockReturnValue({
+        matches: true,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn()
+      });
+
+      const wrapper = mountDashboard();
+      await wrapper.vm.$nextTick();
+
+      // the spinner spins until `done` is called, so a handler that never
+      // calls it leaves the list stuck mid-refresh
+      const done = vi.fn();
+      await wrapper.findComponent(PullToRefresh).vm.$emit('refresh', done);
+      expect(done).toHaveBeenCalled();
     });
 
     it('pull-to-refresh and button emit same refresh event', async () => {
