@@ -41,17 +41,16 @@
         class="q-pa-sm q-ml-sm"
         :size="$q.screen.gt.xs ? 'sm': 'md'"
         :dropdown-icon="$q.screen.gt.xs ? 'far fa-user' : 'fa fa-bars'">
-        <q-list style="min-width: 300px; font-size: 16px">
-          <q-item-label header>
-            Welcome!
-          </q-item-label>
+        <q-list
+          dense
+          style="min-width: 190px; font-size: 14px">
           <q-item
             v-for="menuItem in menuItems"
             :key="menuItem.route"
             v-close-popup
             clickable
             active-class="bg-grey-3"
-            :class="menuItem.class + ' q-pa-lg'"
+            :class="menuItem.class + ' q-py-sm q-px-md'"
             :active="$route.path === `/${menuItem.route}`"
             @click="navigateTo(menuItem.route)">
             <q-item-section avatar>
@@ -63,13 +62,10 @@
             </q-item-section>
             <q-item-section>{{menuItem.label}}</q-item-section>
           </q-item>
-          <q-separator
-            inset
-            spaced />
           <q-item
             v-close-popup
             clickable
-            class="q-pa-lg"
+            class="q-py-sm q-px-md"
             @click="logout">
             <q-item-section avatar>
               <q-icon
