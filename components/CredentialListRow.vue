@@ -26,11 +26,12 @@
 /*!
  * Copyright (c) 2026 Digital Bazaar, Inc. All rights reserved.
  */
+import {
+  getCredentialConfig, getCredentialTypeLabel
+} from '../lib/useCredentialCardConfig.js';
 import {computed} from 'vue';
 import {config} from '@bedrock/web';
-import {getCredentialConfig} from '../lib/useCredentialCardConfig.js';
 import {getValueFromPointer} from '../lib/helpers.js';
-import {useCredentialCommon} from '@bedrock/vue-vc';
 
 export default {
   name: 'CredentialListRow',
@@ -43,7 +44,6 @@ export default {
   emits: ['select'],
   setup(props) {
     const credential = computed(() => props.credentialRecord.credential);
-    const {credentialName} = useCredentialCommon({credential});
 
     const vcConfig = computed(() => {
       const cardDesigns = config?.vueWallet?.cardDesigns || [];
@@ -85,9 +85,13 @@ export default {
         // the human-readable name of the matched card design, e.g.
         // 'Movie Ticket'
         vcConfig.value?.title,
-        // `credentialName` separates the most granular type into words, so an
-        // unmatched credential reads the same here as it does on its card
-        credentialName.value
+        // separates the most granular type into words, the same way
+        // `@bedrock/vue-vc` names an untitled credential -- but guarded, since
+        // upstream throws on a credential with an empty `type` array
+        getCredentialTypeLabel({
+          credential: credential.value,
+          cardDesigns: config?.vueWallet?.cardDesigns
+        })
       ];
       const title = candidates.find(
         c => typeof c === 'string' && c.trim().length > 0);

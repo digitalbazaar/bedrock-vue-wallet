@@ -11,53 +11,52 @@
         'col-xs-12 column s-pull-area' :
         'row justify-center full-width'"
       @refresh="onPullRefresh">
-      <div class="row justify-center full-width q-mt-lg q-mb-sm">
+      <div class="row justify-center items-center full-width q-mt-lg q-mb-sm">
         <div class="col-md-4 col-sm-6 col-xs-9">
           <search-box
             class="col-grow"
             placeholder="Search credentials"
             @search="search=$event.text" />
         </div>
-        <div class="q-mx-sm q-mt-xs">
+        <div class="q-ml-md">
           <q-btn
             round
             outline
-            size="sm"
             color="primary"
-            class="q-mr-sm"
+            class="s-row-action"
             icon="fas fa-barcode"
             @click="openBarcodeDialog" />
           <q-btn
             v-if="!isMobile"
             round
             outline
-            size="sm"
             color="primary"
+            class="s-row-action q-ml-sm"
             icon="fas fa-sync-alt"
             @click="refresh" />
         </div>
       </div>
       <div
-        v-if="isMobile && credentialTypes.length > 1"
+        v-if="isMobile && credentialCategories.length > 1"
         class="col-xs-12 s-type-band">
         <div class="s-type-chips">
           <q-chip
-            :outline="activeType !== null"
+            :outline="activeCategory !== null"
             clickable
             color="primary"
             text-color="white"
-            @click="activeType = null">
+            @click="activeCategory = null">
             All
           </q-chip>
           <q-chip
-            v-for="type in credentialTypes"
-            :key="type"
-            :outline="activeType !== type"
+            v-for="category in credentialCategories"
+            :key="category"
+            :outline="activeCategory !== category"
             clickable
             color="primary"
             text-color="white"
-            @click="activeType = type">
-            {{type}}
+            @click="activeCategory = category">
+            {{category}}
           </q-chip>
         </div>
       </div>
@@ -86,17 +85,21 @@
       :transition-duration="0">
       <div
         class="column full-height bg-white s-details-panel"
+        :style="detailSurfaceStyle"
         @dragstart.prevent
         @pointerdown="onDetailsPointerDown"
         @pointermove="onDetailsPointerMove"
         @pointerup="onDetailsPointerUp"
         @pointercancel="onDetailsPointerUp">
+        <div
+          class="s-details-band"
+          :style="{backgroundColor: detailSurface.band}" />
         <q-btn
           v-if="isMobile"
           flat
           round
           dense
-          color="dark"
+          :color="detailBandIsLight ? 'dark' : 'white'"
           icon="fas fa-arrow-left"
           class="s-details-back"
           @click="showDetails = false" />
@@ -104,7 +107,7 @@
           flat
           round
           dense
-          color="dark"
+          :color="detailBandIsLight ? 'dark' : 'white'"
           icon="fas fa-ellipsis-v"
           class="s-details-menu">
           <q-menu
@@ -145,25 +148,57 @@
         <credential-details
           v-if="selectedRecord"
           :credential="selectedRecord.credential"
-          :card-styles="{}"
-          :card-background="''"
-          :credential-overrides="{}"
-          :credential-highlights="{}"
-          :credential-holder-name="''"
+          :card-styles="detailCardStyles"
+          :card-background="detailCardBackground"
+          :credential-overrides="detailCardOverrides"
+          :credential-highlights="detailCardHighlights"
+          :credential-holder-name="detailHolderName"
+          :hide-card="detailHeroImage !== ''"
           :hide-close="true"
           :hide-remove="true"
           :hide-views="true"
+          :transparent-surface="true"
           :toggle-delete-window="toggleDeleteWindow"
           :toggle-details-window="() => showDetails = false">
           <template #under-card>
             <div
+              v-if="detailHeroImage"
+              class="column items-center">
+              <div
+                class="s-details-hero"
+                :style="{
+                  borderColor: detailSurface.ring,
+                  boxShadow: detailSurface.shadow
+                }">
+                <img :src="detailHeroImage">
+              </div>
+            </div>
+            <div
               v-if="credentialQrValue"
-              class="row justify-center q-mt-lg">
+              class="column items-center s-details-qr">
               <qr-code
                 :url="credentialQrValue"
                 width="180px"
                 height="180px"
                 :border="false" />
+              <div class="q-mt-sm text-subtitle1 text-weight-medium">
+                {{detailTitle}}
+              </div>
+            </div>
+            <div
+              v-if="detailFields.length"
+              class="q-mt-lg s-details-fields">
+              <div
+                v-for="field in detailFields"
+                :key="field.label"
+                class="q-mb-md">
+                <div class="text-grey text-body2">
+                  {{field.label}}
+                </div>
+                <div class="text-body1">
+                  {{field.value}}
+                </div>
+              </div>
             </div>
           </template>
         </credential-details>
@@ -210,11 +245,16 @@
  */
 import {computed, onMounted, onUnmounted, ref, toRef, watch} from 'vue';
 import {formatString, getValueFromPointer} from '../lib/helpers.js';
+import {getCardSurface, getLuminance} from '../lib/cardSurface.js';
+import {
+  getCredentialCategory, getCredentialConfig, getCredentialTypeLabel
+} from '../lib/useCredentialCardConfig.js';
+import {analyzeArtwork} from '../lib/imageColor.js';
 import {config} from '@bedrock/web';
 import {createEmitExtendable} from '@digitalbazaar/vue-extendable-event';
 import CredentialDetails from './CredentialDetails.vue';
 import CredentialsList from './CredentialsList.vue';
-import {getCredentialTypeLabel} from '../lib/useCredentialCardConfig.js';
+import {getRenderedImages} from '../lib/renderMethod.js';
 import PullToRefresh from './PullToRefresh.vue';
 import QrCode from './QrCode.vue';
 import SearchBox from './SearchBox.vue';
@@ -229,6 +269,16 @@ const SWIPE_BACK_DISTANCE = 60;
 // a drag has to move this far before the panel takes ownership of the pointer,
 // which keeps short taps on the buttons inside the panel working
 const CAPTURE_DISTANCE = 8;
+
+// used when neither the card design nor the app's branding names a colour
+const DEFAULT_BAND_COLOR = '#3498DB';
+
+// at or above this luminance a configured colour is indistinguishable from the
+// card's own white surface
+const WHITE_ISH_LUMINANCE = 0.85;
+
+// shown for credentials no configured rule claims
+const UNCATEGORISED = 'Other';
 
 export default {
   name: 'CredentialDashboard',
@@ -278,7 +328,7 @@ export default {
     const selectedRecord = ref(null);
     const showDelete = ref(false);
     const credentials = toRef(props, 'credentials');
-    const activeType = ref(null);
+    const activeCategory = ref(null);
     // resolved before the first render, not in `onMounted`: mounting later
     // would paint the desktop layout once and then re-center it, which reads
     // as the search field jumping sideways as the page loads
@@ -297,48 +347,37 @@ export default {
       _mq?.removeEventListener('change', _onMqChange);
     });
 
-    function credentialType(credential) {
-      return getCredentialTypeLabel({
-        credential, cardDesigns: config?.vueWallet?.cardDesigns
-      });
+    function credentialCategory(credential) {
+      return getCredentialCategory({
+        credential, categories: config?.vueWallet?.credentialCategories
+      }) ?? UNCATEGORISED;
     }
 
-    // Credential kinds actually held, ordered by their `cardDesigns` position
-    // so chips keep a stable order as credentials come and go; kinds with no
-    // configured design follow, alphabetically
-    const credentialTypes = computed(() => {
-      const designs = config?.vueWallet?.cardDesigns ?? [];
-      const designOrder = new Map(
-        designs.map((design, index) => [design.title, index]));
-      const present = [...new Set(
-        credentials.value
-          .map(({credential}) => credentialType(credential))
-          .filter(label => label !== undefined)
-      )];
-      return present.sort((a, b) => {
-        const [ia, ib] = [designOrder.get(a), designOrder.get(b)];
-        if(ia !== undefined && ib !== undefined) {
-          return ia - ib;
+    // Categories actually held, in the order the rules declare them, so chips
+    // keep a stable position as credentials come and go
+    const credentialCategories = computed(() => {
+      const rules = config?.vueWallet?.credentialCategories ?? [];
+      const order = [];
+      for(const {category} of rules) {
+        if(!order.includes(category)) {
+          order.push(category);
         }
-        if(ia !== undefined) {
-          return -1;
-        }
-        if(ib !== undefined) {
-          return 1;
-        }
-        return a.localeCompare(b);
-      });
+      }
+      order.push(UNCATEGORISED);
+      const present = new Set(credentials.value.map(
+        ({credential}) => credentialCategory(credential)));
+      return order.filter(category => present.has(category));
     });
 
     // Credentials filtered by category (AND) search term
     const filteredCredentials = computed(() => {
       emit('filtered-credentials-loading', true);
-      const type = activeType.value;
+      const category = activeCategory.value;
       const result = credentials.value.filter(({credential}) => {
         if(!credential) {
           return false;
         }
-        if(type && credentialType(credential) !== type) {
+        if(category && credentialCategory(credential) !== category) {
           return false;
         }
         const searchTerm = search.value.toLowerCase();
@@ -382,6 +421,195 @@ export default {
       selectedRecord.value = credentialRecord;
       showDetails.value = true;
     };
+
+    // The band behind the card breaks the page up, but a card configured the
+    // same colour as the band would wash into it. `getCardSurface` moves the
+    // band in lightness until it clears a minimum luminance delta, then picks a
+    // ring and shadow that contrast with whatever it settled on -- a dark
+    // shadow is invisible on a dark band, a light glow on a light one.
+    // the matched card design drives the card's own look; without one the card
+    // stays plain, which is the existing behaviour
+    const detailDesign = computed(() => {
+      const credential = selectedRecord.value?.credential;
+      if(!credential) {
+        return undefined;
+      }
+      return getCredentialConfig({
+        credential, cardDesigns: config?.vueWallet?.cardDesigns
+      });
+    });
+
+    // `formatString` indexes into the value, so an unresolved pointer would
+    // throw rather than render nothing
+    function _format(value, format) {
+      return typeof value === 'string' && value.length > 0 ?
+        formatString(value, format) : '';
+    }
+
+    const detailCardStyles = computed(() => ({
+      textColor: detailDesign.value?.styles?.textColor || '',
+      backgroundColor: detailDesign.value?.styles?.backgroundColor || ''
+    }));
+
+    // same gradient the card bundle paints, so a credential looks the same in
+    // the mobile details view as it does on its card
+    const detailCardBackground = computed(() => {
+      const start = detailCardStyles.value.backgroundColor;
+      if(!start) {
+        return 'background-color: #FFF';
+      }
+      return `background: linear-gradient(
+        140deg, ${start} 1%, ${start}DF 50%, ${start} 100%)`;
+    });
+
+    const detailCardOverrides = computed(() => {
+      const credential = selectedRecord.value?.credential;
+      const overrides = detailDesign.value?.overrides;
+      if(!credential || !overrides) {
+        return {};
+      }
+      const resolved = {};
+      if(overrides.imagePointer) {
+        const image = getValueFromPointer(credential, overrides.imagePointer);
+        resolved.image = typeof image === 'string' ?
+          image : (image?.id ?? '');
+      }
+      if(overrides.title) {
+        resolved.title = _format(
+          getValueFromPointer(credential, overrides.title.pointer),
+          overrides.title.format);
+      }
+      if(overrides.subtitle) {
+        resolved.subtitle = _format(
+          getValueFromPointer(credential, overrides.subtitle.pointer),
+          overrides.subtitle.format);
+      }
+      return resolved;
+    });
+
+    // the credential's own artwork, shown at card scale in the top section;
+    // without one the plain card renders as before
+    // a credential that renders itself (`renderMethod`) shows that rendering;
+    // it is the credential's own artwork, not a logo on a white card
+    const detailRenderedImages = ref([]);
+    // a rendered credential carries its colours inside the image, where no
+    // config can describe them, so the band is derived from the artwork
+    const detailArtworkColor = ref('');
+    watch(selectedRecord, async record => {
+      detailRenderedImages.value = [];
+      detailArtworkColor.value = '';
+      if(!record?.credential) {
+        return;
+      }
+      const credential = record.credential;
+      const images = await getRenderedImages({credential});
+      // a slower render must not overwrite a newer selection
+      if(selectedRecord.value?.credential !== credential) {
+        return;
+      }
+      detailRenderedImages.value = images;
+      if(images.length === 0) {
+        return;
+      }
+      // some render methods draw their own frame around the card; showing that
+      // inside our own card reads as a card within a card
+      const {src, color} = await analyzeArtwork({src: images[0]});
+      if(selectedRecord.value?.credential !== credential) {
+        return;
+      }
+      detailRenderedImages.value = [src, ...images.slice(1)];
+      if(color) {
+        detailArtworkColor.value = color;
+      }
+    }, {immediate: true});
+
+    const detailHeroImage = computed(
+      () => detailRenderedImages.value[0] ?? '');
+
+    // the fields a credential actually carries. Configured `highlights` win,
+    // since they name and order what matters; a credential with no design falls
+    // back to its own subject fields, which is better than showing nothing.
+    const detailFields = computed(() => {
+      const credential = selectedRecord.value?.credential;
+      if(!credential) {
+        return [];
+      }
+      const highlights = detailDesign.value?.highlights;
+      if(Array.isArray(highlights) && highlights.length > 0) {
+        return highlights
+          .map(({field, pointer, format, joinWith}) => ({
+            label: field,
+            value: _format(
+              getValueFromPointer(credential, pointer, joinWith), format)
+          }))
+          .filter(({label, value}) => value.length > 0 &&
+            // `CredentialDetails` renders the description itself, and several
+            // designs also list it as a highlight
+            label.toLowerCase() !== 'description' &&
+            !label.toLowerCase().includes('image') &&
+            !value.startsWith('data:'));
+      }
+      const subject = credential.credentialSubject ?? {};
+      return Object.entries(subject)
+        .filter(([key, value]) => typeof value === 'string' &&
+          value.length > 0 && !key.toLowerCase().includes('image') &&
+          !value.startsWith('data:'))
+        .filter(([key]) => key.toLowerCase() !== 'description')
+        .map(([key, value]) => ({
+          label: formatString(key, 'capitalizeAndSeparate'), value
+        }));
+    });
+
+    const detailCardHighlights = computed(() => Object.fromEntries(
+      detailFields.value.map(({label, value}) => [label, value])));
+
+    const detailHolderName = computed(() => {
+      const holder = selectedRecord.value?.meta?.holder;
+      const profile = props.profiles.find(({id}) => id === holder);
+      return profile?.name ?? '';
+    });
+
+    const detailTitle = computed(() => {
+      const credential = selectedRecord.value?.credential;
+      if(!credential) {
+        return '';
+      }
+      const candidates = [
+        detailCardOverrides.value.title,
+        credential.name,
+        getCredentialTypeLabel({
+          credential, cardDesigns: config?.vueWallet?.cardDesigns
+        })
+      ];
+      return candidates.find(
+        c => typeof c === 'string' && c.trim().length > 0)?.trim() ?? '';
+    });
+
+    const detailSurface = computed(() => {
+      const branding = config?.vueWallet?.branding;
+      const designColor = detailCardStyles.value.backgroundColor;
+      // a design declaring white is declaring "no colour" (several do), and
+      // deriving a band from it only yields grey
+      const configuredColor =
+        designColor && getLuminance(designColor) <= WHITE_ISH_LUMINANCE ?
+          designColor : '';
+      // the artwork's own colour first, then the design's, then the brand
+      const surfaceColor = detailArtworkColor.value || configuredColor ||
+        '#FFFFFF';
+      const bandColor = detailArtworkColor.value || configuredColor ||
+        branding?.brand?.primary || DEFAULT_BAND_COLOR;
+      // measured against the card itself, so a card the same colour as the
+      // band still separates from it
+      return getCardSurface({bandColor, surfaceColor});
+    });
+
+    const detailBandIsLight = computed(
+      () => getLuminance(detailSurface.value.band) > 0.5);
+
+    const detailSurfaceStyle = computed(() => ({
+      '--s-card-ring': detailSurface.value.ring,
+      '--s-card-shadow': detailSurface.value.shadow
+    }));
 
     // the QR encodes the credential's own identifier -- the only stable,
     // real value available here. What it should resolve to for a verifier is
@@ -551,9 +779,20 @@ export default {
     }
 
     return {
-      activeType,
+      activeCategory,
+      credentialCategories,
       credentialQrValue,
-      credentialTypes,
+      detailBandIsLight,
+      detailCardBackground,
+      detailCardOverrides,
+      detailCardHighlights,
+      detailCardStyles,
+      detailFields,
+      detailHeroImage,
+      detailHolderName,
+      detailTitle,
+      detailSurface,
+      detailSurfaceStyle,
       deleteCredential,
       filteredCredentials,
       filteredProfiles,
@@ -580,11 +819,23 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+// matches the dense outlined search field beside it, so the two read as one
+// control row rather than a field with a smaller satellite button
+.s-row-action {
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  min-height: 40px;
+  padding: 0;
+}
+
 // a single non-wrapping row that scrolls sideways: the band must never grow a
 // second line and push the list down, and a chip clipped at the right edge is
 // what tells someone there is more to scroll to
 .s-type-band {
   flex: 0 0 auto;
+  // breathing room between the filter band and the first row
+  margin-bottom: 10px;
   // the band must be exactly as wide as the view and scroll its content
   // internally; without the cap its un-wrappable chips size the box instead
   min-width: 0;
@@ -615,6 +866,76 @@ export default {
   :deep(img) {
     -webkit-user-drag: none;
   }
+}
+
+// sits behind the card so the page reads as two surfaces rather than one long
+// white sheet. Deep enough to contain the card's shadow: the card bottoms out
+// at ~221px (48px of column padding plus its fixed 3.375:2.125 height) and the
+// shadow reaches ~40px past that, which otherwise smudges grey onto the white.
+.s-details-band {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 272px;
+  z-index: 0;
+}
+
+// the credential's artwork occupies the same footprint the plain card would,
+// so the band's depth holds either way
+.s-details-hero {
+  // the artwork is the card: it gets no white frame behind it, only a rounded
+  // clip and the ring/shadow that separate it from the band
+  width: 275px;
+  max-width: 100%;
+  aspect-ratio: 3.375 / 2.125;
+  border-radius: 16px;
+  border: 1px solid;
+  overflow: hidden;
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+// the QR is a PNG with its own white background, so it has to clear the band
+// entirely or it notches into it: the card bottoms out at ~221px and the band
+// runs to 272px, so this starts the QR just past the band's edge
+.s-details-qr {
+  margin-top: 56px;
+}
+
+// credential tokens and ids are long unbroken strings; they must break rather
+// than set the width of anything that contains them
+.s-details-fields,
+.s-details-qr,
+:deep(.q-card__section) {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.s-details-fields {
+  width: 100%;
+}
+
+// the card's own edge treatment, resolved against whatever the band settled on
+:deep(.card) {
+  border: 1px solid var(--s-card-ring);
+  box-shadow: var(--s-card-shadow);
+}
+
+:deep(.details-dialog) {
+  position: relative;
+  z-index: 1;
+  // as a flex item its automatic minimum size is its longest unbroken string
+  // (credential tokens and ids run hundreds of characters), which widened the
+  // panel and pushed the page sideways
+  min-width: 0;
+  max-width: 100%;
 }
 
 .s-details-back {

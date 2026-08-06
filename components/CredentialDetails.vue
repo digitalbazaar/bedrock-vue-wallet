@@ -1,7 +1,7 @@
 <template>
   <q-card
     flat
-    class="details-dialog">
+    :class="['details-dialog', {'bg-transparent': transparentSurface}]">
     <div class="row full-height">
       <!-- Close button -->
       <q-btn
@@ -14,12 +14,15 @@
         class="absolute-top-right q-ma-sm"
         style="font-size: 0.75em; z-index: 1;" />
       <!-- Left side details -->
-      <div class="col-xs-12 col-md-5 bg-white q-pt-xl q-pb-md q-px-xl">
+      <div
+        class="col-xs-12 col-md-5 q-pt-xl q-pb-md q-px-xl"
+        :class="transparentSurface ? '' : 'bg-white'">
         <div
           class="row justify-center full-height"
           :class="nfcClass">
           <q-card-section class="q-pa-none text-body1 text-left">
             <q-card
+              v-if="!hideCard"
               class="card q-mx-auto"
               :style="cardBackground">
               <credential-switch
@@ -156,6 +159,10 @@ export default {
     },
     // set by callers that supply their own chrome (e.g. the mobile details
     // route, which owns the back arrow and an overflow menu)
+    hideCard: {
+      type: Boolean,
+      default: false
+    },
     hideClose: {
       type: Boolean,
       default: false
@@ -165,6 +172,12 @@ export default {
       default: false
     },
     hideViews: {
+      type: Boolean,
+      default: false
+    },
+    // when the caller paints its own background behind the card (e.g. a
+    // coloured band), this component must not cover it with its own white
+    transparentSurface: {
       type: Boolean,
       default: false
     },
