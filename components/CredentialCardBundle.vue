@@ -100,8 +100,10 @@ import {
   CredentialSwitch, DynamicImage, useCredentialCommon
 } from '@bedrock/vue-vc';
 import {formatString, getValueFromPointer} from '../lib/helpers.js';
+import {
+  getCredentialConfig as _getCredentialConfig
+} from '../lib/useCredentialCardConfig.js';
 import {config} from '@bedrock/web';
-import {getCredentialConfig as _getCredentialConfig} from '../lib/useCredentialCardConfig.js';
 import {svg as contactlessSvg} from './contactless.js';
 import {createEmitExtendable} from '@digitalbazaar/vue-extendable-event';
 import CredentialDetails from './CredentialDetails.vue';

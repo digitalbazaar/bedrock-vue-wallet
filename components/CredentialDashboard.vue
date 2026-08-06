@@ -11,7 +11,8 @@
         'col-xs-12 column s-pull-area' :
         'row justify-center full-width'"
       @refresh="onPullRefresh">
-      <div class="row justify-center items-center full-width q-mt-lg q-mb-sm">
+      <div
+        class="row justify-center items-center full-width q-mb-sm s-search-row">
         <div class="col-md-4 col-sm-6 col-xs-9">
           <search-box
             class="col-grow"
@@ -832,17 +833,33 @@ export default {
 // a single non-wrapping row that scrolls sideways: the band must never grow a
 // second line and push the list down, and a chip clipped at the right edge is
 // what tells someone there is more to scroll to
+// the search field sits 21px from the edge and a chip carries its own 4px
+// margin, so the band's padding makes up the difference and the first chip
+// lines up with the field above it
+$content-inset: 21px;
+$chip-margin: 4px;
+
+// the same gap the chip band leaves above the first row, so the view breathes
+// evenly between the header, the controls and the list
+$section-gap: 26px;
+
+.s-search-row {
+  margin-top: $section-gap;
+}
+
 .s-type-band {
   flex: 0 0 auto;
   // breathing room between the filter band and the first row
   margin-bottom: 10px;
+  padding-left: $content-inset - $chip-margin;
   // the band must be exactly as wide as the view and scroll its content
   // internally; without the cap its un-wrappable chips size the box instead
   min-width: 0;
   max-width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  padding: 0 8px 4px;
+  padding-right: 8px;
+  padding-bottom: 4px;
 
   // a visible scrollbar under the chips reads as a stray horizontal rule
   scrollbar-width: none; // Firefox
