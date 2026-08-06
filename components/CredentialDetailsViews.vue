@@ -69,7 +69,7 @@
         class="bg-grey-2 q-px-none text-center">
         <div class="details-view">
           <q-spinner
-            v-if="showDisplays && !credentialImages.length"
+            v-if="showDisplays && !displays.length"
             size="48px"
             color="primary"
             style="margin-top: 90px" />
@@ -88,17 +88,23 @@
             class="bg-grey-2 q-mb-none fit"
             navigation-icon="far fa-circle">
             <q-carousel-slide
-              v-for="(image, index) in credentialImages"
-              :key="image"
+              v-for="(display, index) in displays"
+              :key="index"
               :name="index + 1"
               class="q-pa-none">
               <q-scroll-area class="fit bg-grey-2">
                 <div class="flex">
                   <q-img
-                    :src="image"
+                    v-if="display.kind === 'image'"
+                    :src="display.content"
                     spinner-color="primary"
                     class="q-mx-auto rounded-borders"
                     style="max-width: 100%; pointer-events: none;" />
+                  <credential-html-display
+                    v-else-if="display.kind === 'html'"
+                    :credential="credential"
+                    :render-method="display.renderMethod"
+                    class="full-width" />
                 </div>
               </q-scroll-area>
             </q-carousel-slide>
@@ -145,6 +151,7 @@
  */
 import {onBeforeMount, onMounted, reactive, ref} from 'vue';
 import CredentialDetailsTree from './CredentialDetailsTree.vue';
+import CredentialHtmlDisplay from './CredentialHtmlDisplay.vue';
 import {date} from 'quasar';
 import Mustache from 'mustache';
 
@@ -152,7 +159,7 @@ const {formatDate} = date;
 
 export default {
   name: 'CredentialDetailsViews',
-  components: {CredentialDetailsTree},
+  components: {CredentialDetailsTree, CredentialHtmlDisplay},
   props: {
     credential: {
       type: Object,
@@ -180,7 +187,9 @@ export default {
     const showDetails = ref(true);
     const showDisplays = ref(false);
     const showHighlights = ref(false);
-    const credentialImages = reactive([]);
+    // unified display list
+    // {kind: 'image', content} | {kind: 'html', renderMethod}
+    const displays = reactive([]);
 
     // Select initial tab
     onMounted(() => {
@@ -192,11 +201,6 @@ export default {
         tab.value = 'displays';
       }
     });
-
-    // Constants
-    const supportedRenderMethods = [
-      'SvgRenderingTemplate2023', 'SvgRenderingTemplate2024'
-    ];
 
     // Scroll area bar style
     const scrollBarStyles = {
@@ -216,14 +220,15 @@ export default {
     async function getDisplaysFromRenderMethod() {
       if(props.credential?.renderMethod?.length) {
         props.credential.renderMethod.forEach(async rm => {
-          if(supportedRenderMethods.includes(rm.type)) {
-            if(rm.type === 'SvgRenderingTemplate2023') {
-              useRenderTemplate2023(rm.id);
-            } else if(rm.type === 'SvgRenderingTemplate2024') {
-              const {template, url} = rm;
-              const values = props.credential;
-              await useRenderTemplate2024(template, url, values);
-            }
+          if(rm.type === 'SvgRenderingTemplate2023') {
+            useRenderTemplate2023(rm.id);
+          } else if(rm.type === 'SvgRenderingTemplate2024') {
+            const {template, url} = rm;
+            const values = props.credential;
+            await useRenderTemplate2024(template, url, values);
+          } else if(rm.type === 'TemplateRenderMethod' &&
+            rm.renderSuite === 'html') {
+            useHtmlRenderMethod(rm);
           }
         });
       }
@@ -235,7 +240,7 @@ export default {
      * @param {string} srcValue - Data URI.
      */
     function useRenderTemplate2023(srcValue) {
-      credentialImages.push(srcValue);
+      displays.push({kind: 'image', content: srcValue});
     }
 
     /*
@@ -279,7 +284,13 @@ export default {
 
       const rv = Mustache.render(template, {...values, ...formattingFunctions});
       const image = `data:image/svg+xml;base64,${btoa(rv)}`;
-      credentialImages.push(image);
+      displays.push({kind: 'image', content: image});
+    }
+
+    // Adds an HTML render method to the displays list; the sandboxed render
+    // is performed by the CredentialHtmlDisplay component.
+    function useHtmlRenderMethod(renderMethod) {
+      displays.push({kind: 'html', renderMethod});
     }
 
     return {
@@ -290,7 +301,7 @@ export default {
       showDisplays,
       showHighlights,
       scrollBarStyles,
-      credentialImages
+      displays
     };
   }
 };
