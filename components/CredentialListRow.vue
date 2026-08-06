@@ -1,7 +1,12 @@
 <template>
   <div
     class="credential-list-row row items-center q-px-md q-py-sm"
-    @click="$emit('select', credentialRecord)">
+    role="button"
+    tabindex="0"
+    :aria-label="`Open ${rowTitle}`"
+    @click="$emit('select', credentialRecord)"
+    @keydown.enter.prevent="$emit('select', credentialRecord)"
+    @keydown.space.prevent="$emit('select', credentialRecord)">
     <q-avatar
       v-if="rowImage"
       square
@@ -107,6 +112,11 @@ export default {
 .credential-list-row {
   cursor: pointer;
   position: relative;
+
+  &:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: -2px;
+  }
 
   // an inset rule rather than `border-bottom`: a full-bleed border runs wider
   // than the row's content and reads as a line escaping the list. The insets

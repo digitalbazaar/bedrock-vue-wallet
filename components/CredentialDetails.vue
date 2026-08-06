@@ -133,7 +133,7 @@
 /*!
  * Copyright (c) 2015-2026 Digital Bazaar, Inc.
  */
-import {computed, ref, toRaw} from 'vue';
+import {computed, ref} from 'vue';
 import {
   CredentialSwitch, DynamicImage, useCredentialCommon
 } from '@bedrock/vue-vc';
@@ -216,7 +216,6 @@ export default {
     const showDelete = ref(false);
     const nfcSharing = ref(false);
     const nfcShareComponent = ref(null);
-    console.log('Credential details', toRaw(props.credential));
 
     const nfcClass = computed(() => {
       const isNfcSharing = nfcSharing.value;

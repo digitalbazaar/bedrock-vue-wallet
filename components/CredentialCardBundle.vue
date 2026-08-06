@@ -249,7 +249,9 @@ export default {
         currentCardProfile.value = getProfile(credentialRecord.meta.holder);
         card.value = true;
       } catch(e) {
-        if(e.response.status !== 404) {
+        // an offline or timed-out request has no `response` at all, and
+        // reading through it threw before the delete was ever emitted
+        if(e.response?.status !== 404) {
           console.error(e); // log unexpected error
         }
       }

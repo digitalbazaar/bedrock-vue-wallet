@@ -36,6 +36,9 @@ const REFRESH_OFFSET = 56;
 // and keeps a long drag from tearing the list off the top of the screen
 const DAMPING = 0.5;
 
+// how long to wait for a consumer to report that its refresh finished
+const REFRESH_TIMEOUT = 10000;
+
 export default {
   name: 'PullToRefresh',
   emits: ['refresh'],
@@ -103,7 +106,9 @@ export default {
       }
       // hold the gesture so the page does not scroll under the pull
       event.preventDefault();
-      pull.value = Math.min(dy * DAMPING, MAX_PULL);
+      // clamped at zero: dragging back up past the start point would otherwise
+      // translate the list off the top of the screen
+      pull.value = Math.max(0, Math.min(dy * DAMPING, MAX_PULL));
     };
 
     const onTouchEnd = () => {
@@ -120,10 +125,24 @@ export default {
       }
       refreshing.value = true;
       pull.value = REFRESH_OFFSET;
-      emit('refresh', () => {
+      let settled = false;
+      let watchdog = null;
+      const done = () => {
+        if(settled) {
+          return;
+        }
+        settled = true;
+        clearTimeout(watchdog);
         refreshing.value = false;
         pull.value = 0;
-      });
+      };
+      // a consumer that never calls `done` would otherwise leave the spinner
+      // up and block every later pull for the rest of the session
+      watchdog = setTimeout(() => {
+        console.warn('Refresh did not report completion; releasing the pull.');
+        done();
+      }, REFRESH_TIMEOUT);
+      emit('refresh', done);
     };
 
     return {

@@ -13,6 +13,15 @@
       @refresh="onPullRefresh">
       <div
         class="row justify-center items-center full-width q-mb-sm s-search-row">
+        <!-- pulling to refresh is unreachable by keyboard, and with a screen
+        reader running touch is intercepted before the gesture ever starts -->
+        <q-btn
+          v-if="isMobile"
+          flat
+          dense
+          class="s-visually-hidden"
+          label="Refresh credentials"
+          @click="refresh" />
         <div class="col-md-4 col-sm-6 col-xs-9">
           <search-box
             class="col-grow"
@@ -26,6 +35,7 @@
             color="primary"
             class="s-row-action"
             icon="fas fa-barcode"
+            aria-label="Scan a barcode"
             @click="openBarcodeDialog" />
           <q-btn
             v-if="!isMobile"
@@ -100,16 +110,18 @@
           flat
           round
           dense
-          :color="detailBandIsLight ? 'dark' : 'white'"
+          :color="detailForeground"
           icon="fas fa-arrow-left"
+          aria-label="Back to credentials"
           class="s-details-back"
           @click="showDetails = false" />
         <q-btn
           flat
           round
           dense
-          :color="detailBandIsLight ? 'dark' : 'white'"
+          :color="detailForeground"
           icon="fas fa-ellipsis-v"
+          aria-label="Credential actions"
           class="s-details-menu">
           <q-menu
             auto-close
@@ -171,7 +183,9 @@
                   borderColor: detailSurface.ring,
                   boxShadow: detailSurface.shadow
                 }">
-                <img :src="detailHeroImage">
+                <img
+                  :src="detailHeroImage"
+                  :alt="`${detailTitle} card artwork`">
               </div>
             </div>
             <div
@@ -193,7 +207,7 @@
                 v-for="field in detailFields"
                 :key="field.label"
                 class="q-mb-md">
-                <div class="text-grey text-body2">
+                <div class="text-grey-8 text-body2">
                   {{field.label}}
                 </div>
                 <div class="text-body1">
@@ -214,7 +228,9 @@
         style="border-radius: 12px;">
         <q-card-section class="row items-center">
           <div class="text-body1 q-ma-md">
-            Permanently remove this credential?
+            Permanently remove {{detailTitle || 'this credential'}}? This
+            cannot be undone, and a credential you cannot request again from
+            its issuer is gone for good.
           </div>
         </q-card-section>
         <q-card-actions align="between">
@@ -409,9 +425,14 @@ export default {
       emit('refresh');
     };
 
-    const onPullRefresh = done => {
-      refresh();
-      done?.();
+    const onPullRefresh = async done => {
+      try {
+        // extendable, so a parent that awaits its fetch keeps the spinner up
+        // until the list has actually been refreshed
+        await emitExtendable('refresh');
+      } finally {
+        done?.();
+      }
     };
 
     const openBarcodeDialog = () => {
@@ -586,6 +607,14 @@ export default {
         c => typeof c === 'string' && c.trim().length > 0)?.trim() ?? '';
     });
 
+    // a chip disappears once its last credential is gone; leaving it active
+    // filtered the list to nothing with no way back but a reload
+    watch(credentialCategories, categories => {
+      if(activeCategory.value && !categories.includes(activeCategory.value)) {
+        activeCategory.value = null;
+      }
+    });
+
     const detailSurface = computed(() => {
       const branding = config?.vueWallet?.branding;
       const designColor = detailCardStyles.value.backgroundColor;
@@ -604,8 +633,9 @@ export default {
       return getCardSurface({bandColor, surfaceColor});
     });
 
-    const detailBandIsLight = computed(
-      () => getLuminance(detailSurface.value.band) > 0.5);
+    // `getCardSurface` picks this by measured contrast; re-deriving it here
+    // with a luminance midpoint put white icons on mid-tone bands at 2.5:1
+    const detailForeground = computed(() => detailSurface.value.foreground);
 
     const detailSurfaceStyle = computed(() => ({
       '--s-card-ring': detailSurface.value.ring,
@@ -766,12 +796,12 @@ export default {
       if(vcConfig?.overrides?.title) {
         const {title} = vcConfig.overrides;
         const titleValue = getValueFromPointer(credential, title.pointer);
-        titleOverride = formatString(titleValue, title.format) ?? '';
+        titleOverride = _format(titleValue, title.format);
       }
       if(vcConfig?.overrides?.subtitle) {
         const {subtitle} = vcConfig.overrides;
         const stValue = getValueFromPointer(credential, subtitle.pointer);
-        subtitleOverride = formatString(stValue, subtitle.format) ?? '';
+        subtitleOverride = _format(stValue, subtitle.format);
       }
       return {
         titleOverride,
@@ -783,7 +813,7 @@ export default {
       activeCategory,
       credentialCategories,
       credentialQrValue,
-      detailBandIsLight,
+      detailForeground,
       detailCardBackground,
       detailCardOverrides,
       detailCardHighlights,
@@ -870,17 +900,37 @@ $section-gap: 26px;
   }
 }
 
+// reachable by keyboard and screen reader, absent from the visual design
+.s-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+
+  &:focus-visible {
+    position: static;
+    width: auto;
+    height: auto;
+    clip: auto;
+  }
+}
+
 .s-details-panel {
   position: relative;
   width: 100%;
   // the details scroll vertically; horizontal gestures belong to swipe-back,
   // not to the browser
   touch-action: pan-y;
-  // a drag starting on the credential image would otherwise become a native
-  // image drag, which cancels the pointer stream mid-swipe
-  user-select: none;
 
+  // only the artwork resists selection, so a drag starting on it does not turn
+  // into a native image drag mid-swipe. The credential's own values stay
+  // selectable -- an id nobody can copy is an id nobody can use.
   :deep(img) {
+    user-select: none;
     -webkit-user-drag: none;
   }
 }
