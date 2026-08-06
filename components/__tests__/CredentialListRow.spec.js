@@ -1,222 +1,144 @@
 /*!
  * Copyright (c) 2026 Digital Bazaar, Inc. All rights reserved.
  */
-import {expect} from 'chai';
-// Will fail until V04 creates lib/useCredentialCardConfig.js
-import {getCredentialConfig, getHighlights} from
-  '../../lib/useCredentialCardConfig.js';
+import {beforeEach, describe, expect, it} from 'vitest';
+import {config} from '@bedrock/web';
+import CredentialListRow from '../CredentialListRow.vue';
+import {mount} from '@vue/test-utils';
 
-// Credential fixture factory mirroring the cardDesigns matching logic in
-// CredentialCardBundle.vue's getCredentialConfig().
-function makeCredentialRecord(overrides = {}) {
+const ALUMNI_SEAL = 'data:image/png;base64,AAAA';
+const ISSUER_LOGO = 'https://example.com/logo.svg';
+
+// mirrors the shape of a `cardDesigns` entry in the app's config
+const DESIGNS = [{
+  title: 'Permanent Resident Card',
+  matches: {'/type': 'PermanentResidentCard'},
+  // deliberately not `/name`: pointing it there would make a pointer-sourced
+  // title indistinguishable from a name-sourced one, and the test could not
+  // tell the two apart
+  overrides: {
+    title: {pointer: '/credentialSubject/givenName'},
+    imagePointer: '/issuer/image'
+  },
+  // a different field from the title, so 'the highlight is not rendered' and
+  // 'the title is rendered' cannot be satisfied by the same string
+  highlights: [
+    {field: 'Family Name', pointer: '/credentialSubject/familyName'}
+  ]
+}];
+
+function record({credential = {}, meta = {}} = {}) {
   return {
-    credential: {
-      '@context': [
-        'https://www.w3.org/2018/credentials/v1',
-        'https://contexts.vcplayground.org/examples/food-safety-certification/v1.json'
-      ],
-      type: ['VerifiableCredential', 'FoodSafetyCertificationCredential'],
-      issuer: {
-        name: 'Food Safety Board',
-        image: 'https://example.com/issuer.png'
-      },
-      credentialSubject: {
-        name: 'Jane Doe',
-        certification: {
-          type: 'FoodHandler',
-          examDate: '2024-03-01'
-        }
-      },
-      issuanceDate: '2024-03-02',
-      ...overrides.credential
-    },
-    meta: {
-      holder: 'did:example:holder123',
-      ...overrides.meta
-    }
+    credential: {type: ['VerifiableCredential'], ...credential},
+    meta: {id: 'urn:uuid:record-1', holder: 'urn:uuid:profile-1', ...meta}
   };
 }
 
-// cardDesigns fixture with 4 highlights — more than the 2-field cap.
-const cardDesignWith4Highlights = {
-  matches: {
-    '/@context':
-      'https://contexts.vcplayground.org/examples/food-safety-certification/v1.json',
-    '/type': 'FoodSafetyCertificationCredential'
-  },
-  styles: {backgroundColor: '', textColor: ''},
-  overrides: {
-    title: {pointer: '/issuer/name'},
-    imagePointer: '/issuer/image'
-  },
-  highlights: [
-    {field: 'Issued to', pointer: '/credentialSubject/name'},
-    {field: 'Exam Date', pointer: '/credentialSubject/certification/examDate'},
-    {field: 'Date issued', pointer: '/issuanceDate'},
-    {field: 'Cert type', pointer: '/credentialSubject/certification/type'}
-  ]
-};
+function render(credentialRecord) {
+  return mount(CredentialListRow, {props: {credentialRecord}});
+}
 
-// cardDesigns fixture with 1 highlight.
-const cardDesignWith1Highlight = {
-  ...cardDesignWith4Highlights,
-  highlights: [
-    {field: 'Issued to', pointer: '/credentialSubject/name'}
-  ]
-};
+describe('CredentialListRow', () => {
+  beforeEach(() => {
+    config.vueWallet = {cardDesigns: DESIGNS};
+  });
 
-// cardDesigns fixture with 0 highlights.
-const cardDesignWith0Highlights = {
-  ...cardDesignWith4Highlights,
-  highlights: []
-};
-
-describe('CredentialListRow.vue', function() {
-  describe('getCredentialConfig — cardDesigns matching', function() {
-    it('returns the matching entry when all match pointers satisfy the credential',
-      function() {
-        const cardDesigns = [cardDesignWith4Highlights];
-        const {credential} = makeCredentialRecord();
-        const result = getCredentialConfig({credential, cardDesigns});
-        expect(result).to.exist;
-        expect(result.matches).to.deep.equal(
-          cardDesignWith4Highlights.matches);
+  describe('title', () => {
+    // each case names the source the title must come from, so a regression
+    // reports which link of the fallback chain broke
+    const cases = [
+      {
+        from: 'the configured title pointer of a matching design',
+        credential: {
+          type: ['VerifiableCredential', 'PermanentResidentCard'],
+          name: 'Name must not win over a resolved pointer',
+          credentialSubject: {givenName: 'Jane'}
+        },
+        expected: 'Jane'
+      },
+      {
+        from: 'the credential name when no design matches',
+        credential: {type: ['VerifiableCredential'], name: 'Utopia Fire Fighter'},
+        expected: 'Utopia Fire Fighter'
+      },
+      {
+        from: 'the granular type, separated into words',
+        credential: {type: ['VerifiableCredential', 'MovieTicketCredential']},
+        expected: 'Movie Ticket Credential'
+      },
+      {
+        from: 'the base type when the credential has nothing else',
+        credential: {type: ['VerifiableCredential']},
+        expected: 'Verifiable Credential'
+      }
+    ];
+    for(const {from, credential, expected} of cases) {
+      it(`takes the title from ${from}`, () => {
+        const wrapper = render(record({credential}));
+        expect(wrapper.text()).toContain(expected);
       });
+    }
 
-    it('returns undefined when no cardDesigns entry matches the credential',
-      function() {
-        const cardDesigns = [cardDesignWith4Highlights];
-        const credential = {
-          type: ['VerifiableCredential', 'UnknownType'],
-          '@context': ['https://www.w3.org/2018/credentials/v1']
-        };
-        const result = getCredentialConfig({credential, cardDesigns});
-        expect(result).to.be.undefined;
-      });
-
-    it('returns undefined when cardDesigns is empty', function() {
-      const {credential} = makeCredentialRecord();
-      const result = getCredentialConfig({credential, cardDesigns: []});
-      expect(result).to.be.undefined;
+    it('never renders a row without a title', () => {
+      // a credential with no name, no matching design and no granular type
+      const wrapper = render(record({credential: {type: []}}));
+      expect(wrapper.text().trim().length).toBeGreaterThan(0);
     });
   });
 
-  describe('getHighlights — truncation to at most 2', function() {
-    it('returns at most 2 highlights when the matched config defines more than 2',
-      function() {
-        const {credential} = makeCredentialRecord();
-        const highlights = getHighlights({
-          credential, highlights: cardDesignWith4Highlights.highlights
-        });
-        expect(highlights).to.have.lengthOf(2);
-        expect(highlights[0].field).to.equal('Issued to');
-        expect(highlights[1].field).to.equal('Exam Date');
-      });
+  describe('image', () => {
+    it('uses the credential image when present', () => {
+      const wrapper = render(record({
+        credential: {image: ALUMNI_SEAL, issuer: {image: ISSUER_LOGO}}
+      }));
+      expect(wrapper.find('img').attributes('src')).toBe(ALUMNI_SEAL);
+    });
 
-    it('returns exactly 2 highlights when the matched config defines exactly 2',
-      function() {
-        const {credential} = makeCredentialRecord();
-        const twoHighlights = cardDesignWith4Highlights.highlights.slice(0, 2);
-        const highlights = getHighlights({credential, highlights: twoHighlights});
-        expect(highlights).to.have.lengthOf(2);
-      });
+    it('falls back to the issuer image', () => {
+      const wrapper = render(record({credential: {issuer: {image: ISSUER_LOGO}}}));
+      expect(wrapper.find('img').attributes('src')).toBe(ISSUER_LOGO);
+    });
 
-    it('returns 1 highlight when the matched config defines exactly 1, without error',
-      function() {
-        const {credential} = makeCredentialRecord();
-        const highlights = getHighlights({
-          credential, highlights: cardDesignWith1Highlight.highlights
-        });
-        expect(highlights).to.have.lengthOf(1);
-        expect(highlights[0].field).to.equal('Issued to');
-      });
+    it('falls back to the issuer logo', () => {
+      const wrapper = render(record({credential: {issuer: {logo: ISSUER_LOGO}}}));
+      expect(wrapper.find('img').attributes('src')).toBe(ISSUER_LOGO);
+    });
 
-    it('returns 0 highlights when the matched config defines none, without error',
-      function() {
-        const {credential} = makeCredentialRecord();
-        const highlights = getHighlights({
-          credential, highlights: cardDesignWith0Highlights.highlights
-        });
-        expect(highlights).to.have.lengthOf(0);
-      });
+    it('reads the id of an image expressed as an object', () => {
+      const wrapper = render(record({
+        credential: {image: {id: ALUMNI_SEAL, type: 'Image'}}
+      }));
+      expect(wrapper.find('img').attributes('src')).toBe(ALUMNI_SEAL);
+    });
 
-    it('returns 0 highlights when called with no highlights list (no match case)',
-      function() {
-        const {credential} = makeCredentialRecord();
-        const highlights = getHighlights({credential, highlights: undefined});
-        expect(highlights).to.have.lengthOf(0);
-      });
-
-    it('resolves each highlight value from the credential using its pointer',
-      function() {
-        const {credential} = makeCredentialRecord();
-        const highlights = getHighlights({
-          credential, highlights: cardDesignWith4Highlights.highlights
-        });
-        expect(highlights[0].value).to.equal('Jane Doe');
-      });
+    it('renders no img element when the credential carries no image', () => {
+      const wrapper = render(record({credential: {name: 'No Image Here'}}));
+      expect(wrapper.find('img').exists()).toBe(false);
+    });
   });
 
-  describe('CredentialListRow — no matching cardDesigns entry', function() {
-    it('produces no highlights when the credential has no cardDesigns match',
-      function() {
-        const cardDesigns = [cardDesignWith4Highlights];
-        const credential = {
-          type: ['VerifiableCredential', 'UnknownCredentialType'],
-          '@context': ['https://www.w3.org/2018/credentials/v1'],
-          name: 'Unknown'
-        };
-        const config = getCredentialConfig({credential, cardDesigns});
-        const highlights = getHighlights({
-          credential, highlights: config?.highlights
-        });
-        expect(config).to.be.undefined;
-        expect(highlights).to.have.lengthOf(0);
-      });
-
-    it('still provides a title and image source even without a matching config',
-      function() {
-        // CredentialListRow must fall back to the credential's own `name` and
-        // `image` properties (no cardDesigns overrides applied) so the row is
-        // never blank.
-        const credential = {
-          type: ['VerifiableCredential', 'UnknownCredentialType'],
-          '@context': ['https://www.w3.org/2018/credentials/v1'],
-          name: 'My Unknown Credential',
-          image: 'https://example.com/cred.png'
-        };
-        const cardDesigns = [cardDesignWith4Highlights];
-        const config = getCredentialConfig({credential, cardDesigns});
-        expect(config).to.be.undefined;
-        // Fallback values come directly from the credential — the row reads
-        // credential.name and credential.image when no config is found.
-        expect(credential.name).to.equal('My Unknown Credential');
-        expect(credential.image).to.equal('https://example.com/cred.png');
-      });
+  it('renders the title alone, without highlight fields', () => {
+    const wrapper = render(record({
+      credential: {
+        type: ['VerifiableCredential', 'PermanentResidentCard'],
+        name: 'Unused',
+        credentialSubject: {givenName: 'Jane', familyName: 'Doe'}
+      }
+    }));
+    expect(wrapper.text()).toContain('Jane');
+    // 'Family Name' is a configured highlight on the matching design; neither
+    // its label nor its value belongs on a row
+    expect(wrapper.text()).not.toContain('Family Name');
+    expect(wrapper.text()).not.toContain('Doe');
   });
 
-  describe('CredentialListRow — select event on click', function() {
-    it('emits a select event carrying the full credentialRecord on click',
-      function() {
-        // This assertion documents that CredentialListRow.vue must emit
-        // `select` with the credentialRecord when the row is clicked.
-        // Full verification requires component mounting (V04 wires up the
-        // component; T05 uses matchMedia mocking to confirm CredentialsList
-        // renders rows and re-emits their select events).
-        const credentialRecord = makeCredentialRecord();
-        const emitted = [];
-        const fakeEmit = (event, payload) => {
-          if(event === 'select') {
-            emitted.push(payload);
-          }
-        };
-        // Simulate the click handler that CredentialListRow.vue will expose.
-        function handleClick(record, emit) {
-          emit('select', record);
-        }
-        handleClick(credentialRecord, fakeEmit);
-        expect(emitted).to.have.lengthOf(1);
-        expect(emitted[0]).to.deep.equal(credentialRecord);
-      });
+  it('emits the whole record on select, not just the credential', async () => {
+    const credentialRecord = record({credential: {name: 'Tapped'}});
+    const wrapper = render(credentialRecord);
+    await wrapper.find('.credential-list-row').trigger('click');
+    expect(wrapper.emitted('select')).toHaveLength(1);
+    // the details view needs `meta.holder` to delete, so the record has to
+    // travel with the credential
+    expect(wrapper.emitted('select')[0][0]).toStrictEqual(credentialRecord);
   });
 });
