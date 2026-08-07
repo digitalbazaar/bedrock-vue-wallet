@@ -104,6 +104,7 @@
                     v-else-if="display.kind === 'html'"
                     :credential="credential"
                     :render-method="display.renderMethod"
+                    :style-hint="display.style"
                     class="full-width" />
                 </div>
               </q-scroll-area>
@@ -149,13 +150,10 @@
 /*!
  * Copyright (c) 2015-2024 Digital Bazaar, Inc. All rights reserved.
  */
-import {onBeforeMount, onMounted, reactive, ref} from 'vue';
+import {onBeforeMount, reactive, ref} from 'vue';
 import CredentialDetailsTree from './CredentialDetailsTree.vue';
 import CredentialHtmlDisplay from './CredentialHtmlDisplay.vue';
-import {date} from 'quasar';
-import Mustache from 'mustache';
-
-const {formatDate} = date;
+import {getRenderedDisplays} from '../lib/renderMethod.js';
 
 export default {
   name: 'CredentialDetailsViews',
@@ -186,21 +184,11 @@ export default {
     const fullscreen = ref(false);
     const showDetails = ref(true);
     const showDisplays = ref(false);
-    const showHighlights = ref(false);
-    // unified display list
+    const showHighlights = ref(
+      !!Object.keys(props.credentialHighlights ?? {}).length);
+    // the renderings this credential declares for itself
     // {kind: 'image', content} | {kind: 'html', renderMethod}
     const displays = reactive([]);
-
-    // Select initial tab
-    onMounted(() => {
-      showHighlights.value = !!Object.keys(props.credentialHighlights)?.length;
-      showDisplays.value = !!props.credential?.renderMethod?.length;
-      if(showHighlights.value) {
-        tab.value = 'highlights';
-      } else if(showDisplays.value) {
-        tab.value = 'displays';
-      }
-    });
 
     // Scroll area bar style
     const scrollBarStyles = {
@@ -211,87 +199,18 @@ export default {
       backgroundColor: 'gray'
     };
 
-    // Fetch style, overrides, & highlights before component mounts
-    onBeforeMount(() => {
-      getDisplaysFromRenderMethod();
+    // This tab shows every rendering a credential declares, so it takes the
+    // whole list rather than choosing one the way a single card surface does.
+    onBeforeMount(async () => {
+      const {credential} = props;
+      displays.push(...await getRenderedDisplays({credential}));
+      showDisplays.value = displays.length > 0;
+      // opening on an empty highlights tab hides a credential that does have
+      // artwork to show
+      if(!showHighlights.value && showDisplays.value) {
+        tab.value = 'displays';
+      }
     });
-
-    // Extract and parse images from credential's render method property
-    async function getDisplaysFromRenderMethod() {
-      if(props.credential?.renderMethod?.length) {
-        props.credential.renderMethod.forEach(async rm => {
-          if(rm.type === 'SvgRenderingTemplate2023') {
-            useRenderTemplate2023(rm.id);
-          } else if(rm.type === 'SvgRenderingTemplate2024') {
-            const {template, url} = rm;
-            const values = props.credential;
-            await useRenderTemplate2024(template, url, values);
-          } else if(rm.type === 'TemplateRenderMethod' &&
-            rm.renderSuite === 'html') {
-            useHtmlRenderMethod(rm);
-          }
-        });
-      }
-    }
-
-    /**
-     * Uses id for src value in image.
-     *
-     * @param {string} srcValue - Data URI.
-     */
-    function useRenderTemplate2023(srcValue) {
-      displays.push({kind: 'image', content: srcValue});
-    }
-
-    /*
-     * Functions used to format Mustache template values
-     * See: https://github.com/janl/mustache.js#functions
-     *
-     * Example Mustache template use:
-     * {{#formatFnName}}{{valueToFormat}}{{/formatFnName}}
-     */
-    const formattingFunctions = {
-      formatDate: () => (text, render) => {
-        const dateString = render(text);
-        return formatDate(dateString, 'YYYY-MM-DD');
-      }
-    };
-
-    /**
-     * Load svg from url or template then hydrate with credentialSubject values.
-     *
-     * @param {string} template - Svg.
-     * @param {string} url - Url.
-     * @param {object} values - Credential.credentialSubject.
-     */
-    async function useRenderTemplate2024(template, url, values) {
-      // Example credential renderMethod property:
-      //  "renderMethod": [
-      //    {
-      //      "name": "Landscape",
-      //      "mediaQuery": "@media (orientation: landscape)",
-      //      "type": "SvgRenderingTemplate2024",
-      //      "template": "",
-      //      "url": "https://credentialTemplates.dev/example.svg",
-      //      "mediaType": "image/svg+xml",
-      //    }
-      //  ]
-      //
-      if(!template || url) {
-        const resp = await fetch(url);
-        template = await resp.text();
-      }
-
-      const rv = Mustache.render(template, {...values, ...formattingFunctions});
-      const image = `data:image/svg+xml;base64,${btoa(rv)}`;
-      displays.push({kind: 'image', content: image});
-    }
-
-    // Adds an HTML render method to the displays list; the sandboxed render
-    // is performed by the CredentialHtmlDisplay component.
-    function useHtmlRenderMethod(renderMethod) {
-      displays.push({kind: 'html', renderMethod});
-    }
 
     return {
       tab,
