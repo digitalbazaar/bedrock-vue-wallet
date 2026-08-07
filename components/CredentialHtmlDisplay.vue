@@ -25,6 +25,9 @@
 import {onMounted, onUnmounted, ref} from 'vue';
 import {HtmlRenderer} from '@digitalbazaar/vc-html-render-method';
 
+// a height change smaller than this is rounding, not layout
+const HEIGHT_EPSILON = 2;
+
 export default {
   name: 'CredentialHtmlDisplay',
   props: {
@@ -49,6 +52,9 @@ export default {
   setup(props) {
     // Constants
     let handle = null;
+    // the last height written to the mount, so a report that only differs by
+    // rounding can be recognised and dropped
+    let appliedHeight = 0;
 
     // Refs
     const mount = ref(null);
@@ -74,9 +80,20 @@ export default {
         // are not clipped inside the carousel/scroll area
         handle.on('resize', payload => {
           const height = payload?.height ?? payload?.detail?.height;
-          if(height && mount.value) {
-            mount.value.style.height = `${height}px`;
+          if(!height || !mount.value) {
+            return;
           }
+          // Setting the mount height re-lays-out the frame, which reports a
+          // new size, which sets the height again. Observed live against a
+          // real credential: 324, 325, 326, 325, 326, 325... a sub-pixel
+          // rounding difference oscillating instead of settling. Ignore a
+          // change too small to see, which breaks the loop without capping
+          // a genuine resize.
+          if(Math.abs(height - appliedHeight) <= HEIGHT_EPSILON) {
+            return;
+          }
+          appliedHeight = height;
+          mount.value.style.height = `${height}px`;
         });
 
         // resolves on `renderMethodReady()`; rejects on error/timeout
