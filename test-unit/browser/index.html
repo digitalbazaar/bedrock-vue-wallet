@@ -48,12 +48,16 @@ const log = (msg, cls = '') => {
 // credential, write the DOM, signal ready -- and then runs the sandbox checks
 // FROM INSIDE the template frame, which is the only place they mean anything,
 // and paints the verdicts onto the card. No DevTools frame-switching needed.
-const TEMPLATE = `<div id="card" style="font:14px sans-serif;padding:16px;
-  border-radius:12px;background:linear-gradient(135deg,#9e1116,#e1251b);
-  color:#fff;width:340px">
-  <div style="font-size:11px;letter-spacing:2px;opacity:.85">SANDBOX PROBE</div>
-  <div id="n" style="font-size:22px;font-weight:700"></div>
-  <div id="d" style="font-size:12px;opacity:.9;margin-top:6px"></div>
+const TEMPLATE = `<div id="card" style="font:13px ui-monospace,monospace;
+  padding:14px 16px;border:2px dashed #888;border-radius:8px;background:#f4f4f4;
+  color:#222;width:340px">
+  <div style="font-size:11px;letter-spacing:2px;color:#666">SANDBOX PROBE
+    &mdash; NOT THE ISSUER TEMPLATE</div>
+  <div id="n" style="font-size:16px;font-weight:700;margin-top:4px"></div>
+  <div id="d" style="font-size:12px;color:#555;margin-top:2px"></div>
+  <div style="font-size:11px;color:#666;margin-top:8px">This is the
+    credential above, rendered through a probe template instead of its own,
+    so the frame can report on itself. Its renderProperty is unchanged.</div>
 </div>
 <div id="checks" style="font:12px/1.7 ui-monospace,monospace;margin-top:12px;
   width:340px"></div>
