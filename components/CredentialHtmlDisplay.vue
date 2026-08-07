@@ -37,6 +37,13 @@ export default {
     renderMethod: {
       type: Object,
       default: undefined
+    },
+    // the render method's `outputPreference.style`, which states the size the
+    // issuer designed for. Used only to reserve space until the frame reports
+    // its own height, so the card does not open at zero and jump.
+    styleHint: {
+      type: Object,
+      default: undefined
     }
   },
   setup(props) {
@@ -50,6 +57,9 @@ export default {
 
     // Lifecycle hooks
     onMounted(async () => {
+      if(props.styleHint?.height && mount.value) {
+        mount.value.style.height = props.styleHint.height;
+      }
       try {
         // render the issuer template into a nested, sandboxed iframe; the
         // library owns the host-frame CSP (`frame-src 'none'`) and selective

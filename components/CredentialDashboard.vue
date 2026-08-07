@@ -166,7 +166,7 @@
           :credential-overrides="detailCardOverrides"
           :credential-highlights="detailCardHighlights"
           :credential-holder-name="detailHolderName"
-          :hide-card="detailHeroImage !== ''"
+          :hide-card="detailHero !== null"
           :hide-close="true"
           :hide-remove="true"
           :hide-views="true"
@@ -175,7 +175,7 @@
           :toggle-details-window="() => showDetails = false">
           <template #under-card>
             <div
-              v-if="detailHeroImage"
+              v-if="detailHero"
               class="column items-center">
               <div
                 class="s-details-hero"
@@ -184,8 +184,14 @@
                   boxShadow: detailSurface.shadow
                 }">
                 <img
-                  :src="detailHeroImage"
+                  v-if="detailHero.kind === 'image'"
+                  :src="detailHero.content"
                   :alt="`${detailTitle} card artwork`">
+                <credential-html-display
+                  v-else-if="detailHero.kind === 'html'"
+                  :credential="selectedRecord.credential"
+                  :render-method="detailHero.renderMethod"
+                  :style-hint="detailHero.style" />
               </div>
             </div>
             <div
@@ -266,12 +272,13 @@ import {getCardSurface, getLuminance} from '../lib/cardSurface.js';
 import {
   getCredentialCategory, getCredentialConfig, getCredentialTypeLabel
 } from '../lib/useCredentialCardConfig.js';
+import {getRenderedDisplays, selectDisplay} from '../lib/renderMethod.js';
 import {analyzeArtwork} from '../lib/imageColor.js';
 import {config} from '@bedrock/web';
 import {createEmitExtendable} from '@digitalbazaar/vue-extendable-event';
 import CredentialDetails from './CredentialDetails.vue';
+import CredentialHtmlDisplay from './CredentialHtmlDisplay.vue';
 import CredentialsList from './CredentialsList.vue';
-import {getRenderedImages} from '../lib/renderMethod.js';
 import PullToRefresh from './PullToRefresh.vue';
 import QrCode from './QrCode.vue';
 import SearchBox from './SearchBox.vue';
@@ -301,6 +308,7 @@ export default {
   name: 'CredentialDashboard',
   components: {
     CredentialDetails,
+    CredentialHtmlDisplay,
     CredentialsList,
     PullToRefresh,
     QrCode,
@@ -513,40 +521,43 @@ export default {
     // without one the plain card renders as before
     // a credential that renders itself (`renderMethod`) shows that rendering;
     // it is the credential's own artwork, not a logo on a white card
-    const detailRenderedImages = ref([]);
+    const detailHero = ref(null);
     // a rendered credential carries its colours inside the image, where no
     // config can describe them, so the band is derived from the artwork
     const detailArtworkColor = ref('');
     watch(selectedRecord, async record => {
-      detailRenderedImages.value = [];
+      detailHero.value = null;
       detailArtworkColor.value = '';
       if(!record?.credential) {
         return;
       }
       const credential = record.credential;
-      const images = await getRenderedImages({credential});
+      const displays = await getRenderedDisplays({credential});
       // a slower render must not overwrite a newer selection
       if(selectedRecord.value?.credential !== credential) {
         return;
       }
-      detailRenderedImages.value = images;
-      if(images.length === 0) {
+      // which rendering to show is the credential's to steer, through
+      // `outputPreference`, and this surface's to rank -- not a fixed suite
+      const hero = selectDisplay({displays});
+      detailHero.value = hero;
+      // an html rendering runs at an opaque origin inside a sandboxed frame,
+      // so its pixels cannot be read back; the band falls to the design colour
+      if(hero?.kind !== 'image') {
         return;
       }
       // some render methods draw their own frame around the card; showing that
       // inside our own card reads as a card within a card
-      const {src, color} = await analyzeArtwork({src: images[0]});
-      if(selectedRecord.value?.credential !== credential) {
+      const {src, color} = await analyzeArtwork({src: hero.content});
+      if(selectedRecord.value?.credential !== credential ||
+        detailHero.value !== hero) {
         return;
       }
-      detailRenderedImages.value = [src, ...images.slice(1)];
+      detailHero.value = {...hero, content: src};
       if(color) {
         detailArtworkColor.value = color;
       }
     }, {immediate: true});
-
-    const detailHeroImage = computed(
-      () => detailRenderedImages.value[0] ?? '');
 
     // the fields a credential actually carries. Configured `highlights` win,
     // since they name and order what matters; a credential with no design falls
@@ -819,7 +830,7 @@ export default {
       detailCardHighlights,
       detailCardStyles,
       detailFields,
-      detailHeroImage,
+      detailHero,
       detailHolderName,
       detailTitle,
       detailSurface,
