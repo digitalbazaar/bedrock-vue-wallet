@@ -2,9 +2,9 @@
  * Copyright (c) 2026 Digital Bazaar, Inc. All rights reserved.
  */
 import {beforeEach, describe, expect, it, vi} from 'vitest';
+import {flushPromises, mount} from '@vue/test-utils';
 import CredentialHtmlDisplay from
   '../../components/CredentialHtmlDisplay.vue';
-import {flushPromises, mount} from '@vue/test-utils';
 import {lastHandle} from '../mocks/digitalbazaar/vc-html-render-method.js';
 import {Quasar} from 'quasar';
 

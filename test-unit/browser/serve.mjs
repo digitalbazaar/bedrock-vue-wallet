@@ -6,11 +6,12 @@
 // library rather than a copy that can drift from it.
 //
 //   node test-unit/browser/serve.mjs   ->   http://localhost:8765/
-import {createServer} from 'node:http';
-import {readFile} from 'node:fs/promises';
 import {extname, join, normalize} from 'node:path';
+import {createServer} from 'node:http';
+import {env} from 'node:process';
+import {readFile} from 'node:fs/promises';
 
-const PORT = process.env.PORT ?? 8765;
+const PORT = env.PORT ?? 8765;
 const HERE = new URL('.', import.meta.url).pathname;
 // the renderer is a dependency of the package under test, not of this test
 // package, so it installs into the repo root's node_modules
@@ -37,7 +38,7 @@ createServer(async (req, res) => {
       'content-type': TYPES[extname(file)] ?? 'application/octet-stream'
     });
     res.end(body);
-  } catch(e) {
+  } catch{
     res.writeHead(404, {'content-type': 'text/plain'});
     res.end(`not found: ${pathname}\n`);
   }
