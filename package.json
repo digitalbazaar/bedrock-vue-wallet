@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@digitalbazaar/http-client": "^4.1.1",
-    "@digitalbazaar/vc-html-render-method": "github:digitalbazaar/vc-html-render-method#initial-setup",
+    "@digitalbazaar/vc-html-render-method": "^1.0.0",
     "@digitalbazaar/web-app-manifest-utils": "^2.0.0",
     "html5-qrcode": "^2.3.8",
     "mustache": "^4.2.0",
