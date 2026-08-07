@@ -218,29 +218,36 @@ export default {
 
     // Extract and parse images from credential's render method property
     async function getDisplaysFromRenderMethod() {
-      if(props.credential?.renderMethod?.length) {
-        props.credential.renderMethod.forEach(async rm => {
+      const renderMethods = props.credential?.renderMethod;
+      if(!renderMethods?.length) {
+        return;
+      }
+      // `forEach` does not await an async callback, so a fetched template
+      // could be pushed after a render method declared later; resolve them
+      // all first and push in the order the credential declares them
+      const resolved = await Promise.all(renderMethods.map(async rm => {
+        try {
           if(rm.type === 'SvgRenderingTemplate2023') {
-            useRenderTemplate2023(rm.id);
-          } else if(rm.type === 'SvgRenderingTemplate2024') {
+            // the id is itself the image
+            return rm.id ? {kind: 'image', content: rm.id} : null;
+          }
+          if(rm.type === 'SvgRenderingTemplate2024') {
             const {template, url} = rm;
             const values = props.credential;
-            await useRenderTemplate2024(template, url, values);
-          } else if(rm.type === 'TemplateRenderMethod' &&
-            rm.renderSuite === 'html') {
-            useHtmlRenderMethod(rm);
+            return await useRenderTemplate2024(template, url, values);
           }
-        });
-      }
-    }
-
-    /**
-     * Uses id for src value in image.
-     *
-     * @param {string} srcValue - Data URI.
-     */
-    function useRenderTemplate2023(srcValue) {
-      displays.push({kind: 'image', content: srcValue});
+          if(rm.type === 'TemplateRenderMethod' && rm.renderSuite === 'html') {
+            return {kind: 'html', renderMethod: rm};
+          }
+        } catch(e) {
+          // one template that cannot be fetched or rendered must not take the
+          // whole displays tab down with it
+          console.error(
+            'Failed to render credential render method', rm.type, e);
+        }
+        return null;
+      }));
+      displays.push(...resolved.filter(display => display !== null));
     }
 
     /*
@@ -263,6 +270,8 @@ export default {
      * @param {string} template - Svg.
      * @param {string} url - Url.
      * @param {object} values - Credential.credentialSubject.
+     *
+     * @returns {Promise<object>} An image display holding an SVG data URI.
      */
     async function useRenderTemplate2024(template, url, values) {
       // Example credential renderMethod property:
@@ -277,20 +286,30 @@ export default {
       //    }
       //  ]
       //
-      if(!template || url) {
-        const resp = await fetch(url);
+      // the inline template travels inside the signed credential and a fetched
+      // one does not, so an inline template wins when both are present
+      if(!template) {
+        if(typeof url !== 'string' || !/^https:\/\//.test(url)) {
+          // `fetch(undefined)` requested the wallet's own origin and rendered
+          // its markup as the credential's artwork
+          throw new Error(`Unusable render method template url "${url}".`);
+        }
+        const resp = await fetch(url, {credentials: 'omit'});
+        if(!resp.ok) {
+          // an error page would otherwise become the credential's artwork
+          throw new Error(
+            `Render method template fetch failed with ${resp.status}.`);
+        }
         template = await resp.text();
       }
 
       const rv = Mustache.render(template, {...values, ...formattingFunctions});
-      const image = `data:image/svg+xml;base64,${btoa(rv)}`;
-      displays.push({kind: 'image', content: image});
-    }
-
-    // Adds an HTML render method to the displays list; the sandboxed render
-    // is performed by the CredentialHtmlDisplay component.
-    function useHtmlRenderMethod(renderMethod) {
-      displays.push({kind: 'html', renderMethod});
+      // not `btoa`: it is Latin-1 only, so a credential holding any character
+      // above U+00FF (a name in Chinese, Japanese, Korean, Arabic...) threw
+      // and lost its artwork entirely
+      const image =
+        `data:image/svg+xml;charset=utf-8,${encodeURIComponent(rv)}`;
+      return {kind: 'image', content: image};
     }
 
     return {
