@@ -1,0 +1,314 @@
+{
+  "meta": {
+    "prd": "docs/prds/veres-wallet-mobile-listing.md",
+    "feature": "Veres Wallet Mobile Listing Redesign",
+    "created": "2026-08-05T10:18:09-04:00",
+    "status": "complete",
+    "platforms": [
+      "web-mobile"
+    ],
+    "base_branch": "main",
+    "feature_branch": "mobile-listing-redesign",
+    "started_at": "2026-08-05T19:36:32Z",
+    "completed_at": "2026-08-05T19:46:04Z"
+  },
+  "tasks": [
+    {
+      "id": "F01",
+      "phase": 0,
+      "title": "Remove dead filteredProfiles plumbing from CredentialDashboard.vue",
+      "type": "fix",
+      "agent": "haiku",
+      "status": "cancelled",
+      "deps": [],
+      "files": {
+        "modify": [
+          "components/CredentialDashboard.vue"
+        ]
+      },
+      "spec": "In components/CredentialDashboard.vue, remove the unused `filteredProfiles` ref (around line 95) and the watch that emits `filtered-profiles` (around lines 139-141). Confirmed dead: no template control writes to `filteredProfiles`, and no parent component listens for `filtered-profiles`. Search the whole repo for `filteredProfiles` and `filtered-profiles` before removing to confirm zero remaining references, then delete. Do not touch the unrelated `search`/`filteredCredentials` filter -- that one is live and stays. Behavior-preserving cleanup; no test change expected. Run the existing CredentialDashboard test suite (if one exists) and confirm it's unaffected.",
+      "completion_marker": "<TASK_COMPLETE:F01>",
+      "blocked_marker": "<TASK_BLOCKED:F01:reason>",
+      "started_at": "2026-08-05T14:24:34Z",
+      "pane_id": "%8",
+      "log_file": ".orchestrate/logs/F01.log",
+      "completed_at": "2026-08-05T14:25:35Z",
+      "note": "CANCELLED -- the spec was factually wrong, not the agent. It asserted \"no parent component listens for filtered-profiles\"; HomePage.vue does listen (@filtered-profiles=\"filteredProfiles = $event\") and uses it to drive shownProfiles, which gates credential fetching. The agent verified this and correctly refused to delete live code. filteredProfiles is NOT dead code -- it is only unwritten within CredentialDashboard.vue itself."
+    },
+    {
+      "id": "T02",
+      "phase": 0,
+      "title": "Write tests: lifted credential-details dialog in CredentialDashboard.vue",
+      "type": "test",
+      "agent": "sonnet",
+      "status": "complete",
+      "deps": [],
+      "files": {
+        "create": [
+          "components/__tests__/CredentialDashboard.dialog.spec.js"
+        ],
+        "reference": [
+          "components/CredentialDashboard.vue",
+          "components/CredentialCardBundle.vue"
+        ]
+      },
+      "spec": "Write failing tests (they should fail against today's CredentialDashboard.vue, which has no dialog of its own) asserting: (1) CredentialDashboard.vue renders exactly one <credential-details> dialog instance, gated by a `showDetails` ref, initially closed; (2) emitting a `select` event with a credential object from a child component (mock CredentialsList or CredentialListRow stub) sets `showDetails` to true and passes that credential into the dialog's `credential` prop; (3) closing the dialog (v-model false) resets it so a different row's `select` can reopen it with a new credential. Reference CredentialCardBundle.vue's existing `<q-dialog v-model=\"showDetails\">` + `<credential-details>` markup (around lines 37-52) as the pattern being lifted -- same dialog composition, different owner. Use the same test-utils/mounting setup as existing specs in this repo (check for a sibling *.spec.js next to CredentialCardBundle.vue for the harness pattern -- Quasar plugin install, etc.).",
+      "completion_marker": "<TASK_COMPLETE:T02>",
+      "blocked_marker": "<TASK_BLOCKED:T02:reason>",
+      "started_at": "2026-08-05T14:24:34Z",
+      "pane_id": "%9",
+      "log_file": ".orchestrate/logs/T02.log",
+      "completed_at": "2026-08-05T14:29:06Z"
+    },
+    {
+      "id": "V02",
+      "phase": 0,
+      "title": "Lift credential-details dialog to CredentialDashboard.vue",
+      "type": "view",
+      "agent": "sonnet",
+      "status": "complete",
+      "deps": [
+        "T02"
+      ],
+      "files": {
+        "modify": [
+          "components/CredentialDashboard.vue"
+        ]
+      },
+      "spec": "Add `selectedCredential` (ref, null) and `showDetails` (ref, false) to CredentialDashboard.vue. Render a single `<q-dialog v-model=\"showDetails\">` wrapping `<credential-details :credential=\"selectedCredential\" ...>` at the dashboard level (copy the dialog-composition pattern from CredentialCardBundle.vue lines ~37-52, including whatever other props CredentialDetails.vue requires -- check its props definition). Add a handler `onSelect(credential)` that sets `selectedCredential.value = credential` and `showDetails.value = true`; wire it to listen for a `select` event from CredentialsList (the emit itself is wired in W05 -- for now this task just needs the listener present and functional against the T02 test harness's mock emit). This is the interface seam Benjamin's router work will later swap `showDetails.value = true` for a `router.push` -- leave `onSelect` as a single clearly-named function so that swap is a one-line change later, not an architecture change. Run T02's test file; all assertions must pass before committing.",
+      "completion_marker": "<TASK_COMPLETE:V02>",
+      "blocked_marker": "<TASK_BLOCKED:V02:reason>",
+      "started_at": "2026-08-05T14:29:06Z",
+      "pane_id": "%13",
+      "log_file": ".orchestrate/logs/V02.log",
+      "completed_at": "2026-08-05T15:00:44Z",
+      "note": "Marked failed by the orchestrator for a missing completion marker, but the work is committed (12ee27e) and verified present: showDetails / selectedCredential / onSelect exist and are returned from setup(), and the single lifted <credential-details> dialog renders in CredentialDashboard.vue. All 6 T02 tests pass per its own log."
+    },
+    {
+      "id": "T03",
+      "phase": 1,
+      "title": "Write tests: category chip band derivation + filtering",
+      "type": "test",
+      "agent": "haiku",
+      "status": "complete",
+      "deps": [],
+      "files": {
+        "create": [
+          "components/__tests__/CredentialDashboard.categories.spec.js"
+        ],
+        "reference": [
+          "components/CredentialDashboard.vue"
+        ]
+      },
+      "spec": "Write failing tests asserting: (1) a `credentialCategories` computed derives the distinct set of credential types actually present in the current credential list (auto-generated, not a hardcoded list) -- feed it a mock list with 3 credentials of 2 distinct types and assert exactly those 2 categories appear, no duplicates; (2) setting `activeCategory` to one of those types filters the rendered list to only that type; (3) `activeCategory` set to null/'all' shows everything; (4) the category filter composes with the existing `search` text filter (both active -- result is the intersection, not either alone). Use the same mock-credential shape existing specs in this repo already use (check CredentialDashboard's current filteredCredentials test if one exists, otherwise use the same credential fixture shape as CredentialCardBundle's specs).",
+      "completion_marker": "<TASK_COMPLETE:T03>",
+      "blocked_marker": "<TASK_BLOCKED:T03:reason>",
+      "started_at": "2026-08-05T14:24:34Z",
+      "pane_id": "%10",
+      "log_file": ".orchestrate/logs/T03.log",
+      "completed_at": "2026-08-05T14:27:05Z"
+    },
+    {
+      "id": "V03",
+      "phase": 1,
+      "title": "Implement category chip band",
+      "type": "view",
+      "agent": "sonnet",
+      "status": "complete",
+      "deps": [
+        "T03"
+      ],
+      "files": {
+        "modify": [
+          "components/CredentialDashboard.vue"
+        ]
+      },
+      "spec": "Add an `activeCategory` ref (default null/'all') and a `credentialCategories` computed deriving the distinct credential types present in the current list. Render a `matchMedia`-scoped (mobile only, matching the PR #137 breakpoint pattern -- do not use `$q.screen`) horizontally-scrollable chip/tab band above the list (Quasar `q-tabs`/`q-chip`, whichever composes more simply with the existing search box in the same header row). Combine `activeCategory` with the existing `filteredCredentials` computed (search text AND category, not OR). No animation. Run T03's test file; all assertions must pass before committing.",
+      "completion_marker": "<TASK_COMPLETE:V03>",
+      "blocked_marker": "<TASK_BLOCKED:V03:reason>",
+      "started_at": "2026-08-05T14:27:05Z",
+      "pane_id": "%12",
+      "log_file": ".orchestrate/logs/V03.log",
+      "completed_at": "2026-08-05T14:31:37Z"
+    },
+    {
+      "id": "T04",
+      "phase": 2,
+      "title": "Write tests: CredentialListRow.vue",
+      "type": "test",
+      "agent": "sonnet",
+      "status": "complete",
+      "deps": [],
+      "files": {
+        "create": [
+          "components/__tests__/CredentialListRow.spec.js"
+        ],
+        "reference": [
+          "components/CredentialCardBundle.vue"
+        ]
+      },
+      "spec": "Write failing tests for a not-yet-created CredentialListRow.vue asserting: (1) given a credential whose cardDesigns entry matches, it renders an icon, a title, and at most 2 highlight fields even when the matched cardDesigns entry defines more than 2 `highlights` (truncation, not a layout overflow); (2) given a credential with a cardDesigns match that defines fewer than 2 highlights, it renders however many exist (0, 1, or 2) without erroring on missing data; (3) given a credential with NO matching cardDesigns entry, it still renders icon+title with no highlight fields, not a blank/broken row (mirrors the 'design for the minimum' requirement -- every credential type is guaranteed at most icon+title+2 fields, never assumes more); (4) clicking the row emits a `select` event with the credential object. Model the cardDesigns-matching test fixtures on CredentialCardBundle.vue's existing specs (same getCredentialConfig()-driven matching logic is being reused here via a shared composable -- see V04).",
+      "completion_marker": "<TASK_COMPLETE:T04>",
+      "blocked_marker": "<TASK_BLOCKED:T04:reason>",
+      "started_at": "2026-08-05T14:25:35Z",
+      "pane_id": "%11",
+      "log_file": ".orchestrate/logs/T04.log",
+      "completed_at": "2026-08-05T14:30:36Z"
+    },
+    {
+      "id": "V04",
+      "phase": 2,
+      "title": "Implement CredentialListRow.vue + extract shared cardDesigns composable",
+      "type": "view",
+      "agent": "sonnet",
+      "status": "complete",
+      "deps": [
+        "T04"
+      ],
+      "files": {
+        "create": [
+          "components/CredentialListRow.vue",
+          "lib/useCredentialCardConfig.js"
+        ],
+        "modify": [
+          "components/CredentialCardBundle.vue"
+        ]
+      },
+      "spec": "Extract CredentialCardBundle.vue's `getCredentialConfig()` + the styles/overrides/highlights derivation (the watch on `props.credentialRecord?.credential` added on the current db-732 branch, with `{immediate: true}`) into a shared composable `lib/useCredentialCardConfig.js`, taking a credential ref and returning {styles, overrides, highlights}. Update CredentialCardBundle.vue to consume the composable instead of its inline copy (no behavior change -- this is a pure extraction, desktop rendering must be identical before/after). Create CredentialListRow.vue using the same composable: render an icon (from `overrides.imagePointer` resolution, same as CredentialCardBundle), a title (`overrides.title`), and at most the first 2 entries of `highlights` (slice, not all of them). Emit `select` with the full credential on click. No animation, no flip, no back-of-card -- front-only per the PRD. Run T04's test file; all assertions must pass before committing. Also re-run CredentialCardBundle.vue's existing spec file to confirm the extraction didn't change its behavior.",
+      "completion_marker": "<TASK_COMPLETE:V04>",
+      "blocked_marker": "<TASK_BLOCKED:V04:reason>",
+      "started_at": "2026-08-05T14:30:37Z",
+      "pane_id": "%14",
+      "log_file": ".orchestrate/logs/V04.log",
+      "completed_at": "2026-08-05T14:43:10Z"
+    },
+    {
+      "id": "T05",
+      "phase": 2,
+      "title": "Write tests: CredentialsList.vue matchMedia branch",
+      "type": "test",
+      "agent": "sonnet",
+      "status": "complete",
+      "deps": [],
+      "files": {
+        "create": [
+          "components/__tests__/CredentialsList.breakpoint.spec.js"
+        ],
+        "reference": [
+          "components/CredentialsList.vue"
+        ]
+      },
+      "spec": "Write failing tests asserting: (1) with matchMedia mocked to mobile width (reuse whatever matchMedia-mocking helper the db-732 branch's CredentialDetails/CredentialCardBundle specs already use -- find and reuse it, don't reinvent), CredentialsList.vue renders CredentialListRow per item, not CredentialCardBundle; (2) at desktop width, it renders CredentialCardBundle per item, unchanged from today; (3) a `select` event emitted by a rendered CredentialListRow (mobile) is re-emitted upward by CredentialsList.vue with the same credential payload.",
+      "completion_marker": "<TASK_COMPLETE:T05>",
+      "blocked_marker": "<TASK_BLOCKED:T05:reason>",
+      "started_at": "2026-08-05T14:31:37Z",
+      "pane_id": "%15",
+      "log_file": ".orchestrate/logs/T05.log",
+      "completed_at": "2026-08-05T14:44:10Z"
+    },
+    {
+      "id": "W05",
+      "phase": 2,
+      "title": "Wire CredentialsList.vue breakpoint branch + select bubbling",
+      "type": "wiring",
+      "agent": "sonnet",
+      "status": "complete",
+      "deps": [
+        "T05",
+        "V04",
+        "V02"
+      ],
+      "files": {
+        "modify": [
+          "components/CredentialsList.vue",
+          "components/CredentialDashboard.vue"
+        ]
+      },
+      "spec": "In CredentialsList.vue's v-for (around lines 56-69), branch on the same matchMedia check used elsewhere in this pass: mobile renders <credential-list-row> per item, desktop keeps <credential-card-bundle> unchanged. Bubble each row's `select` event up through CredentialsList.vue to CredentialDashboard.vue, where it reaches the `onSelect` handler added in V02. Run T05's test file; all assertions must pass before committing.\n\nENVIRONMENT CONSTRAINT -- READ THIS FIRST. This worktree is symlinked live into a running veres-wallet dev server (veres-wallet/node_modules/@bedrock/vue-wallet -> here). Do NOT run `npm install`, `npm ci`, or `npm update` in this worktree under any circumstances. This repo declares quasar and vue as devDependencies, and because the host app starts with `node --preserve-symlinks`, installing them here creates a SECOND copy of quasar and vue. That silently breaks Quasar.iconSet.set() in lib/index.js, degrading every icon in the running app to raw ligature text. The needed dev dependencies are already installed. If something appears to be missing, emit your blocked marker and explain rather than installing anything.",
+      "completion_marker": "<TASK_COMPLETE:W05>",
+      "blocked_marker": "<TASK_BLOCKED:W05:reason>",
+      "started_at": "2026-08-05T19:36:32Z",
+      "pane_id": "%19",
+      "log_file": ".orchestrate/logs/W05.log",
+      "completed_at": "2026-08-05T19:44:04Z"
+    },
+    {
+      "id": "T06",
+      "phase": 3,
+      "title": "Write tests: pull-to-refresh replaces manual refresh button",
+      "type": "test",
+      "agent": "haiku",
+      "status": "complete",
+      "deps": [],
+      "files": {
+        "create": [
+          "components/__tests__/CredentialDashboard.refresh.spec.js"
+        ],
+        "reference": [
+          "components/CredentialDashboard.vue"
+        ]
+      },
+      "spec": "Write failing tests asserting: (1) at mobile matchMedia width, the manual refresh button (`fas fa-sync-alt` icon, currently around lines 21-27 of CredentialDashboard.vue) is not rendered; (2) triggering the pull-to-refresh control's refresh callback emits the same `refresh` event the manual button emits today (the one HomePage.vue's `@refresh=\"getCredentials\"` listens for); (3) at desktop width, the manual refresh button is unchanged/still present (this pass is mobile-only).",
+      "completion_marker": "<TASK_COMPLETE:T06>",
+      "blocked_marker": "<TASK_BLOCKED:T06:reason>",
+      "started_at": "2026-08-05T14:43:10Z",
+      "pane_id": "%16",
+      "log_file": ".orchestrate/logs/T06.log",
+      "completed_at": "2026-08-05T14:48:11Z"
+    },
+    {
+      "id": "W06",
+      "phase": 3,
+      "title": "Replace manual refresh with pull-to-refresh on mobile",
+      "type": "wiring",
+      "agent": "sonnet",
+      "status": "complete",
+      "deps": [
+        "T06"
+      ],
+      "files": {
+        "modify": [
+          "components/CredentialDashboard.vue"
+        ]
+      },
+      "spec": "On mobile matchMedia width only, remove the manual refresh button (`fas fa-sync-alt`, lines ~21-27) and wrap the list in Quasar's `q-pull-to-refresh` (confirm it's available in the installed Quasar version -- check package.json/@bedrock/quasar; if unavailable, implement a minimal touch-based pull handler instead). Its refresh callback must call the existing local `refresh()` function (lines ~125-127) unchanged, so it still emits `refresh` up to HomePage.vue's `getCredentials()` -- no change needed on the HomePage.vue side. Desktop keeps the manual button. Run T06's test file; all assertions must pass before committing.",
+      "completion_marker": "<TASK_COMPLETE:W06>",
+      "blocked_marker": "<TASK_BLOCKED:W06:reason>",
+      "started_at": "2026-08-05T14:48:11Z",
+      "pane_id": "%17",
+      "log_file": ".orchestrate/logs/W06.log",
+      "completed_at": "2026-08-05T15:05:45Z"
+    },
+    {
+      "id": "D07",
+      "phase": 3,
+      "title": "PR description with full disclosure",
+      "type": "docs",
+      "agent": "haiku",
+      "status": "complete",
+      "deps": [
+        "W05",
+        "W06",
+        "V03"
+      ],
+      "files": {
+        "create": [
+          "docs/prds/veres-wallet-mobile-listing-pr-notes.md"
+        ]
+      },
+      "spec": "Draft PR description content (for Joel to paste, per the 'show content before publishing' rule -- do not open the PR) covering: (1) the dialog-lift from per-row to CredentialDashboard-level and why (CredentialListRow has no dialog of its own); (2) the category chip band, auto-generated from types present; (3) CredentialListRow.vue + the cardDesigns composable extraction, and confirmation CredentialCardBundle's desktop behavior is unchanged; (4) pull-to-refresh replacing the manual button on mobile only. Explicitly name the deferred batch-first-load FIXME (HomePage.vue getCredentials(), lines 64-100) as known and out of scope. Explicitly name the `select`-event seam for Benjamin's router work to consume later.\n\nENVIRONMENT CONSTRAINT -- READ THIS FIRST. This worktree is symlinked live into a running veres-wallet dev server (veres-wallet/node_modules/@bedrock/vue-wallet -> here). Do NOT run `npm install`, `npm ci`, or `npm update` in this worktree under any circumstances. This repo declares quasar and vue as devDependencies, and because the host app starts with `node --preserve-symlinks`, installing them here creates a SECOND copy of quasar and vue. That silently breaks Quasar.iconSet.set() in lib/index.js, degrading every icon in the running app to raw ligature text. The needed dev dependencies are already installed. If something appears to be missing, emit your blocked marker and explain rather than installing anything.",
+      "completion_marker": "<TASK_COMPLETE:D07>",
+      "blocked_marker": "<TASK_BLOCKED:D07:reason>",
+      "started_at": "2026-08-05T19:44:04Z",
+      "pane_id": "%20",
+      "log_file": ".orchestrate/logs/D07.log",
+      "completed_at": "2026-08-05T19:45:34Z"
+    }
+  ],
+  "phases": {
+    "0": "Dialog lift + cleanup",
+    "1": "Category chip band",
+    "2": "List row + breakpoint wiring",
+    "3": "Pull-to-refresh + docs"
+  }
+}

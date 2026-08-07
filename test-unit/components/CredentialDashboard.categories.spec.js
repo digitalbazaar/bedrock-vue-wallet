@@ -3,7 +3,7 @@
  */
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {config} from '@bedrock/web';
-import CredentialDashboard from '../CredentialDashboard.vue';
+import CredentialDashboard from '../../components/CredentialDashboard.vue';
 import {defineComponent} from 'vue';
 import {mount} from '@vue/test-utils';
 import {Quasar} from 'quasar';

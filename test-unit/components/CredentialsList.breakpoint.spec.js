@@ -8,7 +8,7 @@ import {Quasar} from 'quasar';
 // eslint-disable-next-line sort-imports -- the `vi.mock` factories below are
 // hoisted above these imports and reference them, so the component under test
 // has to be imported after everything the mocks close over
-import CredentialsList from '../CredentialsList.vue';
+import CredentialsList from '../../components/CredentialsList.vue';
 
 // Mock external packages that are peer-dependencies not installed in devDeps.
 // vi.mock is hoisted by Vitest's transform, so these run before any imports.
@@ -21,7 +21,7 @@ vi.mock('@bedrock/vue-vc', () => ({
 
 // Mock local component files whose transitive imports are unresolvable in the
 // unit-test environment (no @bedrock/* packages installed).
-vi.mock('../CredentialCardBundle.vue', () => ({
+vi.mock('../../components/CredentialCardBundle.vue', () => ({
   default: defineComponent({
     name: 'CredentialCardBundle',
     props: ['credentialRecord', 'schemaMap', 'profile', 'profileOptions'],
@@ -30,7 +30,7 @@ vi.mock('../CredentialCardBundle.vue', () => ({
   })
 }));
 
-vi.mock('../CredentialCompactBundle.vue', () => ({
+vi.mock('../../components/CredentialCompactBundle.vue', () => ({
   default: defineComponent({
     name: 'CredentialCompactBundle',
     props: ['credentials', 'schemaMap', 'store'],
@@ -40,7 +40,7 @@ vi.mock('../CredentialCompactBundle.vue', () => ({
 
 // Pre-mock CredentialListRow: created by V04, used by CredentialsList after
 // W05. The stub allows findComponent to locate it once W05 wires it in.
-vi.mock('../CredentialListRow.vue', () => ({
+vi.mock('../../components/CredentialListRow.vue', () => ({
   default: defineComponent({
     name: 'CredentialListRow',
     props: ['credentialRecord'],

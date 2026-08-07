@@ -3,7 +3,7 @@
  */
 import {beforeEach, describe, expect, it} from 'vitest';
 import {config} from '@bedrock/web';
-import CredentialListRow from '../CredentialListRow.vue';
+import CredentialListRow from '../../components/CredentialListRow.vue';
 import {mount} from '@vue/test-utils';
 
 const ALUMNI_SEAL = 'data:image/png;base64,AAAA';

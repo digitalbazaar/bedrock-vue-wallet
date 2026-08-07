@@ -2,10 +2,10 @@
  * Copyright (c) 2026 Digital Bazaar, Inc. All rights reserved.
  */
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import CredentialDashboard from '../CredentialDashboard.vue';
+import CredentialDashboard from '../../components/CredentialDashboard.vue';
 import {defineComponent} from 'vue';
 import {mount} from '@vue/test-utils';
-import PullToRefresh from '../PullToRefresh.vue';
+import PullToRefresh from '../../components/PullToRefresh.vue';
 import {Quasar} from 'quasar';
 
 vi.mock('@bedrock/web', () => ({config: {}}));
