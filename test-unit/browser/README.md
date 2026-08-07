@@ -20,8 +20,15 @@ are the whole point of the design, so they need somewhere to be checked.
 
 ## What it reports
 
-The checks run **inside the template frame**, which is the only place they
-mean anything, and paint their verdicts onto the card:
+**Render** draws the credential through its own template. **Run sandbox
+checks** renders the same render method a second time with the template
+swapped for a probe, leaving `renderProperty` exactly as the issuer wrote it —
+so what the probe reports is what the issuer's own template sees.
+
+Two buttons because a real issuer template has no reason to probe itself, and
+this page cannot reach into the frame to do it for them: that isolation is the
+property under test. The checks run **inside the template frame**, the only
+place they mean anything, and paint their verdicts onto the card:
 
 | check | expected |
 |---|---|
