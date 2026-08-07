@@ -130,10 +130,16 @@ try {
 }
 
 let handle = null;
+// same epsilon as CredentialHtmlDisplay, so the harness behaves as the
+// wallet does rather than exercising a path the wallet never takes
+const HEIGHT_EPSILON = 2;
+let appliedHeight = 0;
 
 $('go').addEventListener('click', async () => {
   $('log').textContent = '';
   $('mount').textContent = '';
+  $('mount').style.height = '';
+  appliedHeight = 0;
   let credential;
   try {
     credential = JSON.parse($('cred').value);
@@ -152,10 +158,25 @@ $('go').addEventListener('click', async () => {
     handle = new HtmlRenderer().render({
       mount: $('mount'), credential, renderMethod: rm
     });
+    // Mirrors CredentialHtmlDisplay: writing every reported height back onto
+    // the mount re-lays-out the frame, which reports again, and the two
+    // oscillate on sub-pixel rounding. Every event is still logged, because
+    // seeing the raw stream is the point of this page -- but only a change
+    // worth acting on is applied, so the harness does not drive the loop it
+    // is meant to observe.
     handle.on('resize', payload => {
       const h = payload?.height ?? payload?.detail?.height;
-      log(`resize -> ${h}px`, 'ok');
-      if(h) { $('mount').style.height = `${h}px`; }
+      if(!h) {
+        return log('resize -> (no height)', 'dim');
+      }
+      const delta = Math.abs(h - appliedHeight);
+      if(delta <= HEIGHT_EPSILON) {
+        return log(`resize -> ${h}px  ignored (${delta}px, within epsilon)`,
+          'dim');
+      }
+      appliedHeight = h;
+      $('mount').style.height = `${h}px`;
+      log(`resize -> ${h}px  applied`, 'ok');
     });
     await handle.ready;
     log('ready RESOLVED — the template rendered inside the sandbox', 'ok');
