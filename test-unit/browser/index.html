@@ -83,7 +83,8 @@ const TEMPLATE = `<div id="card" style="font:14px sans-serif;padding:16px;
     'origin=' + document.location.origin);
 
   // (c) selective disclosure: only renderProperty fields are present
-  // not `top` -- that is `window.top`, the very thing checked above
+  // NB: not named top -- at frame scope that is window.top, the very
+  // thing the isolation check above reads
   var topKeys = Object.keys(c).sort().join(', ');
   var subKeys = c.credentialSubject ?
     Object.keys(c.credentialSubject).sort().join(', ') : '(absent)';
