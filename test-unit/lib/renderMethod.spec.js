@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Digital Bazaar, Inc. All rights reserved.
  */
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import {getRenderedDisplays, selectDisplay} from '../renderMethod.js';
+import {getRenderedDisplays, selectDisplay} from '../../lib/renderMethod.js';
 
 const DATA_URI = 'data:image/svg+xml;base64,PHN2Zy8+';
 

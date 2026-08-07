@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Digital Bazaar, Inc. All rights reserved.
  */
 import {describe, expect, it} from 'vitest';
-import {getCardSurface, getLuminance} from '../cardSurface.js';
+import {getCardSurface, getLuminance} from '../../lib/cardSurface.js';
 
 // the contrast `getCardSurface` guarantees between a band and the card on it
 const MIN_SURFACE_CONTRAST = 1.5;

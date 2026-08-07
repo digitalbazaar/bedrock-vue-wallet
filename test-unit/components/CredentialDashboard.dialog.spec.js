@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Digital Bazaar, Inc. All rights reserved.
  */
 import {describe, expect, it, vi} from 'vitest';
-import CredentialDashboard from '../CredentialDashboard.vue';
+import CredentialDashboard from '../../components/CredentialDashboard.vue';
 import {defineComponent} from 'vue';
 import {mount} from '@vue/test-utils';
 import {Quasar} from 'quasar';

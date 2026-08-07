@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Digital Bazaar, Inc. All rights reserved.
  */
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import {analyzeArtwork} from '../imageColor.js';
+import {analyzeArtwork} from '../../lib/imageColor.js';
 
 const SRC = 'data:image/svg+xml;base64,PHN2Zy8+';
 const TRIMMED_SRC = 'data:image/png;base64,TRIMMED';

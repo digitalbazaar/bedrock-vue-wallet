@@ -3,7 +3,7 @@
  */
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {defineComponent, nextTick} from 'vue';
-import CredentialDashboard from '../CredentialDashboard.vue';
+import CredentialDashboard from '../../components/CredentialDashboard.vue';
 import {flushPromises} from '@vue/test-utils';
 import {mount} from '@vue/test-utils';
 import {Quasar} from 'quasar';
