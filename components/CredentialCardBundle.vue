@@ -100,6 +100,9 @@ import {
   CredentialSwitch, DynamicImage, useCredentialCommon
 } from '@bedrock/vue-vc';
 import {formatString, getValueFromPointer} from '../lib/helpers.js';
+import {
+  getCredentialConfig as _getCredentialConfig
+} from '../lib/useCredentialCardConfig.js';
 import {config} from '@bedrock/web';
 import {svg as contactlessSvg} from './contactless.js';
 import {createEmitExtendable} from '@digitalbazaar/vue-extendable-event';
@@ -168,19 +171,10 @@ export default {
       }
     });
 
-    // Get credential config for styles, overrides, and highlights
     function getCredentialConfig() {
       const credential = props.credentialRecord.credential;
-      const vcConfig = config?.vueWallet?.cardDesigns?.find(config => {
-        const pointers = Object.keys(config.matches);
-        return pointers.every(pointer => {
-          const value = getValueFromPointer(credential, pointer);
-          return Array.isArray(value) ?
-            value.includes(config.matches[pointer]) :
-            value === config.matches[pointer];
-        });
-      });
-      return vcConfig;
+      const cardDesigns = config?.vueWallet?.cardDesigns || [];
+      return _getCredentialConfig({credential, cardDesigns});
     }
 
     // Get credential card styles from configuration styles
@@ -255,7 +249,9 @@ export default {
         currentCardProfile.value = getProfile(credentialRecord.meta.holder);
         card.value = true;
       } catch(e) {
-        if(e.response.status !== 404) {
+        // an offline or timed-out request has no `response` at all, and
+        // reading through it threw before the delete was ever emitted
+        if(e.response?.status !== 404) {
           console.error(e); // log unexpected error
         }
       }

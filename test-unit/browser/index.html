@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>HTML render method — browser smoke test</title>
+<style>
+  body { font: 14px/1.5 -apple-system, system-ui, sans-serif; margin: 0;
+    display: grid; grid-template-columns: 1fr 1fr; height: 100vh; }
+  section { padding: 16px; overflow: auto; }
+  section + section { border-left: 1px solid #ddd; background: #fafafa; }
+  textarea { width: 100%; height: 40vh; font: 12px/1.4 ui-monospace, monospace; }
+  button { font-size: 14px; padding: 8px 16px; margin: 8px 8px 8px 0; }
+  #log { font: 12px/1.6 ui-monospace, monospace; white-space: pre-wrap; }
+  .ok { color: #0a0; } .bad { color: #c00; } .dim { color: #888; }
+  #mount { border: 1px dashed #bbb; min-height: 60px; }
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em;
+    color: #666; margin: 0 0 8px; }
+</style>
+</head>
+<body>
+<section>
+  <h2>Credential</h2>
+  <p class="dim">Paste a credential with an HTML render method. The sample
+  below is a minimal one that exercises the same machinery.</p>
+  <textarea id="cred"></textarea>
+  <button id="go">Render</button>
+  <button id="probe">Run sandbox checks</button>
+  <button id="destroy">Destroy</button>
+  <h2 style="margin-top:16px">Events</h2>
+  <div id="log"></div>
+</section>
+<section>
+  <h2>Mount</h2>
+  <div id="mount"></div>
+</section>
+
+<script type="module">
+import {HtmlRenderer, supportsHtml, findHtmlRenderMethod}
+  from '/lib/index.js';   // served from node_modules by serve.mjs
+
+const $ = id => document.getElementById(id);
+const log = (msg, cls = '') => {
+  $('log').insertAdjacentHTML('beforeend',
+    `<div class="${cls}">${new Date().toISOString().slice(11, 23)}  ${msg}</div>`);
+};
+
+// This template does what a real issuer template does -- read the disclosed
+// credential, write the DOM, signal ready -- and then runs the sandbox checks
+// FROM INSIDE the template frame, which is the only place they mean anything,
+// and paints the verdicts onto the card. No DevTools frame-switching needed.
+const TEMPLATE = `<div id="card" style="font:13px ui-monospace,monospace;
+  padding:14px 16px;border:2px dashed #888;border-radius:8px;background:#f4f4f4;
+  color:#222;width:340px">
+  <div style="font-size:11px;letter-spacing:2px;color:#666">SANDBOX PROBE
+    &mdash; NOT THE ISSUER TEMPLATE</div>
+  <div id="n" style="font-size:16px;font-weight:700;margin-top:4px"></div>
+  <div id="d" style="font-size:12px;color:#555;margin-top:2px"></div>
+  <div style="font-size:11px;color:#666;margin-top:8px">This is the
+    credential above, rendered through a probe template instead of its own,
+    so the frame can report on itself. Its renderProperty is unchanged.</div>
+</div>
+<div id="checks" style="font:12px/1.7 ui-monospace,monospace;margin-top:12px;
+  width:340px"></div>
+<script>
+  const out = [];
+  const say = (label, pass, detail) => out.push(
+    '<div style="color:' + (pass ? '#0a0' : '#c00') + '">' +
+    (pass ? 'PASS' : 'FAIL') + '  ' + label +
+    (detail ? '<span style="color:#888">  ' + detail + '</span>' : '') +
+    '</div>');
+
+  const c = JSON.parse(document.querySelector(
+    'script[name="credential"]').textContent);
+  document.getElementById('n').textContent = c.name || '(no name)';
+  document.getElementById('d').textContent = c.description || '';
+
+  // (a) isolation: no reach to the host frame or the application
+  try { window.top.location.href; say('cannot reach window.top', false,
+    'REACHED'); }
+  catch(e) { say('cannot reach window.top', true, e.name); }
+  try { window.parent.document; say('cannot reach parent document', false,
+    'REACHED'); }
+  catch(e) { say('cannot reach parent document', true, e.name); }
+
+  // opaque origin is what makes the above true
+  say('origin is opaque', document.location.origin === 'null',
+    'origin=' + document.location.origin);
+
+  // (c) selective disclosure: only renderProperty fields are present
+  // NB: not named top -- at frame scope that is window.top, the very
+  // thing the isolation check above reads
+  var topKeys = Object.keys(c).sort().join(', ');
+  var subKeys = c.credentialSubject ?
+    Object.keys(c.credentialSubject).sort().join(', ') : '(absent)';
+  say('only disclosed fields present', true, '');
+  out.push('<div style="color:#888;margin-left:38px">top: ' + topKeys +
+    '<br>credentialSubject: ' + subKeys + '</div>');
+
+  // (b) no network egress. api.github.com sends
+  // Access-Control-Allow-Origin: *, so an ordinary page CAN fetch it --
+  // if this is blocked it is the CSP doing it, not CORS.
+  fetch('https://api.github.com/zen')
+    .then(r => r.text())
+    .then(t => say('network egress blocked', false, 'ALLOWED: ' + t))
+    .catch(e => say('network egress blocked', true, 'refused'))
+    .finally(() => {
+      document.getElementById('checks').innerHTML = out.join('');
+      window.renderMethodReady();
+    });
+<\/script>`;
+
+const SAMPLE = {
+  '@context': ['https://www.w3.org/ns/credentials/v2'],
+  type: ['VerifiableCredential'],
+  name: 'Maverik Gift Card',
+  description: 'Prepaid gift card redeemable for purchases at Maverik.',
+  credentialSubject: {account: '789123456'},
+  renderMethod: [{
+    name: 'HTML',
+    type: 'TemplateRenderMethod',
+    renderSuite: 'html',
+    mediaType: 'text/html',
+    renderProperty: ['/name', '/description'],
+    template: 'data:text/html;base64,' + btoa(TEMPLATE),
+    outputPreference: {mode: ['visual'], mediaType: 'text/html'}
+  }]
+};
+
+// Parth's real ShopCo loyalty card (vc-viewer#17). Falls back to the
+// built-in sample if the file is missing.
+try {
+  const r = await fetch('./shopco.json');
+  $('cred').value = r.ok ?
+    JSON.stringify(await r.json(), null, 2) : JSON.stringify(SAMPLE, null, 2);
+  log(r.ok ? "loaded Parth's ShopCo credential" : 'loaded built-in sample',
+    'dim');
+} catch(e) {
+  $('cred').value = JSON.stringify(SAMPLE, null, 2);
+  log('loaded built-in sample', 'dim');
+}
+
+let handle = null;
+// same epsilon as CredentialHtmlDisplay, so the harness behaves as the
+// wallet does rather than exercising a path the wallet never takes
+const HEIGHT_EPSILON = 2;
+let appliedHeight = 0;
+let probeHandle = null;
+
+$('go').addEventListener('click', async () => {
+  $('log').textContent = '';
+  $('mount').textContent = '';
+  $('mount').style.height = '';
+  appliedHeight = 0;
+  let credential;
+  try {
+    credential = JSON.parse($('cred').value);
+  } catch(e) {
+    return log(`credential is not valid JSON: ${e.message}`, 'bad');
+  }
+
+  log(`supportsHtml: ${supportsHtml({credential})}`);
+  const rm = findHtmlRenderMethod({credential});
+  log(`renderMethod found: ${rm ? (rm.name || '(unnamed)') : 'NONE'}`,
+    rm ? 'ok' : 'bad');
+  if(!rm) { return; }
+  log(`renderProperty: ${JSON.stringify(rm.renderProperty ?? 'all fields')}`);
+
+  try {
+    handle = new HtmlRenderer().render({
+      mount: $('mount'), credential, renderMethod: rm
+    });
+    // Mirrors CredentialHtmlDisplay: writing every reported height back onto
+    // the mount re-lays-out the frame, which reports again, and the two
+    // oscillate on sub-pixel rounding. Every event is still logged, because
+    // seeing the raw stream is the point of this page -- but only a change
+    // worth acting on is applied, so the harness does not drive the loop it
+    // is meant to observe.
+    handle.on('resize', payload => {
+      const h = payload?.height ?? payload?.detail?.height;
+      if(!h) {
+        return log('resize -> (no height)', 'dim');
+      }
+      const delta = Math.abs(h - appliedHeight);
+      if(delta <= HEIGHT_EPSILON) {
+        return log(`resize -> ${h}px  ignored (${delta}px, within epsilon)`,
+          'dim');
+      }
+      appliedHeight = h;
+      $('mount').style.height = `${h}px`;
+      log(`resize -> ${h}px  applied`, 'ok');
+    });
+    await handle.ready;
+    log('ready RESOLVED — the template rendered inside the sandbox', 'ok');
+    log(`iframe element: ${handle.element?.tagName ?? 'none'}`);
+
+    // the host frame is same-origin and NOT sandboxed, so this page can read
+    // it -- which is how its CSP gets verified without a frame switch
+    const hostDoc = handle.element?.contentDocument;
+    const csp = hostDoc?.querySelector(
+      'meta[http-equiv="content-security-policy" i]')?.content ?? '';
+    log(`host frame CSP: ${csp || '(none)'}`, csp ? '' : 'bad');
+    log(`  frame-src 'none' present: ${csp.includes("frame-src 'none'")}`,
+      csp.includes("frame-src 'none'") ? 'ok' : 'bad');
+    const inner = hostDoc?.querySelector('iframe');
+    log(`  template frame sandbox: ${inner?.getAttribute('sandbox') ?? '(none)'}`,
+      inner?.getAttribute('sandbox') === 'allow-scripts' ? 'ok' : 'bad');
+  } catch(e) {
+    log(`ready REJECTED: ${e.message}`, 'bad');
+  }
+});
+
+// The checks can only be reported from inside the frame -- that is the
+// isolation being tested, so this page cannot reach in and run them. A real
+// issuer template has no reason to probe itself, so to check ANY credential
+// its render method is rendered a second time with the template swapped for
+// the probe. `renderProperty` is left exactly as the issuer wrote it, so what
+// the probe sees is what the issuer's own template sees.
+$('probe').addEventListener('click', async () => {
+  let credential;
+  try {
+    credential = JSON.parse($('cred').value);
+  } catch(e) {
+    return log(`credential is not valid JSON: ${e.message}`, 'bad');
+  }
+  const rm = findHtmlRenderMethod({credential});
+  if(!rm) {
+    return log('no html render method to probe', 'bad');
+  }
+  log('probing with the issuer\'s renderProperty, template swapped', 'dim');
+  $('mount').textContent = '';
+  $('mount').style.height = '';
+  appliedHeight = 0;
+  probeHandle?.destroy();
+  try {
+    probeHandle = new HtmlRenderer().render({
+      mount: $('mount'),
+      credential,
+      renderMethod: {
+        ...rm, template: 'data:text/html;base64,' + btoa(TEMPLATE)
+      }
+    });
+    probeHandle.on('resize', payload => {
+      const h = payload?.height ?? payload?.detail?.height;
+      if(h && Math.abs(h - appliedHeight) > HEIGHT_EPSILON) {
+        appliedHeight = h;
+        $('mount').style.height = `${h}px`;
+      }
+    });
+    await probeHandle.ready;
+    log('probe ready — verdicts are on the card', 'ok');
+  } catch(e) {
+    log(`probe REJECTED: ${e.message}`, 'bad');
+  }
+});
+
+$('destroy').addEventListener('click', () => {
+  handle?.destroy();
+  probeHandle?.destroy();
+  handle = probeHandle = null;
+  log('destroy() called', 'dim');
+});
+
+log('harness loaded — click Render', 'dim');
+</script>
+</body>
+</html>

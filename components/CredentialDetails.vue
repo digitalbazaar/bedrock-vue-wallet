@@ -1,11 +1,11 @@
 <template>
   <q-card
     flat
-    class="details-dialog">
+    :class="['details-dialog', {'bg-transparent': transparentSurface}]">
     <div class="row full-height">
       <!-- Close button -->
       <q-btn
-        v-if="!nfcSharing"
+        v-if="!nfcSharing && !hideClose"
         v-close-popup
         flat
         round
@@ -14,12 +14,15 @@
         class="absolute-top-right q-ma-sm"
         style="font-size: 0.75em; z-index: 1;" />
       <!-- Left side details -->
-      <div class="col-xs-12 col-md-5 bg-white q-pt-xl q-pb-md q-px-xl">
+      <div
+        class="col-xs-12 col-md-5 q-pt-xl q-pb-md q-px-xl"
+        :class="transparentSurface ? '' : 'bg-white'">
         <div
           class="row justify-center full-height"
           :class="nfcClass">
           <q-card-section class="q-pa-none text-body1 text-left">
             <q-card
+              v-if="!hideCard"
               class="card q-mx-auto"
               :style="cardBackground">
               <credential-switch
@@ -45,6 +48,9 @@
                 </template>
               </credential-switch>
             </q-card>
+            <!-- callers can place their own content directly beneath the card
+            (e.g. the mobile details view puts a QR code here) -->
+            <slot name="under-card" />
             <div
               v-if="nfcSharing"
               class="row justify-center items-center text-body2 disabled
@@ -100,7 +106,7 @@
             </div>
           </q-card-section>
           <q-card-section
-            v-if="!nfcSharing"
+            v-if="!nfcSharing && !hideRemove"
             class="flex full-width q-mt-auto">
             <q-btn
               flat
@@ -115,7 +121,7 @@
       </div>
       <!-- Right side details -->
       <CredentialDetailsViews
-        v-if="!nfcSharing"
+        v-if="!nfcSharing && !hideViews"
         :credential="credential"
         :credential-overrides="credentialOverrides"
         :credential-highlights="credentialHighlights" />
@@ -127,7 +133,7 @@
 /*!
  * Copyright (c) 2015-2026 Digital Bazaar, Inc.
  */
-import {computed, ref, toRaw} from 'vue';
+import {computed, ref} from 'vue';
 import {
   CredentialSwitch, DynamicImage, useCredentialCommon
 } from '@bedrock/vue-vc';
@@ -150,6 +156,30 @@ export default {
     toggleDeleteWindow: {
       type: Function,
       required: true
+    },
+    // set by callers that supply their own chrome (e.g. the mobile details
+    // route, which owns the back arrow and an overflow menu)
+    hideCard: {
+      type: Boolean,
+      default: false
+    },
+    hideClose: {
+      type: Boolean,
+      default: false
+    },
+    hideRemove: {
+      type: Boolean,
+      default: false
+    },
+    hideViews: {
+      type: Boolean,
+      default: false
+    },
+    // when the caller paints its own background behind the card (e.g. a
+    // coloured band), this component must not cover it with its own white
+    transparentSurface: {
+      type: Boolean,
+      default: false
     },
     credential: {
       type: Object,
@@ -186,7 +216,6 @@ export default {
     const showDelete = ref(false);
     const nfcSharing = ref(false);
     const nfcShareComponent = ref(null);
-    console.log('Credential details', toRaw(props.credential));
 
     const nfcClass = computed(() => {
       const isNfcSharing = nfcSharing.value;

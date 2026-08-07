@@ -1,0 +1,46 @@
+{
+  "@context": [
+    "https://www.w3.org/ns/credentials/v2",
+    "https://w3id.org/retail-dw/v1rc1",
+    "https://w3id.org/vc/render-method/v2rc1"
+  ],
+  "type": [
+    "VerifiableCredential",
+    "RetailCredential"
+  ],
+  "issuer": {
+    "id": "did:example:shopcocompanyissuer123",
+    "name": "ShopCo Company",
+    "description": "Digital verifiable loyalty card issuer solutions"
+  },
+  "name": "Digital Loyalty Card",
+  "description": "A verifiable digital loyalty card for retail discounts.",
+  "validFrom": "2025-07-15T00:00:00Z",
+  "validUntil": "2030-12-31T23:59:59Z",
+  "credentialSubject": {
+    "type": "LoyaltyCard",
+    "account": "SHOPCO-LOYALTY-789456123",
+    "barCodeData": "2007894561233",
+    "description": "Digital loyalty card for retail rewards and discounts",
+    "name": "ShopCo Digital Loyalty Card",
+    "programIdentifier": "SHOPCO-PREMIUM-2025"
+  },
+  "renderMethod": [
+    {
+      "name": "HTML",
+      "type": "TemplateRenderMethod",
+      "renderSuite": "html",
+      "mediaType": "text/html",
+      "renderProperty": [
+        "/issuer/name",
+        "/name",
+        "/description",
+        "/credentialSubject/name",
+        "/credentialSubject/account",
+        "/credentialSubject/barCodeData",
+        "/credentialSubject/programIdentifier"
+      ],
+      "template": "data:text/html;base64,PHN0eWxlPgogICogeyBib3gtc2l6aW5nOiBib3JkZXItYm94OyB9CiAgYm9keSB7IG1hcmdpbjogMDsgZm9udC1mYW1pbHk6IEFyaWFsLCBIZWx2ZXRpY2EsIHNhbnMtc2VyaWY7IH0KICAuY2FyZCB7CiAgICB3aWR0aDogNDAwcHg7IGJvcmRlci1yYWRpdXM6IDE2cHg7IHBhZGRpbmc6IDIycHggMjRweDsgY29sb3I6ICNmZmY7CiAgICBiYWNrZ3JvdW5kOiBsaW5lYXItZ3JhZGllbnQoMTM1ZGVnLCMyNTYzZWIgMCUsIzNiODJmNiA1MCUsIzFlNDBhZiAxMDAlKTsKICAgIGJveC1zaGFkb3c6IDAgNnB4IDIwcHggcmdiYSgwLDAsMCwuMjUpOyBvdmVyZmxvdzogaGlkZGVuOwogIH0KICAuaXNzdWVyIHsgZm9udC1zaXplOiAxMnB4OyBvcGFjaXR5OiAuOTsgfQogIC50aXRsZSB7IGZvbnQtc2l6ZTogMjZweDsgZm9udC13ZWlnaHQ6IDcwMDsgbWFyZ2luOiAycHggMCAwOyB9CiAgLnN1YnRpdGxlIHsgZm9udC1zaXplOiAyMHB4OyBmb250LXdlaWdodDogNzAwOyBtYXJnaW46IDAgMCAxMnB4OyB9CiAgLmRlc2MgeyBmb250LXNpemU6IDEycHg7IG9wYWNpdHk6IC45NTsgbWFyZ2luLWJvdHRvbTogMTZweDsgfQogIC5sYWJlbCB7IHRleHQtdHJhbnNmb3JtOiB1cHBlcmNhc2U7IGxldHRlci1zcGFjaW5nOiAuMDVlbTsgb3BhY2l0eTogLjg7IGZvbnQtc2l6ZTogMTBweDsgbWFyZ2luLXRvcDogOHB4OyB9CiAgLnZhbHVlIHsgZm9udC1mYW1pbHk6ICdDb3VyaWVyIE5ldycsIG1vbm9zcGFjZTsgZm9udC1zaXplOiAxM3B4OyB9CiAgLmJhcmNvZGUgeyBiYWNrZ3JvdW5kOiNmZmY7IGJvcmRlci1yYWRpdXM6OHB4OyBwYWRkaW5nOjEwcHg7IG1hcmdpbi10b3A6MTZweDsgdGV4dC1hbGlnbjpjZW50ZXI7IH0KICAuYmFyY29kZSBzdmcgeyBkaXNwbGF5OmJsb2NrOyB3aWR0aDoxMDAlOyBoZWlnaHQ6NTRweDsgfQogIC5iYXJjb2RlIC5kaWdpdHMgeyBjb2xvcjojMTExOyBmb250LWZhbWlseTonQ291cmllciBOZXcnLG1vbm9zcGFjZTsgZm9udC1zaXplOjEycHg7IGxldHRlci1zcGFjaW5nOjNweDsgbWFyZ2luLXRvcDo2cHg7IH0KPC9zdHlsZT4KCjxkaXYgY2xhc3M9ImNhcmQiIGlkPSJjYXJkIj4KICA8ZGl2IGNsYXNzPSJpc3N1ZXIiIGlkPSJpc3N1ZXIiPjwvZGl2PgogIDxkaXYgY2xhc3M9InRpdGxlIiBpZD0idGl0bGUiPjwvZGl2PgogIDxkaXYgY2xhc3M9InN1YnRpdGxlIj5Mb3lhbHR5IENhcmQ8L2Rpdj4KICA8ZGl2IGNsYXNzPSJkZXNjIiBpZD0iZGVzYyI+PC9kaXY+CiAgPGRpdiBjbGFzcz0ibGFiZWwiPkFjY291bnQ8L2Rpdj4KICA8ZGl2IGNsYXNzPSJ2YWx1ZSIgaWQ9ImFjY291bnQiPjwvZGl2PgogIDxkaXYgY2xhc3M9ImxhYmVsIj5Qcm9ncmFtPC9kaXY+CiAgPGRpdiBjbGFzcz0idmFsdWUiIGlkPSJwcm9ncmFtIj48L2Rpdj4KICA8ZGl2IGNsYXNzPSJiYXJjb2RlIj4KICAgIDxzdmcgaWQ9ImJhcnMiIHZpZXdCb3g9IjAgMCAzMDAgNTQiIHByZXNlcnZlQXNwZWN0UmF0aW89Im5vbmUiPjwvc3ZnPgogICAgPGRpdiBjbGFzcz0iZGlnaXRzIiBpZD0iYmFydGV4dCI+PC9kaXY+CiAgPC9kaXY+CjwvZGl2PgoKPHNjcmlwdD4KKGZ1bmN0aW9uKCkgewogIGZ1bmN0aW9uIHNldChpZCwgdikgeyB2YXIgZSA9IGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKGlkKTsgaWYoZSkgZS50ZXh0Q29udGVudCA9IHYgfHwgJyc7IH0KICB0cnkgewogICAgdmFyIHZjID0gSlNPTi5wYXJzZShkb2N1bWVudC5xdWVyeVNlbGVjdG9yKCdzY3JpcHRbbmFtZT0iY3JlZGVudGlhbCJdJykudGV4dENvbnRlbnQpOwogICAgdmFyIGNzID0gdmMuY3JlZGVudGlhbFN1YmplY3QgfHwge307CiAgICBzZXQoJ2lzc3VlcicsICh2Yy5pc3N1ZXIgJiYgdmMuaXNzdWVyLm5hbWUpIHx8ICcnKTsKICAgIHNldCgndGl0bGUnLCAodmMuaXNzdWVyICYmIHZjLmlzc3Vlci5uYW1lKSB8fCB2Yy5uYW1lIHx8ICcnKTsKICAgIHNldCgnZGVzYycsIHZjLmRlc2NyaXB0aW9uIHx8IGNzLmRlc2NyaXB0aW9uIHx8ICcnKTsKICAgIHNldCgnYWNjb3VudCcsIGNzLmFjY291bnQgfHwgJycpOwogICAgc2V0KCdwcm9ncmFtJywgY3MucHJvZ3JhbUlkZW50aWZpZXIgfHwgJycpOwogICAgdmFyIGRhdGEgPSBTdHJpbmcoY3MuYmFyQ29kZURhdGEgfHwgJycpOwogICAgc2V0KCdiYXJ0ZXh0JywgZGF0YSk7CiAgICAvLyBsaWdodHdlaWdodCB2aXN1YWwgYmFyY29kZSBkcmF3biBmcm9tIHRoZSBkaWdpdHMgKHNlZSBub3Rlczogbm90IGEKICAgIC8vIHNjYW5uYWJsZSBDb2RlIDEyOCAtLSBzd2FwIGluIGEgcmVhbCBlbmNvZGVyIGZvciB0aGF0KQogICAgdmFyIHN2ZyA9IGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdiYXJzJyksIHggPSAwLCB1bml0ID0gZGF0YS5sZW5ndGggPyAzMDAvKGRhdGEubGVuZ3RoKjcpIDogMDsKICAgIGZvcih2YXIgaSA9IDA7IGkgPCBkYXRhLmxlbmd0aDsgaSsrKSB7CiAgICAgIHZhciBjb2RlID0gZGF0YS5jaGFyQ29kZUF0KGkpOwogICAgICBmb3IodmFyIGIgPSAwOyBiIDwgNzsgYisrKSB7CiAgICAgICAgaWYoKGNvZGUgPj4gYikgJiAxKSB7CiAgICAgICAgICB2YXIgciA9IGRvY3VtZW50LmNyZWF0ZUVsZW1lbnROUygnaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnLCdyZWN0Jyk7CiAgICAgICAgICByLnNldEF0dHJpYnV0ZSgneCcsIHgudG9GaXhlZCgyKSk7IHIuc2V0QXR0cmlidXRlKCd5JywnMCcpOwogICAgICAgICAgci5zZXRBdHRyaWJ1dGUoJ3dpZHRoJywodW5pdCowLjkpLnRvRml4ZWQoMikpOyByLnNldEF0dHJpYnV0ZSgnaGVpZ2h0JywnNTQnKTsKICAgICAgICAgIHIuc2V0QXR0cmlidXRlKCdmaWxsJywnIzExMScpOyBzdmcuYXBwZW5kQ2hpbGQocik7CiAgICAgICAgfQogICAgICAgIHggKz0gdW5pdDsKICAgICAgfQogICAgfQogIH0gY2F0Y2goZSkgewogICAgZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2NhcmQnKS50ZXh0Q29udGVudCA9ICdSZW5kZXIgZXJyb3I6ICcgKyBlLm1lc3NhZ2U7CiAgfQogIGlmKHdpbmRvdy5yZW5kZXJNZXRob2RSZWFkeSkgeyB3aW5kb3cucmVuZGVyTWV0aG9kUmVhZHkoKTsgfQp9KSgpOwo8L3NjcmlwdD4K"
+    }
+  ]
+}
