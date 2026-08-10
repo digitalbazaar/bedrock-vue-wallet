@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 31.3.1 - 2026-08-dd
+## 31.3.1 - 2026-08-10
 
 ### Fixed
 - Fix `LoginForm` login-code screen appearing after a failed
