@@ -10,3 +10,11 @@ coverage
 node_modules
 reports
 .cache
+
+# npm resolves this package fresh in CI (`npm install`, not `npm ci`); a
+# committed lockfile pins a tree main never resolves.
+package-lock.json
+
+# internal planning artefacts must not reach a public repo
+workplan.json
+docs/prds/

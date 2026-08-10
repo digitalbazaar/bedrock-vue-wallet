@@ -72,13 +72,20 @@
         </div>
         <div
           v-else
-          class="row q-gutter-md justify-center q-mb-lg">
+          :class="isMobile ?
+            'column full-width q-mb-lg' :
+            'row q-gutter-md justify-center q-mb-lg'">
           <div
             v-for="credentialRecord in credentialRecordsList"
             :key="credentialRecord.credential.id ?? credentialRecord.meta.id"
-            class="row">
+            :class="isMobile ? 'full-width' : 'row'">
+            <credential-list-row
+              v-if="isMobile"
+              :credential-record="credentialRecord"
+              @select="$emit('select', $event)" />
             <component
               :is="selectableComponent"
+              v-else
               :id="credentialRecord.credential.id ?? credentialRecord.meta.id"
               :selected-credentials="selectedCredentials"
               @select-credentials="relaySelection">
@@ -113,6 +120,7 @@
  */
 import CredentialCardBundle from './CredentialCardBundle.vue';
 import CredentialCompactBundle from './CredentialCompactBundle.vue';
+import CredentialListRow from './CredentialListRow.vue';
 import CredentialSelect from './CredentialSelect.vue';
 import {CredentialSwitch} from '@bedrock/vue-vc';
 
@@ -121,6 +129,7 @@ export default {
   components: {
     CredentialCardBundle,
     CredentialCompactBundle,
+    CredentialListRow,
     CredentialSelect,
     CredentialSwitch
   },
@@ -181,12 +190,12 @@ export default {
       default: () => []
     }
   },
-  emits: ['delete-credential', 'select-credentials'],
+  emits: ['delete-credential', 'select-credentials', 'select'],
   data() {
     return {
       schemaMap: {},
-      // init credentialSelection to prop
-      allowSelection: this.selectable
+      allowSelection: this.selectable,
+      isMobile: false
     };
   },
   computed: {
@@ -247,6 +256,17 @@ export default {
         this.$emit('select-credentials', {selections});
       }
     }
+  },
+  created() {
+    this._mq = window.matchMedia('(max-width: 767px)');
+    this.isMobile = this._mq.matches;
+    this._onMqChange = e => {
+      this.isMobile = e.matches;
+    };
+    this._mq.addEventListener('change', this._onMqChange);
+  },
+  beforeUnmount() {
+    this._mq?.removeEventListener('change', this._onMqChange);
   },
   methods: {
     // FIXME: this should be emitting an event; it should not require

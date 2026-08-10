@@ -1,0 +1,27 @@
+{
+  "name": "bedrock-vue-wallet-test-unit",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Unit tests for @bedrock/vue-wallet. Kept out of the root package so its dependencies never reach the karma build, which resolves the root node_modules through a `file:..` symlink.",
+  "scripts": {
+    "test": "vitest run",
+    "watch": "vitest",
+    "ui": "vitest --ui",
+    "browser": "node browser/serve.mjs"
+  },
+  "dependencies": {
+    "@vitejs/plugin-vue": "^6.0.8",
+    "@vitest/ui": "^4.1.10",
+    "@vue/test-utils": "^2.4.11",
+    "@vueuse/core": "^10.9.0",
+    "happy-dom": "^20.11.1",
+    "jsdom": "^30.0.1",
+    "quasar": "^2.24.0",
+    "sass-embedded": "^1.100.0",
+    "vitest": "^4.1.10",
+    "vue": "^3.5.41",
+    "vue-router": "^5.2.0"
+  },
+  "license": "LicenseRef-LICENSE.md"
+}
