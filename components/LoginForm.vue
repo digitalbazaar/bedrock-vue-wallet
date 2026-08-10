@@ -266,7 +266,7 @@ export default {
           actions: [{icon: 'fa fa-times', color: 'white'}]
         });
       }
-      if(!errorMessage || !errorMessage !== this.customErrorMessage) {
+      if(!errorMessage || errorMessage === this.customErrorMessage) {
         this.showSendEmail = false;
         this.showEmailCode = true;
         this.emailCode = '';

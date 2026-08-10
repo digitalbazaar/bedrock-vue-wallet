@@ -1,5 +1,14 @@
 # bedrock-vue-wallet ChangeLog
 
+## 31.3.1 - 2026-08-dd
+
+### Fixed
+- Fix `LoginForm` login-code screen appearing after a failed
+  `sendEmail()` call (e.g. "Account not found."). An operator
+  precedence bug made the advance-to-code-entry condition always
+  evaluate to `true`, showing "A verification code was sent to..."
+  even when no account existed and no code was sent.
+
 ## 31.3.0 - 2026-08-06
 
 ### Added
