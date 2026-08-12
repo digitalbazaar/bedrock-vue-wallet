@@ -23,6 +23,11 @@
       <div class="text-subtitle2 text-weight-medium">
         {{rowTitle}}
       </div>
+      <div
+        v-if="rowSubtitle"
+        class="text-caption text-grey-7">
+        {{rowSubtitle}}
+      </div>
     </div>
   </div>
 </template>
@@ -31,12 +36,12 @@
 /*!
  * Copyright (c) 2026 Digital Bazaar, Inc. All rights reserved.
  */
+import {formatString, getValueFromPointer} from '../lib/helpers.js';
 import {
   getCredentialConfig, getCredentialTypeLabel
 } from '../lib/useCredentialCardConfig.js';
 import {computed} from 'vue';
 import {config} from '@bedrock/web';
-import {getValueFromPointer} from '../lib/helpers.js';
 
 export default {
   name: 'CredentialListRow',
@@ -63,6 +68,10 @@ export default {
       // `issuer.image`/`issuer.logo` are the same chain the card view resolves
       // through `useCredentialCommon`, so a row shows the logo its card shows
       const candidates = [
+        // a literal logo hardcoded on the matched card design (a URL or a
+        // data: URI); wins over credential-derived images so an issuer with
+        // no `image`/`logo` field can still show a logo via config alone
+        vcConfig.value?.logo,
         imagePointer ?
           getValueFromPointer(credential.value, imagePointer) : '',
         image, issuer?.image, issuer?.logo
@@ -103,7 +112,21 @@ export default {
       return title?.trim() ?? 'Verifiable Credential';
     });
 
-    return {rowImage, rowTitle};
+    // an optional second line, driven by config, so a design can add something
+    // that tells otherwise-identical rows apart (e.g. the date on a receipt)
+    const rowSubtitle = computed(() => {
+      const subtitle = vcConfig.value?.overrides?.rowSubtitle;
+      if(!subtitle?.pointer) {
+        return '';
+      }
+      const raw = getValueFromPointer(credential.value, subtitle.pointer);
+      if(typeof raw !== 'string' || raw.length === 0) {
+        return '';
+      }
+      return formatString(raw, subtitle.format);
+    });
+
+    return {rowImage, rowSubtitle, rowTitle};
   }
 };
 </script>
