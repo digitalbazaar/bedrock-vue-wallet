@@ -24,6 +24,7 @@ export default defineConfig({
       {find: /^vue$/, replacement: dep('vue')},
       {find: /^vue-router$/, replacement: dep('vue-router')},
       {find: /^@vueuse\/core$/, replacement: dep('@vueuse/core')},
+      {find: /^mustache$/, replacement: dep('mustache')},
       {find: /^@vue\/test-utils$/, replacement: dep('@vue/test-utils')},
       {find: '@bedrock/web', replacement: mock('bedrock/web.js')},
       {find: '@bedrock/web-wallet', replacement: mock('bedrock/web-wallet.js')},

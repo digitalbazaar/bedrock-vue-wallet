@@ -101,6 +101,46 @@ describe('CredentialHtmlDisplay', () => {
     expect(mountHeight(wrapper)).toBe('324px');
   });
 
+  it('reserves space from the issuer style hint before the frame reports',
+    async () => {
+      // without this the card opens at zero and jumps when the frame sizes
+      const wrapper = await render({styleHint: {height: '800px'}});
+      expect(mountHeight(wrapper)).toBe('800px');
+    });
+
+  it('scales a rendering wider than the space down to fit', async () => {
+    // an issuer lays out at the width it designed for; on a phone that is
+    // usually wider than the room available, and the overflow was simply
+    // clipped -- text truncating mid-word, a barcode running off the edge
+    const wrapper = await render();
+    const mount = wrapper.find('.html-render-mount').element;
+    Object.defineProperty(
+      mount, 'clientWidth', {value: 300, configurable: true});
+    const frame = document.createElement('iframe');
+    mount.appendChild(frame);
+
+    lastHandle.emit('resize', {width: 600, height: 400});
+    await flushPromises();
+    // half the width, so half the scale, and half the vertical space taken
+    expect(frame.style.transform).toBe('scale(0.5)');
+    expect(mount.style.height).toBe('200px');
+  });
+
+  it('never scales a narrow rendering up', async () => {
+    // an issuer that designed narrow did so deliberately
+    const wrapper = await render();
+    const mount = wrapper.find('.html-render-mount').element;
+    Object.defineProperty(
+      mount, 'clientWidth', {value: 600, configurable: true});
+    const frame = document.createElement('iframe');
+    mount.appendChild(frame);
+
+    lastHandle.emit('resize', {width: 300, height: 400});
+    await flushPromises();
+    expect(frame.style.transform).toBe('');
+    expect(mount.style.height).toBe('400px');
+  });
+
   it('tears the frame down when it goes away', async () => {
     const wrapper = await render();
     const handle = lastHandle;
