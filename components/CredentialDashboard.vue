@@ -2,109 +2,115 @@
   <q-page
     class="row justify-center"
     style="min-height: 0px;">
-    <div class="row justify-center full-width q-mt-lg q-mb-sm">
-      <div class="col-md-4 col-sm-6 col-xs-9">
-        <search-box
-          class="col-grow"
-          placeholder="Search credentials"
-          @search="search=$event.text" />
-      </div>
-      <div class="q-mx-sm q-mt-xs">
-        <q-btn
-          round
-          outline
-          size="sm"
-          color="primary"
-          class="q-mr-sm"
-          icon="fas fa-barcode"
-          @click="openBarcodeDialog" />
-        <q-btn
-          round
-          outline
-          size="sm"
-          color="primary"
-          icon="fas fa-sync-alt"
-          @click="refresh" />
-      </div>
-    </div>
-    <div
-      class="col-xs-12 col-md-11 col-lg-10 s-content-column">
-      <div
-        v-if="bandVisible"
-        class="col-xs-12 s-category-band">
-        <div class="s-category-chips">
-          <q-chip
-            :outline="activeCategory !== null"
-            clickable
+    <!-- on mobile the whole view is one pull target: the search field and the
+    category chips travel with the list, so there is a single gesture zone
+    rather than a dead one above the rows -->
+    <refreshable-view
+      plain-class="row justify-center full-width"
+      :refresh="requestRefresh">
+      <div class="row justify-center full-width q-mt-lg q-mb-sm">
+        <div class="col-md-4 col-sm-6 col-xs-9">
+          <search-box
+            class="col-grow"
+            placeholder="Search credentials"
+            @search="search=$event.text" />
+        </div>
+        <div class="q-mx-sm q-mt-xs">
+          <q-btn
+            round
+            outline
+            size="sm"
             color="primary"
-            text-color="white"
-            @click="activeCategory = null">
-            All
-          </q-chip>
-          <q-chip
-            v-for="category in categoryOrder"
-            :key="category"
-            :outline="activeCategory !== category"
-            clickable
+            class="q-mr-sm"
+            icon="fas fa-barcode"
+            @click="openBarcodeDialog" />
+          <q-btn
+            round
+            outline
+            size="sm"
             color="primary"
-            text-color="white"
-            @click="activeCategory = category">
-            {{category}}
-          </q-chip>
+            icon="fas fa-sync-alt"
+            @click="refresh" />
         </div>
       </div>
       <div
-        v-if="isMobile"
-        class="col-xs-12">
-        <!-- the wide list renders its own error and empty states; the mobile
-        branch has to render them too, or a phone shows an empty list and no
-        reason for it -->
+        class="col-xs-12 col-md-11 col-lg-10 s-content-column">
         <div
-          v-if="loading"
-          class="text-center q-pa-xl">
-          <q-spinner
-            color="primary"
-            size="3em" />
+          v-if="bandVisible"
+          class="col-xs-12 s-category-band">
+          <div class="s-category-chips">
+            <q-chip
+              :outline="activeCategory !== null"
+              clickable
+              color="primary"
+              text-color="white"
+              @click="activeCategory = null">
+              All
+            </q-chip>
+            <q-chip
+              v-for="category in categoryOrder"
+              :key="category"
+              :outline="activeCategory !== category"
+              clickable
+              color="primary"
+              text-color="white"
+              @click="activeCategory = category">
+              {{category}}
+            </q-chip>
+          </div>
         </div>
-        <q-banner
-          v-else-if="errorText"
-          dense
-          rounded
-          class="bg-red-5 text-white q-ma-md">
-          {{errorText}}
-        </q-banner>
-        <!-- an empty wallet and a search that matched nothing are different
-        things to be told, as the wide list has always distinguished them -->
-        <div
-          v-else-if="noResults"
-          class="text-center text-grey-7 q-pa-xl">
-          {{emptyStateText}}
-        </div>
-        <credential-list-row
-          v-for="(record, index) in filteredCredentials"
-          :key="credentialKey(record, index)"
-          :credential-record="record"
-          @select="openDetails" />
+        <template v-if="isMobile">
+          <!-- the wide list renders its own error and empty states; the mobile
+          branch has to render them too, or a phone shows an empty list and no
+          reason for it -->
+          <div
+            v-if="loading"
+            class="text-center q-pa-xl">
+            <q-spinner
+              color="primary"
+              size="3em" />
+          </div>
+          <q-banner
+            v-else-if="errorText"
+            dense
+            rounded
+            class="bg-red-5 text-white q-ma-md">
+            {{errorText}}
+          </q-banner>
+          <!-- an empty wallet and a search that matched nothing are
+          different things to be told, as the wide list has always
+          distinguished them -->
+          <div
+            v-else-if="noResults"
+            class="text-center text-grey-7 q-pa-xl">
+            {{emptyStateText}}
+          </div>
+          <credential-list-row
+            v-for="(record, index) in filteredCredentials"
+            :key="credentialKey(record, index)"
+            :credential-record="record"
+            @select="openDetails" />
+        </template>
+        <q-dialog
+          v-model="showDetails"
+          maximized>
+          <credential-details-mobile
+            v-if="selectedRecord"
+            :record="selectedRecord"
+            :delete-credential="deleteSelectedCredential"
+            @close="showDetails = false" />
+        </q-dialog>
+        <credentials-list
+          v-if="!isMobile"
+          :credentials="filteredCredentials"
+          :profile-options="profiles"
+          :no-results="noResults"
+          :search="search"
+          :loading="loading"
+          :error-text="errorText"
+          @delete-credential="$event.waitUntil(deleteCredential($event))" />
       </div>
-      <q-dialog
-        v-model="showDetails"
-        maximized>
-        <credential-details-mobile
-          v-if="selectedRecord"
-          :record="selectedRecord"
-          :delete-credential="deleteSelectedCredential"
-          @close="showDetails = false" />
-      </q-dialog>
-      <credentials-list
-        v-if="!isMobile"
-        :credentials="filteredCredentials"
-        :profile-options="profiles"
-        :no-results="noResults"
-        :search="search"
-        :loading="loading"
-        :error-text="errorText"
-        @delete-credential="$event.waitUntil(deleteCredential($event))" />
-    </div>
+    </refreshable-view>
     <ShowScannerModal v-model="showBarcodeDialog" />
   </q-page>
 </template>
@@ -126,6 +132,7 @@ import {createEmitExtendable} from '@digitalbazaar/vue-extendable-event';
 import CredentialDetailsMobile from './CredentialDetailsMobile.vue';
 import CredentialListRow from './CredentialListRow.vue';
 import CredentialsList from './CredentialsList.vue';
+import RefreshableView from './RefreshableView.vue';
 import SearchBox from './SearchBox.vue';
 import ShowScannerModal from './ShowScannerModal.vue';
 
@@ -139,6 +146,7 @@ export default {
     // mobile branch is the only place the spinner appears, and a component
     // resolved from the global install is invisible to a component test
     QSpinner,
+    RefreshableView,
     SearchBox,
     ShowScannerModal
   },
@@ -285,9 +293,38 @@ export default {
     });
 
     // Events
-    const refresh = () => {
-      emit('refresh');
-    };
+    // both the button and the pull publish the same extendable event. Two
+    // shapes for one event means a parent using `$event.waitUntil(...)` --
+    // the idiom this component already publishes for `delete-credential` --
+    // throws on one path and works on the other.
+    // a parent that never settles would otherwise hold the spinner open for
+    // the life of the page
+    const REFRESH_TIMEOUT_MS = 10000;
+
+    // Both entry points run this, so both report a failure the same way. The
+    // button bound straight to the emit and discarded the promise it returns,
+    // so once `HomePage` began throwing on a failed fetch, tapping sync during
+    // an outage produced an unhandled rejection and no notification, while the
+    // identical pull reported it.
+    async function requestRefresh() {
+      try {
+        await Promise.race([
+          emitExtendable('refresh'),
+          new Promise((_resolve, reject) => setTimeout(
+            () => reject(new Error('Refresh timed out.')),
+            REFRESH_TIMEOUT_MS))
+        ]);
+      } catch(e) {
+        // retracting the spinner exactly as on success told the user nothing,
+        // and the rejection escaped as an unhandled one
+        $q.notify({
+          type: 'negative',
+          message: e?.message ?? 'Could not refresh your credentials.'
+        });
+      }
+    }
+
+    const refresh = () => requestRefresh();
 
     const openBarcodeDialog = () => {
       showBarcodeDialog.value = true;
@@ -349,6 +386,7 @@ export default {
       noResults,
       emptyStateText,
       refresh,
+      requestRefresh,
       search,
       openBarcodeDialog,
       showBarcodeDialog
