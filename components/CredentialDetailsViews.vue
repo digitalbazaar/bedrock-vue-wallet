@@ -69,7 +69,7 @@
         class="bg-grey-2 q-px-none text-center">
         <div class="details-view">
           <q-spinner
-            v-if="showDisplays && !displays.length"
+            v-if="resolving"
             size="48px"
             color="primary"
             style="margin-top: 90px" />
@@ -152,10 +152,7 @@
 import {onBeforeMount, onMounted, reactive, ref} from 'vue';
 import CredentialDetailsTree from './CredentialDetailsTree.vue';
 import CredentialHtmlDisplay from './CredentialHtmlDisplay.vue';
-import {date} from 'quasar';
-import Mustache from 'mustache';
-
-const {formatDate} = date;
+import {getRenderedDisplays} from '../lib/renderMethod.js';
 
 export default {
   name: 'CredentialDetailsViews',
@@ -186,6 +183,10 @@ export default {
     const fullscreen = ref(false);
     const showDetails = ref(true);
     const showDisplays = ref(false);
+    // the spinner used to clear only when a display arrived, so a credential
+    // whose render methods all failed span forever; it now tracks the
+    // resolution itself, which ends either way
+    const resolving = ref(false);
     const showHighlights = ref(false);
     // unified display list
     // {kind: 'image', content} | {kind: 'html', renderMethod}
@@ -216,100 +217,18 @@ export default {
       getDisplaysFromRenderMethod();
     });
 
-    // Extract and parse images from credential's render method property
+    // the render methods a credential declares are resolved by the shared
+    // library, so every surface that shows a credential resolves them the
+    // same way; this one shows all of them, as carousel slides
     async function getDisplaysFromRenderMethod() {
-      const renderMethods = props.credential?.renderMethod;
-      if(!(renderMethods?.length > 0)) {
-        return;
+      resolving.value = true;
+      try {
+        displays.push(...await getRenderedDisplays({
+          credential: props.credential
+        }));
+      } finally {
+        resolving.value = false;
       }
-      // `forEach` does not await an async callback, so a fetched template
-      // could be pushed after a render method declared later; resolve them
-      // all first and push in the order the credential declares them
-      const resolved = await Promise.all(renderMethods.map(async rm => {
-        try {
-          if(rm.type === 'SvgRenderingTemplate2023') {
-            // the id is itself the image
-            return rm.id ? {kind: 'image', content: rm.id} : null;
-          }
-          if(rm.type === 'SvgRenderingTemplate2024') {
-            const {template, url} = rm;
-            const values = props.credential;
-            return await useRenderTemplate2024(template, url, values);
-          }
-          if(rm.type === 'TemplateRenderMethod' && rm.renderSuite === 'html') {
-            return {kind: 'html', renderMethod: rm};
-          }
-        } catch(e) {
-          // one template that cannot be fetched or rendered must not take the
-          // whole displays tab down with it
-          console.error(
-            'Failed to render credential render method', rm.type, e);
-        }
-        return null;
-      }));
-      displays.push(...resolved.filter(display => display !== null));
-    }
-
-    /*
-     * Functions used to format Mustache template values
-     * See: https://github.com/janl/mustache.js#functions
-     *
-     * Example Mustache template use:
-     * {{#formatFnName}}{{valueToFormat}}{{/formatFnName}}
-     */
-    const formattingFunctions = {
-      formatDate: () => (text, render) => {
-        const dateString = render(text);
-        return formatDate(dateString, 'YYYY-MM-DD');
-      }
-    };
-
-    /**
-     * Load svg from url or template then hydrate with credentialSubject values.
-     *
-     * @param {string} template - Svg.
-     * @param {string} url - Url.
-     * @param {object} values - Credential.credentialSubject.
-     *
-     * @returns {Promise<object>} An image display holding an SVG data URI.
-     */
-    async function useRenderTemplate2024(template, url, values) {
-      // Example credential renderMethod property:
-      //  "renderMethod": [
-      //    {
-      //      "name": "Landscape",
-      //      "mediaQuery": "@media (orientation: landscape)",
-      //      "type": "SvgRenderingTemplate2024",
-      //      "template": "",
-      //      "url": "https://credentialTemplates.dev/example.svg",
-      //      "mediaType": "image/svg+xml",
-      //    }
-      //  ]
-      //
-      // the inline template travels inside the signed credential and a fetched
-      // one does not, so an inline template wins when both are present
-      if(!template) {
-        if(!url?.startsWith?.('https://')) {
-          // `fetch(undefined)` requested the wallet's own origin and rendered
-          // its markup as the credential's artwork
-          throw new Error(`Unusable render method template url "${url}".`);
-        }
-        const resp = await fetch(url, {credentials: 'omit'});
-        if(!resp.ok) {
-          // an error page would otherwise become the credential's artwork
-          throw new Error(
-            `Render method template fetch failed with ${resp.status}.`);
-        }
-        template = await resp.text();
-      }
-
-      const rv = Mustache.render(template, {...values, ...formattingFunctions});
-      // not `btoa`: it is Latin-1 only, so a credential holding any character
-      // above U+00FF (a name in Chinese, Japanese, Korean, Arabic...) threw
-      // and lost its artwork entirely
-      const image =
-        `data:image/svg+xml;charset=utf-8,${encodeURIComponent(rv)}`;
-      return {kind: 'image', content: image};
     }
 
     return {
@@ -317,6 +236,7 @@ export default {
       fullscreen,
       slideNumber,
       showDetails,
+      resolving,
       showDisplays,
       showHighlights,
       scrollBarStyles,
