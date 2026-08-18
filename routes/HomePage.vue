@@ -8,7 +8,7 @@
       @delete-credential="$event.waitUntil(deleteCredential($event))"
       @filtered-profiles="filteredProfiles = $event"
       @filtered-credentials-loading="loadingFilteredCredentials = $event"
-      @refresh="getCredentials" />
+      @refresh="$event.waitUntil(refreshCredentials())" />
   </div>
 </template>
 
@@ -99,6 +99,18 @@ export default {
       }
     };
 
+    // The pull-to-refresh spinner needs to know whether the refresh worked.
+    // `getCredentials` deliberately resolves on failure -- it is also called
+    // on mount and from a watcher, neither of which can handle a rejection --
+    // so a refresh that failed was indistinguishable from one that succeeded,
+    // and the dashboard's error path was unreachable.
+    const refreshCredentials = async () => {
+      await getCredentials();
+      if(errorText.value) {
+        throw new Error(errorText.value);
+      }
+    };
+
     const deleteCredential = async ({profileId, credentialId}) => {
       const credentialStore = await getCredentialStore({
         // FIXME: determine how password will be provided / set; currently
@@ -128,6 +140,7 @@ export default {
       errorText,
       filteredProfiles,
       getCredentials,
+      refreshCredentials,
       loading,
       loadingCredentials,
       loadingFilteredCredentials,
