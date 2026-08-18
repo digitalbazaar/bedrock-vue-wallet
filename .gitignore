@@ -10,3 +10,11 @@ coverage
 node_modules
 reports
 .cache
+
+# no lockfile is committed anywhere in this package; CI resolves with
+# `npm install`, so a committed lock would pin a tree main never resolves
+test-unit/package-lock.json
+
+# vitest browser-mode debug output: failure screenshots and attachments
+test-unit/.vitest-attachments/
+test-unit/browser/__screenshots__/
