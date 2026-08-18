@@ -53,7 +53,50 @@
           </q-chip>
         </div>
       </div>
+      <div
+        v-if="isMobile"
+        class="col-xs-12">
+        <!-- the wide list renders its own error and empty states; the mobile
+        branch has to render them too, or a phone shows an empty list and no
+        reason for it -->
+        <div
+          v-if="loading"
+          class="text-center q-pa-xl">
+          <q-spinner
+            color="primary"
+            size="3em" />
+        </div>
+        <q-banner
+          v-else-if="errorText"
+          dense
+          rounded
+          class="bg-red-5 text-white q-ma-md">
+          {{errorText}}
+        </q-banner>
+        <!-- an empty wallet and a search that matched nothing are different
+        things to be told, as the wide list has always distinguished them -->
+        <div
+          v-else-if="noResults"
+          class="text-center text-grey-7 q-pa-xl">
+          {{emptyStateText}}
+        </div>
+        <credential-list-row
+          v-for="(record, index) in filteredCredentials"
+          :key="credentialKey(record, index)"
+          :credential-record="record"
+          @select="openDetails" />
+      </div>
+      <q-dialog
+        v-model="showDetails"
+        maximized>
+        <credential-details-mobile
+          v-if="selectedRecord"
+          :record="selectedRecord"
+          :delete-credential="deleteSelectedCredential"
+          @close="showDetails = false" />
+      </q-dialog>
       <credentials-list
+        v-if="!isMobile"
         :credentials="filteredCredentials"
         :profile-options="profiles"
         :no-results="noResults"
@@ -71,21 +114,31 @@
  * Copyright (c) 2018-2026 Digital Bazaar, Inc.
  */
 import {computed, ref, toRef, watch} from 'vue';
-import {formatString, getValueFromPointer} from '../lib/helpers.js';
+import {
+  formatString, getCredential, getValueFromPointer
+} from '../lib/helpers.js';
 import {
   getCategoryOrder, getCredentialCategory
 } from '../lib/useCredentialCardConfig.js';
+import {QSpinner, useQuasar} from 'quasar';
 import {config} from '@bedrock/web';
 import {createEmitExtendable} from '@digitalbazaar/vue-extendable-event';
+import CredentialDetailsMobile from './CredentialDetailsMobile.vue';
+import CredentialListRow from './CredentialListRow.vue';
 import CredentialsList from './CredentialsList.vue';
 import SearchBox from './SearchBox.vue';
 import ShowScannerModal from './ShowScannerModal.vue';
-import {useQuasar} from 'quasar';
 
 export default {
   name: 'CredentialDashboard',
   components: {
+    CredentialDetailsMobile,
+    CredentialListRow,
     CredentialsList,
+    // registered locally, unlike this file's other Quasar components: the
+    // mobile branch is the only place the spinner appears, and a component
+    // resolved from the global install is invisible to a component test
+    QSpinner,
     SearchBox,
     ShowScannerModal
   },
@@ -122,9 +175,30 @@ export default {
     // Refs
     const search = ref('');
     const activeCategory = ref(null);
+    const showDetails = ref(false);
+    const selectedRecord = ref(null);
     const filteredProfiles = ref([]);
     const showBarcodeDialog = ref(false);
     const credentials = toRef(props, 'credentials');
+
+    // a raw verifiable credential has no `meta`, so there is no record id to
+    // key on; fall back to the credential's own id and finally to position
+    function credentialKey(record, index) {
+      return record?.meta?.id ?? getCredential(record)?.id ?? index;
+    }
+
+    function openDetails(record) {
+      selectedRecord.value = record;
+      showDetails.value = true;
+    }
+
+    // the dashboard owns the extendable `delete-credential` event; the details
+    // view invokes this rather than emitting one of its own, so there is a
+    // single path a parent can hook with `waitUntil`
+    async function deleteSelectedCredential({profileId, credentialId}) {
+      await emitExtendable('delete-credential', {profileId, credentialId});
+      showDetails.value = false;
+    }
 
     // one app-level setting moves every surface at once
     const isMobile = computed(() => $q.screen.lt.sm);
@@ -133,7 +207,10 @@ export default {
     // a change to precedence cannot leave chip order disagreeing with what
     // each chip filters to
     const categoryOrder = computed(() => getCategoryOrder({
-      credentials: credentials.value.map(({credential}) => credential)
+      // through `getCredential`, like the list this band filters: destructuring
+      // `{credential}` categorised none of the `content`-shaped records the
+      // list itself accepts, so those users got rows and no band
+      credentials: credentials.value.map(record => getCredential(record))
         .filter(credential => credential),
       categories: config?.vueWallet?.credentialCategories
     }));
@@ -163,7 +240,12 @@ export default {
     // Credentials filtered by search term match
     const filteredCredentials = computed(() => {
       emit('filtered-credentials-loading', true);
-      const filteredCredentials = credentials.value.filter(({credential}) => {
+      const filteredCredentials = credentials.value.filter(record => {
+        // destructuring `{credential}` dropped every record shaped
+        // `{content, meta}` and every bare verifiable credential, so a
+        // consumer passing either saw an empty list and no reason for it --
+        // `CredentialsList` accepts all three and never got the chance
+        const credential = getCredential(record);
         if(credential) {
           if(activeCategory.value && getCredentialCategory({
             credential, categories: config?.vueWallet?.credentialCategories
@@ -188,6 +270,19 @@ export default {
 
     // Boolean for no filtered results
     const noResults = computed(() => filteredCredentials.value.length === 0);
+
+    // says which of the three reasons the list is empty, and echoes the search
+    // back: a user holding twelve credentials who mistypes one was told they
+    // had none, with nothing on screen naming what they had typed
+    const emptyStateText = computed(() => {
+      if(search.value) {
+        return `No credentials match "${search.value}".`;
+      }
+      if(activeCategory.value) {
+        return `No ${activeCategory.value} credentials.`;
+      }
+      return 'No credentials yet.';
+    });
 
     // Events
     const refresh = () => {
@@ -243,10 +338,16 @@ export default {
       activeCategory,
       bandVisible,
       categoryOrder,
+      credentialKey,
+      deleteSelectedCredential,
+      openDetails,
+      selectedRecord,
+      showDetails,
       filteredCredentials,
       isMobile,
       filteredProfiles,
       noResults,
+      emptyStateText,
       refresh,
       search,
       openBarcodeDialog,

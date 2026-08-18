@@ -42,14 +42,17 @@ const chipTexts = wrapper => wrapper.findAll('.s-category-band .q-chip')
   .map(chip => chip.text());
 
 // what the user can actually see in the list -- a count cannot tell the
-// difference between filtering to the right category and the wrong one
-const listedNames = wrapper => wrapper.findComponent({name: 'CredentialsList'})
-  .props('credentials').map(({credential}) => credential.name);
+// difference between filtering to the right category and the wrong one.
+// Mobile renders rows rather than the wide list, which is the surface the
+// band filters, so this reads the rows.
+const listedNames = wrapper => wrapper
+  .findAllComponents({name: 'CredentialListRow'})
+  .map(row => row.props('credentialRecord').credential.name);
 
 const mountDashboard = credentials => mount(CredentialDashboard, {
-  props: {credentials},
+  props: {credentials, errorText: ''},
   global: {plugins: [Quasar], stubs: {CredentialsList: true, SearchBox: true,
-    ShowScannerModal: true}}
+    ShowScannerModal: true, CredentialDetailsMobile: true}}
 });
 
 describe('the credential category band', () => {

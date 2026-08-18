@@ -115,6 +115,7 @@ import CredentialCardBundle from './CredentialCardBundle.vue';
 import CredentialCompactBundle from './CredentialCompactBundle.vue';
 import CredentialSelect from './CredentialSelect.vue';
 import {CredentialSwitch} from '@bedrock/vue-vc';
+import {isCredentialRecord} from '../lib/helpers.js';
 
 export default {
   name: 'CredentialsList',
@@ -266,8 +267,10 @@ export default {
   }
 };
 
+// delegates so there is one definition of the shape; other surfaces render
+// the same `credentials` prop and have to agree with this one
 function _isCredentialRecord(r) {
-  return !!(r?.meta && (r?.credential ?? r?.content));
+  return isCredentialRecord(r);
 }
 </script>
 
