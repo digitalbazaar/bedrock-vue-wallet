@@ -219,7 +219,7 @@ export default {
     // Extract and parse images from credential's render method property
     async function getDisplaysFromRenderMethod() {
       const renderMethods = props.credential?.renderMethod;
-      if(!renderMethods?.length) {
+      if(!(renderMethods?.length > 0)) {
         return;
       }
       // `forEach` does not await an async callback, so a fetched template
@@ -289,7 +289,7 @@ export default {
       // the inline template travels inside the signed credential and a fetched
       // one does not, so an inline template wins when both are present
       if(!template) {
-        if(typeof url !== 'string' || !/^https:\/\//.test(url)) {
+        if(!url?.startsWith?.('https://')) {
           // `fetch(undefined)` requested the wallet's own origin and rendered
           // its markup as the credential's artwork
           throw new Error(`Unusable render method template url "${url}".`);
