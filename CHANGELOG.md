@@ -4,6 +4,26 @@
 
 ### Added
 - Add a one-time home page prompt to show the wallet in the selector.
+- Add HTML Render Method support to the credential Displays tab. A
+  credential carrying a `TemplateRenderMethod` with an `html` render
+  suite is rendered by `@digitalbazaar/vc-html-render-method` into a
+  nested, sandboxed iframe and appears as its own slide alongside any
+  SVG renderings.
+
+### Fixed
+- Fix SVG render method templates being lost for any credential holding
+  a character above U+00FF, such as a name in Chinese, Japanese, Korean
+  or Arabic. `btoa()` is Latin-1 only and threw; templates are now
+  encoded as UTF-8 data URIs.
+- Fix a fetched SVG template overriding an inline one. The inline
+  template travels inside the signed credential and a fetched one does
+  not, so the inline one now wins. A template is only fetched from an
+  `https` url, and a non-ok response is rejected rather than rendered as
+  the credential's artwork.
+- Fix Displays tab slides appearing in template completion order rather
+  than the order the credential declares its render methods in.
+- Fix one failing render method template preventing every other
+  rendering in the Displays tab from appearing.
 
 ### Fixed
 - Fix handling of `{credential, meta}` records in `CredentialCompactBundle`.
