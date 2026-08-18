@@ -28,7 +28,31 @@
       </div>
     </div>
     <div
-      class="col-xs-12 col-md-11 col-lg-10">
+      class="col-xs-12 col-md-11 col-lg-10 s-content-column">
+      <div
+        v-if="bandVisible"
+        class="col-xs-12 s-category-band">
+        <div class="s-category-chips">
+          <q-chip
+            :outline="activeCategory !== null"
+            clickable
+            color="primary"
+            text-color="white"
+            @click="activeCategory = null">
+            All
+          </q-chip>
+          <q-chip
+            v-for="category in categoryOrder"
+            :key="category"
+            :outline="activeCategory !== category"
+            clickable
+            color="primary"
+            text-color="white"
+            @click="activeCategory = category">
+            {{category}}
+          </q-chip>
+        </div>
+      </div>
       <credentials-list
         :credentials="filteredCredentials"
         :profile-options="profiles"
@@ -48,11 +72,15 @@
  */
 import {computed, ref, toRef, watch} from 'vue';
 import {formatString, getValueFromPointer} from '../lib/helpers.js';
+import {
+  getCategoryOrder, getCredentialCategory
+} from '../lib/useCredentialCardConfig.js';
 import {config} from '@bedrock/web';
 import {createEmitExtendable} from '@digitalbazaar/vue-extendable-event';
 import CredentialsList from './CredentialsList.vue';
 import SearchBox from './SearchBox.vue';
 import ShowScannerModal from './ShowScannerModal.vue';
+import {useQuasar} from 'quasar';
 
 export default {
   name: 'CredentialDashboard',
@@ -88,19 +116,60 @@ export default {
   ],
   setup(props, {emit}) {
     // Constants
+    const $q = useQuasar();
     const emitExtendable = createEmitExtendable({emit});
 
     // Refs
     const search = ref('');
+    const activeCategory = ref(null);
     const filteredProfiles = ref([]);
     const showBarcodeDialog = ref(false);
     const credentials = toRef(props, 'credentials');
+
+    // one app-level setting moves every surface at once
+    const isMobile = computed(() => $q.screen.lt.sm);
+
+    // the ordered list and the membership test both come from the library, so
+    // a change to precedence cannot leave chip order disagreeing with what
+    // each chip filters to
+    const categoryOrder = computed(() => getCategoryOrder({
+      credentials: credentials.value.map(({credential}) => credential)
+        .filter(credential => credential),
+      categories: config?.vueWallet?.credentialCategories
+    }));
+
+    // The band is the only control that can clear this, and it renders only
+    // on mobile with more than one category. Whenever it is not on screen the
+    // filter has to go with it, or the wide list silently shows one category
+    // with nothing to explain or undo it -- rotate a phone, or delete
+    // credentials until one category remains, and the list quietly narrows.
+    const bandVisible = computed(
+      () => isMobile.value && categoryOrder.value.length > 1);
+
+    watch(bandVisible, visible => {
+      if(!visible) {
+        activeCategory.value = null;
+      }
+    });
+
+    // a category that disappears while selected would otherwise filter the
+    // list down to nothing with no chip showing why
+    watch(categoryOrder, order => {
+      if(activeCategory.value && !order.includes(activeCategory.value)) {
+        activeCategory.value = null;
+      }
+    });
 
     // Credentials filtered by search term match
     const filteredCredentials = computed(() => {
       emit('filtered-credentials-loading', true);
       const filteredCredentials = credentials.value.filter(({credential}) => {
         if(credential) {
+          if(activeCategory.value && getCredentialCategory({
+            credential, categories: config?.vueWallet?.credentialCategories
+          }) !== activeCategory.value) {
+            return false;
+          }
           const searchTerm = search.value.toLowerCase();
           const credentialName = credential.name || credential.type[1] || '';
           const {
@@ -171,7 +240,11 @@ export default {
 
     return {
       deleteCredential,
+      activeCategory,
+      bandVisible,
+      categoryOrder,
       filteredCredentials,
+      isMobile,
       filteredProfiles,
       noResults,
       refresh,
@@ -184,4 +257,53 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+// a row insets its content by `q-px-md` and a chip carries its own 4px margin,
+// so the band makes up the difference and the first chip's left edge lands on
+// the same line as the credential names below it
+$content-inset: 16px;
+$chip-margin: 4px;
+
+// One row that scrolls sideways, never two. Wrapping is the failure mode: a
+// second line pushes the list down and moves it again whenever the filter
+// changes the chip count, and a deployment naming six categories would push
+// the first credential off a phone screen. A chip clipped at the right edge is
+// also what tells someone there is more band to scroll to.
+.s-category-band {
+  flex: 0 0 auto;
+  margin-bottom: 10px;
+  padding-left: $content-inset - $chip-margin;
+  padding-right: 8px;
+  padding-bottom: 4px;
+  // the band is exactly as wide as the view and scrolls its content inside
+  // itself; without the cap its un-wrappable chips size the box instead and
+  // take the page sideways with them
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+
+  // a visible scrollbar under the chips reads as a stray horizontal rule
+  scrollbar-width: none; // Firefox
+  -ms-overflow-style: none; // legacy Edge/IE
+
+  &::-webkit-scrollbar {
+    display: none; // Chrome and Safari
+  }
+}
+
+// sizes to its content rather than to the band, which is what gives the band
+// something wider than itself to scroll
+.s-category-chips {
+  display: inline-flex;
+  flex-wrap: nowrap;
+}
+
+// A flex item's automatic minimum size is its content, so without this the
+// band's un-wrappable chips size this column -- measured at 616px inside a
+// 412px viewport -- and the band, capped at `100%` of a column already wider
+// than the screen, has nothing to scroll. The chips then run off the right
+// edge with no way to reach them.
+.s-content-column {
+  min-width: 0;
+}
 </style>
