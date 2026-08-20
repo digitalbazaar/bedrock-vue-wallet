@@ -158,6 +158,90 @@ describe('getRenderedDisplays', () => {
     expect(displays[0].mediaType).toBe('constructor');
   });
 
+  it('does not tell the template host which wallet asked', async () => {
+    // the default `Referer` on a cross-origin request names the wallet origin,
+    // which is not the template host's business
+    const fetchSpy = vi.fn(async () => ({ok: true, text: async () => SVG}));
+    vi.stubGlobal('fetch', fetchSpy);
+    await getRenderedDisplays({
+      credential: credentialWith([{
+        type: 'SvgRenderingTemplate2024', url: 'https://issuer.example/t.svg'
+      }])
+    });
+    expect(fetchSpy).toHaveBeenCalledWith('https://issuer.example/t.svg',
+      expect.objectContaining({referrerPolicy: 'no-referrer'}));
+  });
+
+  it('refuses a body that declares more than the template limit',
+    async () => {
+      // `response.text()` read whatever an issuer served straight into memory
+      const fetchSpy = vi.fn(async () => ({
+        ok: true,
+        headers: {get: name => name === 'content-length' ? '99999999' : null},
+        text: async () => {
+          throw new Error('the body must not be read');
+        }
+      }));
+      vi.stubGlobal('fetch', fetchSpy);
+      const displays = await getRenderedDisplays({
+        credential: credentialWith([{
+          type: 'SvgRenderingTemplate2024', url: 'https://issuer.example/big'
+        }])
+      });
+      expect(displays).toHaveLength(0);
+    });
+
+  it('stops reading a body that runs past the template limit', async () => {
+    // a host that declares no length can still serve one, so the read is
+    // metered as it arrives and cancelled rather than finished
+    let cancelled = false;
+    const chunk = new Uint8Array(64 * 1024);
+    let sent = 0;
+    const fetchSpy = vi.fn(async () => ({
+      ok: true,
+      headers: {get: () => null},
+      body: {
+        getReader: () => ({
+          read: async () => {
+            sent += chunk.byteLength;
+            return {done: false, value: chunk};
+          },
+          cancel: async () => {
+            cancelled = true;
+          }
+        })
+      }
+    }));
+    vi.stubGlobal('fetch', fetchSpy);
+    const displays = await getRenderedDisplays({
+      credential: credentialWith([{
+        type: 'SvgRenderingTemplate2024', url: 'https://issuer.example/stream'
+      }])
+    });
+    expect(displays).toHaveLength(0);
+    expect(cancelled, 'the transfer must be stopped, not drained').toBe(true);
+    // 512KB cap, so it gives up rather than reading forever
+    expect(sent).toBeLessThan(2 * 1024 * 1024);
+  });
+
+  it('contains an oversized template to its own render method', async () => {
+    // one issuer serving something enormous must not cost the credential its
+    // other renderings
+    vi.stubGlobal('fetch', vi.fn(async () => ({
+      ok: true,
+      headers: {get: name => name === 'content-length' ? '99999999' : null},
+      text: async () => SVG
+    })));
+    const displays = await getRenderedDisplays({
+      credential: credentialWith([
+        {type: 'SvgRenderingTemplate2024', url: 'https://issuer.example/big'},
+        {type: 'SvgRenderingTemplate2024', template: SVG, name: 'inline'}
+      ])
+    });
+    expect(displays).toHaveLength(1);
+    expect(decodeURIComponent(displays[0].content)).toContain('Card');
+  });
+
   it('fetches under an abort signal so a hung host cannot pend forever',
     async () => {
       // every render method is awaited together, so one host that accepts the
@@ -218,5 +302,48 @@ describe('getRenderedDisplays', () => {
       }])
     });
     expect(displays[0].accessMode).toEqual(['auditory']);
+  });
+
+  // How a template is loaded is not this module's decision. A deployment
+  // sending its requests through a proxy or an OHTTP relay substitutes a
+  // loader; nothing here changes, and nothing here reaches `fetch` directly.
+  describe('loading a template through a supplied loader', () => {
+    it('calls the loader it is given instead of fetching', async () => {
+      const fetchSpy = vi.fn();
+      vi.stubGlobal('fetch', fetchSpy);
+      const loadDocument = vi.fn(async () => '<svg>from loader</svg>');
+
+      const displays = await getRenderedDisplays({
+        credential: credentialWith([{
+          type: 'SvgRenderingTemplate2024',
+          url: 'https://issuer.example/t.svg'
+        }]),
+        loadDocument
+      });
+
+      expect(loadDocument).toHaveBeenCalledWith(
+        {url: 'https://issuer.example/t.svg'});
+      expect(fetchSpy, 'the default loader must not also run')
+        .not.toHaveBeenCalled();
+      expect(decodeURIComponent(displays[0].content))
+        .toContain('<svg>from loader</svg>');
+    });
+
+    it('contains a failing loader to its own render method', async () => {
+      // one template that cannot be loaded must not take the other renderings
+      // of the same credential down with it
+      const loadDocument = vi.fn(async () => {
+        throw new Error('refused');
+      });
+      const displays = await getRenderedDisplays({
+        credential: credentialWith([
+          {type: 'SvgRenderingTemplate2024',
+            url: 'https://issuer.example/t.svg', name: 'fetched'},
+          {type: 'SvgRenderingTemplate2024', template: SVG, name: 'inline'}
+        ]),
+        loadDocument
+      });
+      expect(displays.map(d => d.name)).toEqual(['inline']);
+    });
   });
 });
