@@ -2,12 +2,15 @@
  * Copyright (c) 2026 Digital Bazaar, Inc.
  */
 import {afterEach, beforeEach, describe, expect, it} from 'vitest';
+import {flushPromises, mount} from '@vue/test-utils';
 import {Notify, Quasar} from 'quasar';
 import {config} from '@bedrock/web';
+import CredentialCompactBundle from
+  '../../components/CredentialCompactBundle.vue';
 import CredentialDetailsMobile from
   '../../components/CredentialDetailsMobile.vue';
 import CredentialListRow from '../../components/CredentialListRow.vue';
-import {mount} from '@vue/test-utils';
+import {h} from 'vue';
 
 // A design whose title comes from a pointer *and* carries a format. This is
 // the case the two surfaces used to disagree about: the row rendered the raw
@@ -69,5 +72,24 @@ describe('a row and the details view it opens', () => {
   it('both apply the format the design configures', () => {
     expect(rowTitle()).toBe('Jane Doe');
     expect(detailsTitle()).toBe('Jane Doe');
+  });
+});
+
+// the compact bundle renders the same records and recognized only
+// `{content, meta}`, so it wrapped this one a second time and rendered nothing
+describe('the compact bundle', () => {
+  it('renders a record with `credential`', async () => {
+    const wrapper = mount(CredentialCompactBundle, {
+      props: {credentials: [RECORD], schemaMap: {}, store: true},
+      slots: {
+        'credential-switch': ({record, credential}) => h(
+          'div', {class: 'probe'}, `${record.meta.id} ${credential.id}`)
+      },
+      global: {plugins: [Quasar]}
+    });
+    await flushPromises();
+    expect(wrapper.find('.probe').text())
+      .toBe('urn:uuid:record urn:uuid:credential');
+    wrapper.unmount();
   });
 });

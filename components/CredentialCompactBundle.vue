@@ -21,6 +21,7 @@
 /*!
  * Copyright (c) 2015-2026 Digital Bazaar, Inc.
  */
+import {getCredential, isCredentialRecord} from '../lib/helpers.js';
 import {computedAsync} from '@vueuse/core';
 import {CredentialSwitch} from '@bedrock/vue-vc';
 import {toRef} from 'vue';
@@ -54,8 +55,9 @@ export default {
     const filteredCredentialRecords = computedAsync(async () => {
       // map to credential records, creating false `meta.id` as needed
       const records = credentials.value.map(maybeRecord =>
-        (maybeRecord.meta && maybeRecord.content) ?
-          maybeRecord : {content: maybeRecord, meta: maybeRecord.id});
+        isCredentialRecord(maybeRecord) ?
+          {content: getCredential(maybeRecord), meta: maybeRecord.meta} :
+          {content: maybeRecord, meta: {id: maybeRecord.id}});
       if(!store.value) {
         return records;
       }

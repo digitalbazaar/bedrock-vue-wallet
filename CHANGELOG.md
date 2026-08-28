@@ -5,6 +5,9 @@
 ### Added
 - Add a one-time home page prompt to show the wallet in the selector.
 
+### Fixed
+- Fix handling of `{credential, meta}` records in `CredentialCompactBundle`.
+
 ## 31.3.1 - 2026-08-10
 
 ### Fixed
