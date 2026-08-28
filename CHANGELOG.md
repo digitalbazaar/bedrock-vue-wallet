@@ -29,7 +29,7 @@
 - Fix one failing render method template preventing every other
   rendering in the Displays tab from appearing.
 - Fix handling of `{credential, meta}` records in `CredentialCompactBundle`.
-- Fix a credential missing a field its card formats crashing that card.
+- Fix a credential missing a field in its card format causing a card rendering crash.
 - Fix the HTML render method display relaying a fractionally different
   size back and forth, which could resize the frame without settling.
 
