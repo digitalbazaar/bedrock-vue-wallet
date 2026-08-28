@@ -11,7 +11,7 @@
         <credential-switch
           class="q-ma-xs col"
           :expandable="true"
-          :credential="credential" />
+          :credential="record.content" />
       </slot>
     </div>
   </div>
