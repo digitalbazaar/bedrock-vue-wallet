@@ -1,5 +1,5 @@
 <template>
-  <div class="col bg-grey-2 q-pa-md">
+  <div class="col bg-grey-2 q-pa-md details-panel-root">
     <q-tabs
       v-model="tab"
       dense
@@ -34,7 +34,7 @@
       <q-tab-panel
         name="highlights"
         class="bg-grey-2">
-        <div class="row justify-start items-start">
+        <div class="row justify-start items-start details-panel-row">
           <q-scroll-area
             visible
             :thumb-style="scrollBarStyles"
@@ -247,8 +247,41 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+/*
+ * Height flows down this chain as flex rather than being fixed at each level,
+ * so a single element owns any overflow and only one scrollbar can appear. A
+ * fixed height here and another on the dialog above are two budgets unaware of
+ * each other, and either can overflow on its own.
+ */
+.details-panel-root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  :deep(.q-tab-panels) {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  :deep(.q-tab-panel) {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+  }
+}
+
+.details-panel-row {
+  align-items: stretch;
+  flex: 1;
+  min-height: 0;
+}
+
 .details-view {
   width: 100%;
-  height: 500px;
+  flex: 1;
+  min-height: 0;
 }
 </style>
