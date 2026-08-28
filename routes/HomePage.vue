@@ -1,5 +1,6 @@
 <template>
   <div>
+    <chapi-setup-prompt :account="account" />
     <credential-dashboard
       :credentials="credentials"
       :profiles="profiles"
@@ -19,12 +20,13 @@ import {
   profileManager
 } from '@bedrock/web-wallet';
 import {computed, ref, toRef, watch} from 'vue';
+import ChapiSetupPrompt from '../components/ChapiSetupPrompt.vue';
 import {computedAsync} from '@vueuse/core';
 import CredentialDashboard from '../components/CredentialDashboard.vue';
 
 export default {
   name: 'HomePage',
-  components: {CredentialDashboard},
+  components: {ChapiSetupPrompt, CredentialDashboard},
   props: {
     account: {
       type: String,
