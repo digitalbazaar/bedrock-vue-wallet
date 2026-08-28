@@ -3,6 +3,10 @@
 ## 31.4.0 - 2026-08-dd
 
 ### Added
+- Add a mobile credential list of rows, each opening its own credential
+  detail view built for a phone rather than the wide dialog.
+- Group the mobile credential list by category.
+- Refresh the mobile credential list by pulling it down.
 - Add a one-time home page prompt to show the wallet in the selector.
 - Add HTML Render Method support to the credential Displays tab. A
   credential carrying a `TemplateRenderMethod` with an `html` render
@@ -24,9 +28,10 @@
   than the order the credential declares its render methods in.
 - Fix one failing render method template preventing every other
   rendering in the Displays tab from appearing.
-
-### Fixed
 - Fix handling of `{credential, meta}` records in `CredentialCompactBundle`.
+- Fix a credential missing a field its card formats crashing that card.
+- Fix the HTML render method display relaying a fractionally different
+  size back and forth, which could resize the frame without settling.
 
 ## 31.3.1 - 2026-08-10
 
