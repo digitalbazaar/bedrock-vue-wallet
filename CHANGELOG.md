@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 31.4.0 - 2026-08-dd
+## 31.4.0 - 2026-08-28
 
 ### Added
 - Add a mobile credential list of rows, each opening its own credential
