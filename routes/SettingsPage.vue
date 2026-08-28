@@ -143,6 +143,7 @@ import {useRoute, useRouter} from 'vue-router';
 import AccessManagement from '../components/AccessManagement.vue';
 import {addWalletToChapi} from '../lib/helpers.js';
 import {config} from '@bedrock/web';
+import {dismissChapiSetupPrompt} from '../lib/chapiPreference.js';
 import GeneralSettings from '../components/GeneralSettings.vue';
 import {profileManager} from '@bedrock/web-wallet';
 import ProfileSettings from '../components/ProfileSettings.vue';
@@ -227,7 +228,11 @@ export default {
       activeProfile.value?.shared);
 
     const chapiEnabled = ref(!config?.vueWallet?.disableChapi);
-    const showWallet = async () => addWalletToChapi();
+    const showWallet = async () => {
+      await addWalletToChapi();
+      // answering here also answers the home page prompt
+      dismissChapiSetupPrompt();
+    };
 
     return {
       activeProfile,
