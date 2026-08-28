@@ -124,6 +124,7 @@ import {AccountService, RegisterController} from '@bedrock/web-account';
 import {email, minLength, required} from '@vuelidate/validators';
 import {addWalletToChapi} from '../lib/helpers';
 import {config} from '@bedrock/web';
+import {dismissChapiSetupPrompt} from '../lib/chapiPreference.js';
 import {helpers} from '@bedrock/web-wallet';
 import {randomColor} from 'randomcolor';
 import {session} from '@bedrock/web-session';
@@ -256,6 +257,8 @@ export default {
         this.loading = true;
 
         await addWalletToChapi();
+        // registering here answers the home page prompt too
+        dismissChapiSetupPrompt();
 
         // end session to ensure the user is not logged in
         await session.end();
