@@ -1,5 +1,5 @@
 /*!
- * Copyright (c) 2026 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2026 Digital Bazaar, Inc.
  */
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {flushPromises, mount} from '@vue/test-utils';

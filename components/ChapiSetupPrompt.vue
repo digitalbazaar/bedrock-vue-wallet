@@ -26,7 +26,7 @@
 
 <script>
 /*!
- * Copyright (c) 2026 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2026 Digital Bazaar, Inc.
  */
 import {computed, ref} from 'vue';
 import {
