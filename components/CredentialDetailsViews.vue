@@ -149,10 +149,10 @@
 /*!
  * Copyright (c) 2015-2024 Digital Bazaar, Inc. All rights reserved.
  */
+import {getRenderedDisplays, getRenderMethods} from '../lib/renderMethod.js';
 import {onBeforeMount, onMounted, reactive, ref} from 'vue';
 import CredentialDetailsTree from './CredentialDetailsTree.vue';
 import CredentialHtmlDisplay from './CredentialHtmlDisplay.vue';
-import {getRenderedDisplays} from '../lib/renderMethod.js';
 
 export default {
   name: 'CredentialDetailsViews',
@@ -194,12 +194,20 @@ export default {
 
     // Select initial tab
     onMounted(() => {
-      showHighlights.value = !!Object.keys(props.credentialHighlights)?.length;
-      showDisplays.value = !!props.credential?.renderMethod?.length;
+      // the card config writes a key for every configured highlight whether or
+      // not the credential carries the field, so a populated object is not the
+      // same as something worth showing
+      showHighlights.value = Object.values(props.credentialHighlights ?? {})
+        .some(value => value !== '' && value !== null && value !== undefined);
       if(showHighlights.value) {
         tab.value = 'highlights';
       } else if(showDisplays.value) {
         tab.value = 'displays';
+      } else {
+        // Details is the tab every credential has, and the only one left once
+        // the other two are empty; without it the panel opens on a tab that
+        // renders nothing and no tab reads as active
+        tab.value = 'details';
       }
     });
 
@@ -222,12 +230,24 @@ export default {
     // same way; this one shows all of them, as carousel slides
     async function getDisplaysFromRenderMethod() {
       resolving.value = true;
+      // shown while resolving so the tab and its spinner appear together;
+      // corrected below, since a render method that resolves to nothing would
+      // otherwise leave an empty carousel behind
+      showDisplays.value = getRenderMethods({
+        credential: props.credential
+      }).length > 0;
       try {
         displays.push(...await getRenderedDisplays({
           credential: props.credential
         }));
       } finally {
         resolving.value = false;
+        showDisplays.value = displays.length > 0;
+        if(tab.value === 'displays' && !showDisplays.value) {
+          // the tab was chosen while these were still resolving; landing on
+          // one that has just stopped rendering leaves the panel blank
+          tab.value = showHighlights.value ? 'highlights' : 'details';
+        }
       }
     }
 
