@@ -1,5 +1,14 @@
 # bedrock-vue-wallet ChangeLog
 
+## 32.0.0 - 2026-09-dd
+
+### Changed
+- **BREAKING**: Require `vue-router@5`, replacing `vue-router@4`, in the peer
+  dependency range. Host apps need no code changes, only a move of their own
+  `vue-router` dependency to v5: this library imports just `useRoute` and
+  `useRouter` and calls only `addRoute`, `beforeEach` and `afterEach` on the
+  router the host supplies, none of which changed in v5.
+
 ## 31.4.1 - 2026-09-04
 
 ### Fixed
