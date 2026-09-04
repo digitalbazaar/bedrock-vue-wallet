@@ -8,6 +8,12 @@
   `vue-router` dependency to v5: this library imports just `useRoute` and
   `useRouter` and calls only `addRoute`, `beforeEach` and `afterEach` on the
   router the host supplies, none of which changed in v5.
+- **BREAKING**: Require `@bedrock/quasar@11`, `@bedrock/quasar-components@6`
+  and `@bedrock/vue-vc@6` in the peer dependency ranges. Those releases move
+  the chain onto `@bedrock/vue@6`, which this package does not use directly,
+  so no code changes are needed here.
+- **BREAKING**: Require `vue@3.5.38` or later, up from `^3.4.21`, to match the
+  range `@bedrock/quasar@11` requires.
 
 ## 31.4.1 - 2026-09-04
 
