@@ -1,5 +1,12 @@
 # bedrock-vue-wallet ChangeLog
 
+## 31.4.1 - 2026-09-dd
+
+### Fixed
+- Fix credential details panel CSS so that only a single scrollbar
+  can appear when there is overflow.
+- Fix display of credentials with no highlights and no render methods.
+
 ## 31.4.0 - 2026-08-28
 
 ### Added
