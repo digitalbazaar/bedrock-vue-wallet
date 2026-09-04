@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 31.4.1 - 2026-09-dd
+## 31.4.1 - 2026-09-04
 
 ### Fixed
 - Fix credential details panel CSS so that only a single scrollbar
