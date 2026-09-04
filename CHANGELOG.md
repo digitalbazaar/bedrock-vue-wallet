@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 32.0.0 - 2026-09-dd
+## 32.0.0 - 2026-09-04
 
 ### Changed
 - **BREAKING**: Require `vue-router@5`, replacing `vue-router@4`, in the peer
