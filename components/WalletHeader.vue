@@ -34,10 +34,12 @@
         @click="handleNav()" />
       <q-btn-dropdown
         v-show="account && !hideNavigation"
+        id="user-menu"
         flat
         dense
         rounded
         no-icon-animation
+        aria-label="Account menu"
         class="q-pa-sm q-ml-sm"
         :size="$q.screen.gt.xs ? 'sm': 'md'"
         :dropdown-icon="$q.screen.gt.xs ? 'far fa-user' : 'fa fa-bars'">
