@@ -50,7 +50,7 @@ export default defineConfig({
       {find: /^@digitalbazaar\/http-client$/,
         replacement: dep('@digitalbazaar/http-client')},
       {find: /^qrcode$/, replacement: dep('qrcode')}
-     ]
+    ]
   },
   test: {
     projects: [
