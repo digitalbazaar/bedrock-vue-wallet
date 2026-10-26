@@ -21,6 +21,19 @@ if(!window.matchMedia) {
   });
 }
 
+// jsdom implements no `IntersectionObserver` and Quasar (2.35+) creates one
+// when certain components mount. A stand-in that never reports an entry.
+if(!window.IntersectionObserver) {
+  window.IntersectionObserver = class IntersectionObserver {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+    takeRecords() {
+      return [];
+    }
+  };
+}
+
 /* eslint-disable vue/one-component-per-file --
  * this file is a stub registry: five stand-ins of four lines each, registered
  * together because they are installed together */
