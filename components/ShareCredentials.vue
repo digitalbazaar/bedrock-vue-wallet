@@ -16,7 +16,9 @@
         style="overflow: auto"
         :style="$q.screen.lt.sm ? 'max-height: calc(100% - 67px)' :
           'max-height: calc(100vh - 102px)'">
-        <div class="full-width">
+        <div
+          v-if="!accountHasOnlyOneProfile"
+          class="full-width">
           <!-- FIXME: move profile chooser to parent page -->
           <profile-chooser
             :loading="profilesUpdating"
@@ -179,6 +181,9 @@ export default {
       return profiles.value.find(p => p.id === selectedProfileId.value);
     });
 
+    const accountHasOnlyOneProfile = computed(
+      () => profiles.value.length === 1);
+
     const displayableCredentials = ref([]);
     const selectedCredentials = ref([]);
 
@@ -329,6 +334,7 @@ export default {
       profilesUpdating,
       selectedProfile,
       selectedProfileId,
+      accountHasOnlyOneProfile,
       sharing
     };
   },

@@ -14,6 +14,8 @@
             <credential-switch
               class="q-ma-xs col"
               :expandable="true"
+              dense
+              layout="row"
               :credential="switchProps.record.content" />
           </component>
         </template>
@@ -33,6 +35,8 @@
             <credential-switch
               class="q-ma-xs col"
               :expandable="true"
+              dense
+              layout="row"
               :credential="switchProps.credential" />
           </component>
         </template>
