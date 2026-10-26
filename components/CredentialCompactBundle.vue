@@ -11,6 +11,8 @@
         <credential-switch
           class="q-ma-xs col"
           :expandable="true"
+          dense
+          layout="row"
           :credential="record.content" />
       </slot>
     </div>

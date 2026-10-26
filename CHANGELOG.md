@@ -4,6 +4,8 @@
 
 ### Added
 - Add checkout interaction QR code to the credential dashboard.
+- Use compact row layout for credential lists.
+- Hide the profile chooser when the account has one profile.
 
 ### Changed
 - Require `@bedrock/vue-vc@6.1.0`.
