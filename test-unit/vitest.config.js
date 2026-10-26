@@ -2,19 +2,21 @@
  * Copyright (c) 2026 Digital Bazaar, Inc.
  */
 import {defineConfig} from 'vitest/config';
+import {fileURLToPath} from 'node:url';
 import {playwright} from '@vitest/browser-playwright';
 import vue from '@vitejs/plugin-vue';
 
-const mock = pkg => new URL(`./mocks/${pkg}`, import.meta.url).pathname;
-const quasarClient = new URL(
-  './node_modules/quasar/dist/quasar.client.js', import.meta.url).pathname;
+const mock = pkg => fileURLToPath(new URL(`./mocks/${pkg}`, import.meta.url));
+const quasarClient = fileURLToPath(new URL(
+  './node_modules/quasar/dist/quasar.client.js', import.meta.url));
 
 // the components under test live outside this package, so a bare import in
 // one of them resolves against the repo root, which deliberately installs
 // none of these -- they are peer dependencies there, and anything present in
 // the root node_modules also lands in the karma build's module graph. Point
 // them at this package's copies instead.
-const dep = name => new URL(`./node_modules/${name}`, import.meta.url).pathname;
+const dep = name =>
+  fileURLToPath(new URL(`./node_modules/${name}`, import.meta.url));
 
 export default defineConfig({
   plugins: [vue()],
@@ -44,8 +46,11 @@ export default defineConfig({
       {find: '@digitalbazaar/vue-extendable-event',
         replacement: dep('@digitalbazaar/vue-extendable-event/lib/index.js')},
       {find: '@digitalbazaar/vc-html-render-method',
-        replacement: mock('digitalbazaar/vc-html-render-method.js')}
-    ]
+        replacement: mock('digitalbazaar/vc-html-render-method.js')},
+      {find: /^@digitalbazaar\/http-client$/,
+        replacement: dep('@digitalbazaar/http-client')},
+      {find: /^qrcode$/, replacement: dep('qrcode')}
+     ]
   },
   test: {
     projects: [
