@@ -23,14 +23,14 @@
     "@digitalbazaar/web-app-manifest-utils": "^2.0.0",
     "html5-qrcode": "^2.3.8",
     "mustache": "^4.2.0",
-    "qrcode": "^1.5.3",
+    "qrcode": "^1.5.4",
     "randomcolor": "^0.6.2",
     "web-credential-handler": "^3.0.0"
   },
   "peerDependencies": {
     "@bedrock/quasar": "^11.0.0",
     "@bedrock/quasar-components": "^6.0.0",
-    "@bedrock/vue-vc": "^6.0.0",
+    "@bedrock/vue-vc": "^6.1.0",
     "@bedrock/web": "^3.1.0",
     "@bedrock/web-account": "^6.1.0",
     "@bedrock/web-authn-token": "^7.0.0",

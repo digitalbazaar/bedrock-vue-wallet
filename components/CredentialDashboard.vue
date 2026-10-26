@@ -29,6 +29,14 @@
             outline
             size="sm"
             color="primary"
+            class="q-mr-sm"
+            icon="fas fa-shopping-cart"
+            @click="openInteractionQrDialog" />
+          <q-btn
+            round
+            outline
+            size="sm"
+            color="primary"
             icon="fas fa-sync-alt"
             @click="refresh" />
         </div>
@@ -112,6 +120,9 @@
       </div>
     </refreshable-view>
     <ShowScannerModal v-model="showBarcodeDialog" />
+    <ShowInteractionQrModal
+      v-if="showInteractionQrDialog"
+      v-model="showInteractionQrDialog" />
   </q-page>
 </template>
 
@@ -134,6 +145,7 @@ import CredentialListRow from './CredentialListRow.vue';
 import CredentialsList from './CredentialsList.vue';
 import RefreshableView from './RefreshableView.vue';
 import SearchBox from './SearchBox.vue';
+import ShowInteractionQrModal from './ShowInteractionQrModal.vue';
 import ShowScannerModal from './ShowScannerModal.vue';
 
 export default {
@@ -148,6 +160,7 @@ export default {
     QSpinner,
     RefreshableView,
     SearchBox,
+    ShowInteractionQrModal,
     ShowScannerModal
   },
   props: {
@@ -187,6 +200,7 @@ export default {
     const selectedRecord = ref(null);
     const filteredProfiles = ref([]);
     const showBarcodeDialog = ref(false);
+    const showInteractionQrDialog = ref(false);
     const credentials = toRef(props, 'credentials');
 
     // a raw verifiable credential has no `meta`, so there is no record id to
@@ -330,6 +344,10 @@ export default {
       showBarcodeDialog.value = true;
     };
 
+    const openInteractionQrDialog = () => {
+      showInteractionQrDialog.value = true;
+    };
+
     // Pass delete-credential event up component chain
     const deleteCredential = async ({profileId, credentialId}) => {
       return emitExtendable('delete-credential', {profileId, credentialId});
@@ -389,7 +407,9 @@ export default {
       requestRefresh,
       search,
       openBarcodeDialog,
-      showBarcodeDialog
+      showBarcodeDialog,
+      openInteractionQrDialog,
+      showInteractionQrDialog
     };
   }
 };
