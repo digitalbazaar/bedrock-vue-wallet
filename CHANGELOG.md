@@ -1,5 +1,13 @@
 # bedrock-vue-wallet ChangeLog
 
+## 32.1.0 - 2026-10-dd
+
+### Added
+- Add checkout interaction QR code to the credential dashboard.
+
+### Changed
+- Require `@bedrock/vue-vc@6.1.0`.
+
 ## 32.0.0 - 2026-09-04
 
 ### Changed
