@@ -6,9 +6,13 @@
 - Add checkout interaction QR code to the credential dashboard.
 - Use compact row layout for credential lists.
 - Hide the profile chooser when the account has one profile.
+- Obtain a requested credential the wallet does not hold from a provider
+  registered in `config.wallet.credentialProviders`, then return to the
+  original request.
 
 ### Changed
 - Require `@bedrock/vue-vc@6.1.0`.
+- Require `@bedrock/web-wallet@15.11.0`.
 
 ## 32.0.0 - 2026-09-04
 

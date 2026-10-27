@@ -83,6 +83,23 @@
               @select-credentials="selectCredentials" />
           </template>
         </share-review>
+        <!-- requested credentials the wallet can obtain from a provider -->
+        <div
+          v-for="{query, type, provider} in providers"
+          :key="type"
+          class="q-mt-md">
+          <p
+            v-if="query.credentialQuery?.reason"
+            class="text-body2">
+            {{query.credentialQuery.reason}}
+          </p>
+          <q-btn
+            no-caps
+            color="primary"
+            :label="provider.label"
+            :disable="loading"
+            @click="obtain({query, provider})" />
+        </div>
       </div>
       <div
         class="self-end row justify-between q-py-md q-px-lg"
@@ -121,6 +138,7 @@ import {
 } from '@bedrock/web-wallet';
 import {computedAsync} from '@vueuse/core';
 import CredentialsList from './CredentialsList.vue';
+import {Notify} from 'quasar';
 import ProfileChooser from './ProfileChooser.vue';
 import ShareReview from './ShareReview.vue';
 
@@ -150,7 +168,7 @@ export default {
       required: true
     }
   },
-  emits: ['share', 'cancel'],
+  emits: ['share', 'cancel', 'obtain'],
   setup(props) {
     const profilesUpdating = ref(true);
     const profiles = computedAsync(async () => {
@@ -186,6 +204,8 @@ export default {
 
     const displayableCredentials = ref([]);
     const selectedCredentials = ref([]);
+    // providers for requested credentials that nothing matched
+    const providers = ref([]);
 
     const verifiableCredentialUpdating = ref(true);
     const credentialRecords = computedAsync(async () => {
@@ -213,6 +233,9 @@ export default {
           verifiablePresentationRequest: toRaw(
             verifiablePresentationRequest.value),
           credentialStore
+        });
+        providers.value = presentations.findCredentialProviders({
+          matchResult: matches
         });
         // FIXME: render matches directly instead of using records and hacky
         // record overrides; it would improve the UI (e.g., show information
@@ -252,11 +275,13 @@ export default {
     }, [], verifiableCredentialUpdating);
 
     const sharing = ref(false);
+    const obtaining = ref(false);
 
     const loading = computed(() =>
       verifiableCredentialUpdating.value ||
       profilesUpdating.value ||
-      sharing.value);
+      sharing.value ||
+      obtaining.value);
 
     const selectedAuthnOption = ref(null);
 
@@ -335,6 +360,8 @@ export default {
       selectedProfile,
       selectedProfileId,
       accountHasOnlyOneProfile,
+      obtaining,
+      providers,
       sharing
     };
   },
@@ -452,6 +479,31 @@ export default {
     },
     async cancel() {
       await this.$emitExtendable('cancel');
+    },
+    // asks the provider where to get the credential; the page runs that
+    // interaction and comes back here
+    async obtain({query, provider}) {
+      this.obtaining = true;
+      try {
+        const {id: profileId} = this.selectedProfile;
+        const credentialStore = await getCredentialStore({
+          // FIXME: same password placeholder as the match above
+          profileId, password: profileId
+        });
+        const interactionUrl = await provider.getInteractionUrl({
+          verifiablePresentationRequest: toRaw(
+            this.verifiablePresentationRequest),
+          query: toRaw(query),
+          credentialStore,
+          profileId
+        });
+        await this.$emitExtendable('obtain', {interactionUrl});
+      } catch(error) {
+        console.error('Could not obtain credential: ', error);
+        Notify.create({type: 'negative', message: error.message});
+      } finally {
+        this.obtaining = false;
+      }
     }
   }
 };
