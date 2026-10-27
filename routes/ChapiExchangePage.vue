@@ -25,10 +25,13 @@
         :error="error"
         @cancel="$event.waitUntil(cancel(error))" />
       <share-credentials
-        v-else-if="!loading && display === 'share'"
+        v-else-if="!loading && display === 'share' &&
+          verifiablePresentationRequest"
+        :key="shareRound"
         :verifiable-presentation-request="verifiablePresentationRequest"
         :request-origin="requestOrigin"
         @cancel="$event.waitUntil(cancel())"
+        @obtain="$event.waitUntil(obtain($event))"
         @share="$event.waitUntil(share($event))" />
       <store-credentials
         v-else-if="!loading && display === 'store'"
@@ -74,6 +77,8 @@ import {useQuasar} from 'quasar';
 import {WebAppManifestClient} from '@digitalbazaar/web-app-manifest-utils';
 
 const manifestClient = new WebAppManifestClient();
+// interactions one "obtain" may chain through by redirect
+const MAX_NESTED_INTERACTIONS = 5;
 
 const {prettify} = helpers;
 
@@ -106,6 +111,8 @@ export default {
     const verifiableCredential = ref([]);
     const verifiablePresentation = ref();
     const verifiablePresentationRequest = ref();
+    // changes for each share screen so it renders fresh
+    const shareRound = ref(0);
 
     let credentialRecords;
 
@@ -124,7 +131,11 @@ export default {
 
     // utils for waiting for user interaction
     let resume;
-    const wait = async () => new Promise(r => resume = r);
+    let abort;
+    const wait = async () => new Promise((resolve, reject) => {
+      resume = resolve;
+      abort = reject;
+    });
 
     // track user logged in status
     const account = toRef(props, 'account');
@@ -187,10 +198,21 @@ export default {
 
     // exchange processing
     let exchange;
+    // an exchange run to obtain a credential for `exchange`
+    let nested;
     let reject;
-    const cancel = error => reject ?
-      reject(error) :
-      error ? exchange.close({error}) : exchange.cancel();
+    const cancel = error => {
+      // cancelling a nested exchange returns to the outer one
+      if(nested) {
+        nested.cancel();
+        const e = new Error('Nested exchange cancelled.');
+        e.name = 'AbortError';
+        return abort(e);
+      }
+      return reject ?
+        reject(error) :
+        error ? exchange.close({error}) : exchange.cancel();
+    };
 
     const share = async ({
       presentation, profileId, authnOption, verifiablePresentationRequest
@@ -238,6 +260,158 @@ export default {
       }
     };
 
+    // steps through an exchange, showing the store and share screens it
+    // needs; resolves to the exchange's final `redirectUrl`, if any
+    const runExchange = async ({exchange}) => {
+      let actionTaken = false;
+      while(true) {
+        const options = {};
+        if(verifiablePresentation.value) {
+          options.verifiablePresentation = toRaw(
+            verifiablePresentation.value);
+          options.signOptions = signOptions;
+        }
+        exchanging.value = true;
+        const {value, done} = await exchange.next(options);
+        exchanging.value = false;
+
+        // clear share-related state, modulo `signOptions` which includes
+        // might include information that needs to be stored
+        verifiablePresentationRequest.value = undefined;
+        verifiablePresentation.value = undefined;
+
+        if(value?.verifiablePresentation) {
+          // set store-related state
+          const {verifiablePresentation: presentation} = value;
+          holder.value = presentation.holder ?? '';
+          let credentials = presentation.verifiableCredential;
+          if(!credentials) {
+            credentials = [];
+          } else if(!Array.isArray(credentials)) {
+            credentials = [credentials];
+          }
+
+          // create credential records
+          let meta;
+          if(signOptions?.newConfidenceMethod) {
+            // FIXME: if share/authentication purpose for
+            // `newConfidenceMethod` is for VC-2FA then it can be stored with
+            // received VC(s), but if for another purpose, it needs to be
+            // stored elsewhere or it won't be reusable
+            const {id, type, multikey, jwk} = signOptions.newConfidenceMethod;
+            meta = {
+              // 2FA confidence methods; add first one
+              confidenceMethods: [{id, type, multikey, jwk}]
+            };
+          }
+          credentialRecords = await Promise.all(
+            credentials.map(credential => {
+              if(credential?.type !== 'EnvelopedVerifiableCredential') {
+                return {credential, meta};
+              }
+              return envelopes.transformEnvelopedCredential({
+                credential, meta
+              });
+            }));
+
+          // use transformed VCs in display
+          verifiableCredential.value = credentialRecords.map(
+            ({credential}) => credential);
+
+          // if there is something to store, wait for user to approve storage
+          // FIXME: enable storage of capabilities as well
+          if(verifiableCredential.value.length > 0) {
+            // user must approve store...
+            setDisplay('store');
+            await wait();
+            actionTaken = true;
+          }
+
+          // clear store-related state
+          verifiableCredential.value = [];
+          holder.value = '';
+        }
+
+        const nonEmptyVpr = Object.keys(
+          value?.verifiablePresentationRequest ?? {}).length > 0;
+        if(nonEmptyVpr) {
+          // user must approve share...
+          setDisplay('share');
+
+          // set share-related state
+          verifiablePresentationRequest.value =
+            value.verifiablePresentationRequest;
+          shareRound.value++;
+
+          await wait();
+          actionTaken = true;
+        }
+
+        // if no action was taken then nothing actionable was in in `value`
+        // (no VPR, no VP / empty VP); so set an error condition and `wait()`
+        // to let the user see something went wrong
+        if(!actionTaken) {
+          const e = new Error('Nothing was received or requested.');
+          e.name = 'OperationError';
+          error.value = e;
+          await wait();
+          throw e;
+        }
+
+        if(done) {
+          // exchange is finished
+          exchange.close();
+          return {redirectUrl: value?.redirectUrl};
+        }
+      }
+    };
+
+    // runs another exchange to obtain a credential the current request asks
+    // for, then returns to the current request
+    const obtain = async ({interactionUrl}) => {
+      const outer = {
+        resume, abort,
+        requestOrigin: requestOrigin.value,
+        verifiablePresentationRequest: verifiablePresentationRequest.value
+      };
+      try {
+        // a redirect to another interaction URL continues the interaction
+        // (e.g., from presenting credentials to receiving the issued one)
+        let url = interactionUrl;
+        for(let i = 0; url && i < MAX_NESTED_INTERACTIONS; ++i) {
+          const interaction = await exchanges.createClientInteractionFromUrl({
+            interactionUrl: url
+          });
+          // show who is asking on the nested screens
+          await processRelyingPartyOrigin({origin: interaction.origin});
+          nested = await exchanges.start({interaction});
+          const {redirectUrl} = await runExchange({exchange: nested});
+          url = exchanges.isInteractionUrl(redirectUrl) ? redirectUrl : null;
+        }
+      } catch(e) {
+        if(e.name !== 'AbortError') {
+          console.error(e);
+          $q.notify({
+            type: 'negative',
+            message: `Could not obtain credential: ${e.message}`
+          });
+        }
+      } finally {
+        nested = undefined;
+        exchanging.value = false;
+        error.value = undefined;
+        // the nested exchange's signing state must not reach the outer share
+        signOptions = undefined;
+        verifiablePresentation.value = undefined;
+        ({resume, abort} = outer);
+        await processRelyingPartyOrigin({origin: outer.requestOrigin});
+        verifiablePresentationRequest.value =
+          outer.verifiablePresentationRequest;
+        setDisplay('share');
+        shareRound.value++;
+      }
+    };
+
     const handleCredentialEvent = async () => {
       const event = await receiveCredentialEvent();
       console.log('CHAPI event received', event);
@@ -259,106 +433,8 @@ export default {
           await wait();
         }
 
-        let actionTaken = false;
-        while(true) {
-          const options = {};
-          if(verifiablePresentation.value) {
-            options.verifiablePresentation = toRaw(
-              verifiablePresentation.value);
-            options.signOptions = signOptions;
-          }
-          exchanging.value = true;
-          const {value, done} = await exchange.next(options);
-          exchanging.value = false;
+        await runExchange({exchange});
 
-          // clear share-related state, modulo `signOptions` which includes
-          // might include information that needs to be stored
-          verifiablePresentationRequest.value = undefined;
-          verifiablePresentation.value = undefined;
-
-          if(value?.verifiablePresentation) {
-            // set store-related state
-            const {verifiablePresentation: presentation} = value;
-            holder.value = presentation.holder ?? '';
-            let credentials = presentation.verifiableCredential;
-            if(!credentials) {
-              credentials = [];
-            } else if(!Array.isArray(credentials)) {
-              credentials = [credentials];
-            }
-
-            // create credential records
-            let meta;
-            if(signOptions?.newConfidenceMethod) {
-              // FIXME: if share/authentication purpose for
-              // `newConfidenceMethod` is for VC-2FA then it can be stored with
-              // received VC(s), but if for another purpose, it needs to be
-              // stored elsewhere or it won't be reusable
-              const {id, type, multikey, jwk} = signOptions.newConfidenceMethod;
-              meta = {
-                // 2FA confidence methods; add first one
-                confidenceMethods: [{id, type, multikey, jwk}]
-              };
-            }
-            credentialRecords = await Promise.all(
-              credentials.map(credential => {
-                if(credential?.type !== 'EnvelopedVerifiableCredential') {
-                  return {credential, meta};
-                }
-                return envelopes.transformEnvelopedCredential({
-                  credential, meta
-                });
-              }));
-
-            // use transformed VCs in display
-            verifiableCredential.value = credentialRecords.map(
-              ({credential}) => credential);
-
-            // if there is something to store, wait for user to approve storage
-            // FIXME: enable storage of capabilities as well
-            if(verifiableCredential.value.length > 0) {
-              // user must approve store...
-              setDisplay('store');
-              await wait();
-              actionTaken = true;
-            }
-
-            // clear store-related state
-            verifiableCredential.value = [];
-            holder.value = '';
-          }
-
-          const nonEmptyVpr = Object.keys(
-            value?.verifiablePresentationRequest ?? {}).length > 0;
-          if(nonEmptyVpr) {
-            // user must approve share...
-            setDisplay('share');
-
-            // set share-related state
-            verifiablePresentationRequest.value =
-              value.verifiablePresentationRequest;
-
-            await wait();
-            actionTaken = true;
-          }
-
-          // if no action was taken then nothing actionable was in in `value`
-          // (no VPR, no VP / empty VP); so set an error condition and `wait()`
-          // to let the user see something went wrong
-          if(!actionTaken) {
-            const e = new Error('Nothing was received or requested.');
-            e.name = 'OperationError';
-            error.value = e;
-            await wait();
-            throw e;
-          }
-
-          if(done) {
-            // exchange is finished
-            exchange.close();
-            break;
-          }
-        }
       } catch(e) {
         console.error(e);
         error.value = e;
@@ -380,9 +456,9 @@ export default {
 
     return {
       cancel, display, error, exchanging, holder,
-      loading, login, ready,
+      loading, login, obtain, ready,
       relyingPartyImage, relyingPartyName, relyingPartyRequest,
-      registering, requestOrigin, setDisplay,
+      registering, requestOrigin, setDisplay, shareRound,
       share, store, storing, userLoggedIn, verifiableCredential,
       verifiablePresentationRequest
     };
