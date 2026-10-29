@@ -9,6 +9,9 @@
 - Obtain a requested credential the wallet does not hold from a provider
   registered in `config.wallet.credentialProviders`, then return to the
   original request.
+- Replace the store and share screens with a page configured in
+  `config.vueWallet.exchangePages` when an exchange offers a matching
+  credential; the page uses the same `store`, `share` and `cancel` events.
 
 ### Changed
 - Require `@bedrock/vue-vc@6.1.0`.

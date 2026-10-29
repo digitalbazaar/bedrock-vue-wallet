@@ -2,7 +2,8 @@
   <div
     v-if="ready"
     class="row justify-center">
-    <q-inner-loading :showing="loading">
+    <!-- a configured page shows its own progress -->
+    <q-inner-loading :showing="loading && !exchangePageComponent">
       <q-spinner-tail
         size="5em"
         color="primary" />
@@ -24,6 +25,21 @@
         :loading="loading"
         :error="error"
         @cancel="$event.waitUntil(cancel(error))" />
+      <!-- a configured page replaces the store and share screens; it stays
+        mounted from the offer through the request, so it is not keyed -->
+      <component
+        :is="exchangePageComponent"
+        v-else-if="exchangePageComponent &&
+          (display === 'store' || display === 'share')"
+        :account="account"
+        :display="display"
+        :holder="holder"
+        :verifiable-credential="verifiableCredential"
+        :verifiable-presentation-request="verifiablePresentationRequest"
+        :request-origin="requestOrigin"
+        @cancel="$event.waitUntil(cancel())"
+        @share="$event.waitUntil(share($event))"
+        @store="$event.waitUntil(store($event))" />
       <share-credentials
         v-else-if="!loading && display === 'share' &&
           verifiablePresentationRequest"
@@ -61,12 +77,16 @@
 /*!
  * Copyright (c) 2015-2026 Digital Bazaar, Inc.
  */
-import {computed, ref, toRaw, toRef} from 'vue';
+import {
+  computed, defineAsyncComponent, ref, shallowRef, toRaw, toRef
+} from 'vue';
 import {
   envelopes, exchanges, getCredentialStore, helpers,
   presentations, profileManager
 } from '@bedrock/web-wallet';
 import ChapiHeader from '../components/ChapiHeader.vue';
+import {config} from '@bedrock/web';
+import {getExchangePage} from '../lib/useCredentialCardConfig.js';
 import LoginForm from '../components/LoginForm.vue';
 import ProblemCard from '../components/ProblemCard.vue';
 import {receiveCredentialEvent} from 'web-credential-handler';
@@ -113,6 +133,9 @@ export default {
     const verifiablePresentationRequest = ref();
     // changes for each share screen so it renders fresh
     const shareRound = ref(0);
+    // a configured page that replaces the store and share screens
+    const exchangePage = shallowRef();
+    const exchangePageComponent = shallowRef();
 
     let credentialRecords;
 
@@ -159,6 +182,9 @@ export default {
       () => relyingPartyManifest.value?.name || requestOrigin.value);
     const relyingPartyRequest = computed(
       () => {
+        if(exchangePage.value?.request) {
+          return exchangePage.value.request;
+        }
         if(display.value === 'store') {
           return 'has something for you';
         } else if(display.value === 'share') {
@@ -260,9 +286,20 @@ export default {
       }
     };
 
+    // the first offer may pick a configured page for the whole exchange
+    const selectExchangePage = ({credentials}) => {
+      const page = getExchangePage({
+        credentials, exchangePages: config.vueWallet?.exchangePages
+      });
+      if(page) {
+        exchangePage.value = page;
+        exchangePageComponent.value = defineAsyncComponent(page.component);
+      }
+    };
+
     // steps through an exchange, showing the store and share screens it
     // needs; resolves to the exchange's final `redirectUrl`, if any
-    const runExchange = async ({exchange}) => {
+    const runExchange = async ({exchange, allowPage = false}) => {
       let actionTaken = false;
       while(true) {
         const options = {};
@@ -317,6 +354,16 @@ export default {
           // use transformed VCs in display
           verifiableCredential.value = credentialRecords.map(
             ({credential}) => credential);
+
+          if(allowPage && !exchangePage.value) {
+            selectExchangePage({credentials: verifiableCredential.value});
+          }
+          // a configured page handles the offer and the request as one
+          // screen, so it gets the request alongside the offer
+          if(exchangePage.value) {
+            verifiablePresentationRequest.value =
+              value.verifiablePresentationRequest;
+          }
 
           // if there is something to store, wait for user to approve storage
           // FIXME: enable storage of capabilities as well
@@ -433,7 +480,7 @@ export default {
           await wait();
         }
 
-        await runExchange({exchange});
+        await runExchange({exchange, allowPage: true});
 
       } catch(e) {
         console.error(e);
@@ -455,7 +502,7 @@ export default {
     handleCredentialEvent().finally(() => ready.value = true);
 
     return {
-      cancel, display, error, exchanging, holder,
+      cancel, display, error, exchangePageComponent, exchanging, holder,
       loading, login, obtain, ready,
       relyingPartyImage, relyingPartyName, relyingPartyRequest,
       registering, requestOrigin, setDisplay, shareRound,
