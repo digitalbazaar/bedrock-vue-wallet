@@ -426,7 +426,7 @@ export default {
         // (e.g., from presenting credentials to receiving the issued one)
         let url = interactionUrl;
         for(let i = 0; url && i < MAX_NESTED_INTERACTIONS; ++i) {
-          const interaction = await exchanges.createClientInteractionFromUrl({
+          const interaction = await exchanges.createClientInteraction({
             interactionUrl: url
           });
           // show who is asking on the nested screens
