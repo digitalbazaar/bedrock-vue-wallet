@@ -15,7 +15,7 @@
 
 ### Changed
 - Require `@bedrock/vue-vc@6.1.0`.
-- Require `@bedrock/web-wallet@15.11.0`.
+- Require `@bedrock/web-wallet@15.11.0` (peer dependency).
 
 ## 32.0.0 - 2026-09-04
 
