@@ -433,7 +433,8 @@ export default {
           await processRelyingPartyOrigin({origin: interaction.origin});
           nested = await exchanges.start({interaction});
           const {redirectUrl} = await runExchange({exchange: nested});
-          url = exchanges.isInteractionUrl(redirectUrl) ? redirectUrl : null;
+          url = exchanges.isInteractionUrl({url: redirectUrl}) ?
+            redirectUrl : null;
         }
       } catch(e) {
         if(e.name !== 'AbortError') {
