@@ -85,7 +85,7 @@ import {
   presentations, profileManager
 } from '@bedrock/web-wallet';
 import ChapiHeader from '../components/ChapiHeader.vue';
-import {getExchangePage} from '../lib/useCredentialCardConfig.js';
+import {getExchangePage} from '../lib/exchangePages.js';
 import LoginForm from '../components/LoginForm.vue';
 import ProblemCard from '../components/ProblemCard.vue';
 import {receiveCredentialEvent} from 'web-credential-handler';
