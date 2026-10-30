@@ -38,7 +38,9 @@
       </form>
       <div class="row q-my-lg">
         <q-checkbox
+          id="tos-agree"
           v-model="tosAgree"
+          aria-label="I agree to the Terms of Service"
           dense />
         <span class="q-ml-sm">
           I agree to the
