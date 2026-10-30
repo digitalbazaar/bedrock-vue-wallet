@@ -17,7 +17,7 @@
           'max-height: calc(100vh - 102px)'">
         <div class="column">
           <h6 class="text-center q-my-sm">
-            Would you like to store these credential(s)?
+            {{storePrompt}}
           </h6>
         </div>
         <q-separator class="s-separator" />
@@ -123,6 +123,11 @@ export default {
     };
   },
   computed: {
+    storePrompt() {
+      return this.verifiableCredential.length === 1 ?
+        'Would you like to store this credential?' :
+        'Would you like to store these credentials?';
+    },
     selectedProfile() {
       if(!this.profiles) {
         return undefined;
