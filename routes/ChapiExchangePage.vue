@@ -85,7 +85,6 @@ import {
   presentations, profileManager
 } from '@bedrock/web-wallet';
 import ChapiHeader from '../components/ChapiHeader.vue';
-import {config} from '@bedrock/web';
 import {getExchangePage} from '../lib/useCredentialCardConfig.js';
 import LoginForm from '../components/LoginForm.vue';
 import ProblemCard from '../components/ProblemCard.vue';
@@ -286,11 +285,9 @@ export default {
       }
     };
 
-    // the first offer may pick a configured page for the whole exchange
+    // the first offer may pick a registered page for the whole exchange
     const selectExchangePage = ({credentials}) => {
-      const page = getExchangePage({
-        credentials, exchangePages: config.vueWallet?.exchangePages
-      });
+      const page = getExchangePage({credentials});
       if(page) {
         exchangePage.value = page;
         exchangePageComponent.value = defineAsyncComponent(page.component);
