@@ -54,7 +54,7 @@
 /*!
  * Copyright (c) 2025-2026 Digital Bazaar, Inc.
  */
-import * as walletInteraction from './wallet-interaction.js';
+import * as walletInteractions from '../lib/walletInteractions.js';
 import {computed, onBeforeUnmount, onMounted, ref} from 'vue';
 import {config} from '@bedrock/web';
 import {useQuasar} from 'quasar';
@@ -85,25 +85,27 @@ export default {
     onMounted(async () => {
       let inviteResponse;
       try {
-        const interactionId = await walletInteraction.create();
-        qrCodeText.value = walletInteraction.toQrText({interactionId});
-        qrCodeImageUrl.value = await walletInteraction.toQrCode({
+        const interactionId = await walletInteractions.create();
+        qrCodeText.value = walletInteractions.toQrText({interactionId});
+        qrCodeImageUrl.value = await walletInteractions.toQrCode({
           text: qrCodeText.value
         });
-        inviteResponse = await walletInteraction.poll({
+        inviteResponse = await walletInteractions.poll({
           interactionId, signal: abortController.signal
         });
       } catch(e) {
         if(!abortController.signal.aborted) {
           console.error(e);
-          error.value = 'Unable to complete checkout. Close and try again.';
+          error.value = e.name === 'TimeoutError' ?
+            'This code has expired. Close and try again.' :
+            'Unable to complete checkout. Close and try again.';
         }
         return;
       }
 
       let url;
       try {
-        url = walletInteraction.parseRedirectUrl({url: inviteResponse.url});
+        url = walletInteractions.parseRedirectUrl({url: inviteResponse.url});
       } catch(e) {
         console.error(e);
         error.value = 'The merchant sent an invalid checkout link.';
