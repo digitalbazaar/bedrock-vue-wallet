@@ -1,10 +1,9 @@
 # bedrock-vue-wallet ChangeLog
 
-## 32.1.0 - 2026-10-dd
+## 33.0.0 - 2026-10-dd
 
 ### Added
 - Add checkout interaction QR code to the credential dashboard.
-- Use compact row layout for credential lists.
 - Hide the profile chooser when the account has one profile.
 - Obtain a requested credential the wallet does not hold from a provider
   registered with bedrock-web-wallet's `addCredentialProvider()`, then return
@@ -14,6 +13,13 @@
   the same `store`, `share` and `cancel` events.
 
 ### Changed
+- **BREAKING**: Credentials in `CredentialsList` (compact mode) and
+  `CredentialCompactBundle` use a dense row layout. This changes the store,
+  share and share review screens and any app that uses these components.
+- **BREAKING**: `ChapiExchangePage` runs exchanges through a new loop that
+  supports nested exchanges and app-registered exchange pages. Existing store
+  and share flows are meant to behave the same, but apps that rely on them
+  should re-test them.
 - Require `@bedrock/vue-vc@6.1.0`.
 - Require `@bedrock/web-wallet@15.11.0` (peer dependency).
 
