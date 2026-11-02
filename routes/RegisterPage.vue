@@ -17,6 +17,7 @@
  */
 import RegisterForm from '../components/RegisterForm.vue';
 import {session} from '@bedrock/web-session';
+import {takePendingDestination} from '../lib/firstRun.js';
 import {useQuasar} from 'quasar';
 import {useRouter} from 'vue-router';
 
@@ -41,8 +42,9 @@ export default {
           return;
         }
 
-        // redirect home
-        router.push({name: 'home'});
+        // back to wherever the holder was going, if a guard recorded it
+        const destination = takePendingDestination({router});
+        router.push(destination ?? {name: 'home'});
       } catch(e) {
         const newError = `${e.name}: ${e.message || 'No Message'}`;
         console.error('Register Error:', e);
