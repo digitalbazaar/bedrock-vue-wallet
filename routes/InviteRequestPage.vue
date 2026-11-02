@@ -43,6 +43,34 @@
         @cancel="$event.waitUntil(cancel())"
         @store="$event.waitUntil(store($event))" />
       <div
+        v-else-if="display === 'continue'"
+        class="column q-gutter-md"
+        data-testid="invite-request-continue">
+        <div class="text-h6">
+          Get another credential?
+        </div>
+        <p>
+          <strong>{{continueOrigin}}</strong> has another credential for you.
+          Continue to get it?
+        </p>
+        <q-btn
+          no-caps
+          rounded
+          unelevated
+          color="dark"
+          label="Continue"
+          data-testid="invite-request-continue-accept"
+          @click="decideContinue(true)" />
+        <q-btn
+          no-caps
+          rounded
+          unelevated
+          outline
+          label="Not now"
+          data-testid="invite-request-continue-decline"
+          @click="decideContinue(false)" />
+      </div>
+      <div
         v-else
         class="column items-center q-gutter-md"
         data-testid="invite-request-working">
@@ -62,13 +90,13 @@
  * Copyright (c) 2026 Digital Bazaar, Inc.
  */
 import {
-  completeInteractionChain, getCredentialStore, presentations
+  completeInteractionChain, exchanges, getCredentialStore, presentations
 } from '@bedrock/web-wallet';
 import {config} from '@bedrock/web';
 import {session} from '@bedrock/web-session';
-import {toRaw} from 'vue';
 import ShareCredentials from '../components/ShareCredentials.vue';
 import StoreCredentials from '../components/StoreCredentials.vue';
+import {toRaw} from 'vue';
 
 /* The endpoint named by `interaction_creators` in the web app manifest. A
 coordinator sends the holder here with one query parameter: the URL of an
@@ -81,7 +109,12 @@ to keep: a presentation request goes through the same ShareCredentials review
 every other exchange surface uses, and anything delivered goes through
 StoreCredentials. The link arrives from outside the wallet and anyone can
 craft one, so the exchange's origin has to be one this deployment named before
-any of that begins. */
+any of that begins.
+
+An exchange can finish by naming a follow-on exchange in its `redirectUrl`
+(an interaction URL, `iuv=1`). The chain asks the holder before starting each
+one, after what the previous exchange delivered has been stored; any other
+`redirectUrl` is ignored and the holder goes to their wallet. */
 // the exchange refused the presentation it was sent, e.g. an unverifiable
 // proof; retrying the same link sends the same presentation
 function _isVerificationError(error) {
@@ -102,7 +135,8 @@ export default {
       requestOrigin: '',
       verifiablePresentationRequest: undefined,
       holder: '',
-      verifiableCredential: []
+      verifiableCredential: [],
+      continueOrigin: ''
     };
   },
   computed: {
@@ -134,6 +168,10 @@ export default {
         this.requestOrigin = new URL(interactionUrl).origin;
         await completeInteractionChain({
           interactionUrl,
+          createInteraction: ({interactionUrl}) =>
+            exchanges.createClientInteraction({interactionUrl}),
+          startExchange: ({interaction}) => exchanges.start({interaction}),
+          onBeforeContinue: args => this.confirmContinue(args),
           onPresentationRequest: args => this.review(args),
           onLegComplete: args => this.keep(args)
         });
@@ -200,6 +238,21 @@ export default {
       this.verifiablePresentationRequest = undefined;
       this.display = 'working';
       return answer;
+    },
+    /* A follow-on exchange is named by the previous one, not by the link the
+    holder followed, so the allowlist that vetted the link says nothing about
+    it. The holder is shown where it leads and decides; declining ends the
+    chain with what has been stored so far. */
+    async confirmContinue({origin}) {
+      this.continueOrigin = origin;
+      const proceed = await this._decide('continue');
+      this.continueOrigin = '';
+      this.display = 'working';
+      this.status = 'Getting your credentials...';
+      return proceed === true;
+    },
+    decideContinue(proceed) {
+      this._settle?.resolve(proceed);
     },
     async keep({delta, origin}) {
       if(delta.length === 0) {

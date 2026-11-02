@@ -36,3 +36,22 @@ export function setProfiles(impl) {
 export const users = {};
 export const getPrimaryEmail = () => '';
 export const initialize = () => {};
+
+// Seam for `completeInteractionChain`, as for the store above. The default
+// finishes at once with nothing delivered.
+const DEFAULT_CHAIN = async () => ({
+  credentials: [], exchangeCount: 1, redirectUrl: null, canceled: false
+});
+
+let chainImpl = DEFAULT_CHAIN;
+
+export const completeInteractionChain = (...args) => chainImpl(...args);
+
+export function setInteractionChain(impl) {
+  chainImpl = impl ?? DEFAULT_CHAIN;
+}
+export const exchanges = {
+  createClientInteraction: async ({interactionUrl}) => ({interactionUrl}),
+  start: async ({interaction}) => ({interaction})
+};
+export const presentations = {createSignOptions: async () => ({})};

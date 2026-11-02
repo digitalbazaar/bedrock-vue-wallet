@@ -1,5 +1,29 @@
 # bedrock-vue-wallet ChangeLog
 
+## 33.1.0 - 20xx-xx-xx
+
+### Added
+- Add the `/interaction-creators/invite-request` route. It takes an exchange
+  URL in its `request` query parameter, accepts it only from an origin in
+  `config.vueWallet.interactionCreator.allowedOrigins` (empty by default),
+  and runs the exchange with the usual share and store screens. When an
+  exchange finishes with a `redirectUrl` that is an interaction URL
+  (`iuv=1`), the page asks the holder before starting that follow-on
+  exchange; any other `redirectUrl` is ignored. Afterwards the holder goes to
+  `/home`.
+- Add the `/welcome` route, which creates a default profile
+  (`config.vueWallet.defaultProfileName`, `defaultProfileOptions`) for an
+  account that has none. When it is enabled, routes with
+  `meta.requiresProfile` (`/home` and the invite-request route) send such an
+  account there first.
+- Login and register return the holder to the page a guard sent them away
+  from, instead of always going to `/home`. Login also creates the default
+  profile for an account that has none.
+
+### Changed
+- Require `@bedrock/web-wallet@15.12.0` (peer dependency) for
+  `completeInteractionChain()`.
+
 ## 33.0.0 - 2026-10-30
 
 ### Added
