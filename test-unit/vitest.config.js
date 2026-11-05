@@ -30,6 +30,8 @@ export default defineConfig({
       {find: /^@vue\/test-utils$/, replacement: dep('@vue/test-utils')},
       {find: '@bedrock/web', replacement: mock('bedrock/web.js')},
       {find: '@bedrock/web-wallet', replacement: mock('bedrock/web-wallet.js')},
+      {find: '@bedrock/web-session',
+        replacement: mock('bedrock/web-session.js')},
       {find: 'web-credential-handler',
         replacement: mock('web-credential-handler.js')},
       // A stand-in, and the one that should not be: the real package is not
