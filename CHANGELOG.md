@@ -23,7 +23,10 @@
   its first exchange delivers (e.g. a wallet selector's Personal Preferences
   credential for a phone number or email), when
   `config.vueWallet.interactionCreator.signInWithCredential.credentialTypes`
-  lists that type. The credential is posted to `signInWithCredential.url`
+  lists that type. A signed-out holder is first asked whether they already
+  have a wallet: "Sign in to my wallet" goes to the login and back with the
+  link unused; "Continue" runs it. The credential is posted to
+  `signInWithCredential.url`
   (default `/authn/credential-login`), whose backend decides whether it trusts
   the issuer; then the default profile is created and the invitation
   continues. If the link cannot sign the holder in, the page says so and

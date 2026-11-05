@@ -38,6 +38,37 @@
           label="Go to my wallet"
           @click="$router.push({name: 'home'})" />
       </div>
+      <div
+        v-else-if="display === 'choose'"
+        class="column q-gutter-md"
+        data-testid="invite-request-choose">
+        <div class="text-h6">
+          Do you already have a wallet?
+        </div>
+        <p>
+          If you do, sign in first so your new credentials go to it.
+        </p>
+        <p>
+          New here? Continue, and your wallet will be set up with the phone
+          number or email address this link was sent to.
+        </p>
+        <q-btn
+          no-caps
+          rounded
+          unelevated
+          color="dark"
+          label="Sign in to my wallet"
+          data-testid="invite-request-choose-sign-in"
+          @click="decideSignIn('login')" />
+        <q-btn
+          no-caps
+          rounded
+          unelevated
+          outline
+          label="Continue"
+          data-testid="invite-request-choose-continue"
+          @click="decideSignIn('credential')" />
+      </div>
       <share-credentials
         v-else-if="display === 'share'"
         :verifiable-presentation-request="verifiablePresentationRequest"
@@ -181,6 +212,21 @@ export default {
         this.error = {message: e.message, retryable: false};
         return;
       }
+      /* A signed-out holder chooses before anything runs: signing in with an
+      existing account first keeps the link unused, so the invitation then
+      runs on that account. Only "Continue" signs in with the link's
+      credential, which creates an account when none holds its phone number
+      or email. */
+      if(!this.account && isCredentialSignInEnabled()) {
+        const choice = await this._decide('choose');
+        if(choice === 'login') {
+          setPendingDestination(this.$route.fullPath);
+          this.$router.push({name: 'login'});
+          this.working = false;
+          return;
+        }
+        this.display = 'working';
+      }
       try {
         this.requestOrigin = new URL(interactionUrl).origin;
         await completeInteractionChain({
@@ -320,6 +366,9 @@ export default {
       this.account = account;
       this.status = 'Setting up your wallet...';
       await provisionDefaultProfile({accountId: account});
+    },
+    decideSignIn(choice) {
+      this._settle?.resolve(choice);
     },
     decideContinue(proceed) {
       this._settle?.resolve(proceed);

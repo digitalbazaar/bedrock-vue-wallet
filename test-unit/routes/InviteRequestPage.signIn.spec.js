@@ -59,6 +59,14 @@ function scriptChain({delta = [PREFERENCES]} = {}) {
   return seen;
 }
 
+// a signed-out holder is asked first; most specs here take "Continue"
+async function chooseContinue(wrapper) {
+  await flushPromises();
+  await wrapper.find('[data-testid="invite-request-choose-continue"]')
+    .trigger('click');
+  await flushPromises();
+}
+
 describe('InviteRequestPage sign-in with a credential', () => {
   let added;
   beforeEach(() => {
@@ -94,7 +102,7 @@ describe('InviteRequestPage sign-in with a credential', () => {
     'follow-on', async () => {
     const seen = scriptChain();
     const {wrapper, push} = mountPage();
-    await flushPromises();
+    await chooseContinue(wrapper);
     expect(httpClient.post).toHaveBeenCalledWith('/authn/credential-login', {
       json: {verifiableCredential: PREFERENCES}
     });
@@ -119,7 +127,7 @@ describe('InviteRequestPage sign-in with a credential', () => {
       httpClient.post.mockRejectedValue(new Error('400'));
       scriptChain();
       const {wrapper} = mountPage();
-      await flushPromises();
+      await chooseContinue(wrapper);
       expect(firstRun.provisionDefaultProfile).not.toHaveBeenCalled();
       expect(wrapper.vm.display).not.toBe('store');
       expect(wrapper.find('[data-testid="invite-request-error"]').text())
@@ -133,7 +141,7 @@ describe('InviteRequestPage sign-in with a credential', () => {
     async () => {
       scriptChain({delta: [{type: ['VerifiableCredential']}]});
       const {wrapper} = mountPage();
-      await flushPromises();
+      await chooseContinue(wrapper);
       expect(httpClient.post).not.toHaveBeenCalled();
       expect(wrapper.find('[data-testid="invite-request-sign-in"]').exists())
         .toBe(true);
@@ -148,7 +156,7 @@ describe('InviteRequestPage sign-in with a credential', () => {
         });
       });
       const {wrapper, push} = mountPage();
-      await flushPromises();
+      await chooseContinue(wrapper);
       expect(firstRun.setPendingDestination).toHaveBeenCalledWith(
         '/invite?request=x');
       expect(push).toHaveBeenCalledWith({name: 'login'});
@@ -156,11 +164,43 @@ describe('InviteRequestPage sign-in with a credential', () => {
       wrapper.unmount();
     });
 
-  it('does not sign in again when already signed in', async () => {
+  it('asks a signed-out holder first, before running the invitation',
+    async () => {
+      const chain = vi.fn();
+      setInteractionChain(chain);
+      const {wrapper} = mountPage();
+      await flushPromises();
+      expect(wrapper.vm.display).toBe('choose');
+      expect(wrapper.find('[data-testid="invite-request-choose"]').exists())
+        .toBe(true);
+      expect(chain).not.toHaveBeenCalled();
+      wrapper.unmount();
+    });
+
+  it('sends a holder who chooses to sign in to log in, link unused',
+    async () => {
+      const chain = vi.fn();
+      setInteractionChain(chain);
+      const {wrapper, push} = mountPage();
+      await flushPromises();
+      await wrapper.find('[data-testid="invite-request-choose-sign-in"]')
+        .trigger('click');
+      await flushPromises();
+      expect(firstRun.setPendingDestination).toHaveBeenCalledWith(
+        '/invite?request=x');
+      expect(push).toHaveBeenCalledWith({name: 'login'});
+      expect(chain).not.toHaveBeenCalled();
+      expect(httpClient.post).not.toHaveBeenCalled();
+      wrapper.unmount();
+    });
+
+  it('does not ask or sign in again when already signed in', async () => {
     session.data = {account: {id: 'urn:uuid:account'}};
     scriptChain();
     const {wrapper} = mountPage();
     await flushPromises();
+    expect(wrapper.find('[data-testid="invite-request-choose"]').exists())
+      .toBe(false);
     expect(httpClient.post).not.toHaveBeenCalled();
     expect(wrapper.vm.display).toBe('store');
     wrapper.unmount();
@@ -173,6 +213,8 @@ describe('InviteRequestPage sign-in with a credential', () => {
     scriptChain();
     const {wrapper} = mountPage();
     await flushPromises();
+    expect(wrapper.find('[data-testid="invite-request-choose"]').exists())
+      .toBe(false);
     expect(httpClient.post).not.toHaveBeenCalled();
     expect(wrapper.find('[data-testid="invite-request-sign-in"]').exists())
       .toBe(true);
