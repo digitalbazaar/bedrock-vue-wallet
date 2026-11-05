@@ -22,6 +22,15 @@
           :loading="working"
           @click="run" />
         <q-btn
+          v-if="error.signIn"
+          no-caps
+          rounded
+          unelevated
+          color="dark"
+          label="Sign in"
+          data-testid="invite-request-sign-in"
+          @click="$router.push({name: 'login'})" />
+        <q-btn
           no-caps
           rounded
           unelevated
@@ -92,6 +101,11 @@
 import {
   completeInteractionChain, exchanges, getCredentialStore, presentations
 } from '@bedrock/web-wallet';
+import {
+  findSignInCredential, isCredentialSignInEnabled, signInWithCredential
+} from '../lib/credentialSignIn.js';
+import {provisionDefaultProfile, setPendingDestination}
+  from '../lib/firstRun.js';
 import {config} from '@bedrock/web';
 import {session} from '@bedrock/web-session';
 import ShareCredentials from '../components/ShareCredentials.vue';
@@ -117,6 +131,12 @@ one, after what the previous exchange delivered has been stored; any other
 `redirectUrl` is ignored and the holder goes to their wallet. */
 // the exchange refused the presentation it was sent, e.g. an unverifiable
 // proof; retrying the same link sends the same presentation
+function _signInError(message, cause) {
+  const error = new Error(message, {cause});
+  error.name = 'SignInError';
+  return error;
+}
+
 function _isVerificationError(error) {
   const details = error?.data?.details;
   return error?.status === 400 && (details?.verified === false ||
@@ -136,13 +156,10 @@ export default {
       verifiablePresentationRequest: undefined,
       holder: '',
       verifiableCredential: [],
-      continueOrigin: ''
+      continueOrigin: '',
+      // set again after an invitation signs the holder in
+      account: session.data?.account?.id ?? null
     };
-  },
-  computed: {
-    account() {
-      return session.data?.account?.id ?? null;
-    }
   },
   async created() {
     await this.run();
@@ -179,6 +196,26 @@ export default {
       } catch(e) {
         if(e.name === 'AbortError') {
           this.$router.push({name: 'home'});
+          return;
+        }
+        if(e.name === 'SignInRequiredError') {
+          // nothing was delivered yet: sign in as before, then come back
+          setPendingDestination(this.$route.fullPath);
+          this.$router.push({name: 'login'});
+          return;
+        }
+        if(e.name === 'SignInError') {
+          console.error('Could not sign in from the invite request.',
+            e.cause?.message ?? e.message);
+          /* The link's first exchange is spent, so trying again would not
+          deliver the credential again. */
+          this.error = {
+            message: e.message + ' Sign in to your wallet, then ask for a ' +
+              'new link.',
+            retryable: false,
+            signIn: true
+          };
+          this.display = 'working';
           return;
         }
         console.error('Could not complete the invite request.', e.message);
@@ -231,6 +268,14 @@ export default {
       });
     },
     async review({verifiablePresentationRequest, origin}) {
+      if(!this.account) {
+        /* Sharing needs a profile to choose and sign with. Signed out, an
+        invitation that opens by asking for something cannot be answered, so
+        the holder signs in first, as before credential sign-in. */
+        const error = new Error('Sign in to answer this request.');
+        error.name = 'SignInRequiredError';
+        throw error;
+      }
       this.status = 'Confirming your details...';
       this.requestOrigin = origin;
       this.verifiablePresentationRequest = verifiablePresentationRequest;
@@ -251,10 +296,38 @@ export default {
       this.status = 'Getting your credentials...';
       return proceed === true;
     },
+    /* Runs once, after the first exchange, for a holder who arrived signed
+    out. The backend decides whether it trusts the credential; a refusal ends
+    the invitation, since its first exchange cannot be replayed. Then the
+    default profile is created, as `/welcome` would, so the credentials just
+    delivered have somewhere to go. */
+    async _signIn({credentials}) {
+      const credential = isCredentialSignInEnabled() ?
+        findSignInCredential({credentials}) : undefined;
+      if(!credential) {
+        throw _signInError('This link could not sign you in.');
+      }
+      this.status = 'Signing you in...';
+      try {
+        await signInWithCredential({credential});
+      } catch(e) {
+        throw _signInError('This link could not sign you in.', e);
+      }
+      const account = session.data?.account?.id ?? null;
+      if(!account) {
+        throw _signInError('This link could not sign you in.');
+      }
+      this.account = account;
+      this.status = 'Setting up your wallet...';
+      await provisionDefaultProfile({accountId: account});
+    },
     decideContinue(proceed) {
       this._settle?.resolve(proceed);
     },
     async keep({delta, origin}) {
+      if(!this.account) {
+        await this._signIn({credentials: delta});
+      }
       if(delta.length === 0) {
         return;
       }

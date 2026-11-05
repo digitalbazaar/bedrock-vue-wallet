@@ -19,6 +19,15 @@
 - Login and register return the holder to the page a guard sent them away
   from, instead of always going to `/home`. Login also creates the default
   profile for an account that has none.
+- The invite-request route can sign a signed-out holder in with a credential
+  its first exchange delivers (e.g. a wallet selector's Personal Preferences
+  credential for a phone number or email), when
+  `config.vueWallet.interactionCreator.signInWithCredential.credentialTypes`
+  lists that type. The credential is posted to `signInWithCredential.url`
+  (default `/authn/credential-login`), whose backend decides whether it trusts
+  the issuer; then the default profile is created and the invitation
+  continues. If the link cannot sign the holder in, the page says so and
+  offers the login. Off by default.
 
 ### Changed
 - Require `@bedrock/web-wallet@15.12.0` (peer dependency) for
