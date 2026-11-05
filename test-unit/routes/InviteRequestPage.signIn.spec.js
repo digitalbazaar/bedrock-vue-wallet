@@ -27,6 +27,33 @@ const PREFERENCES = {
   credentialSubject: {type: 'ContactPoint', telephone: '+15555550123'}
 };
 const SIGNED_IN = {account: {id: 'urn:uuid:new-account'}};
+const EXCHANGE_ID = 'https://veres.example/workflows/w/exchanges/e';
+const SIGN_IN_REQUEST = {
+  query: [{
+    type: 'QueryByExample',
+    credentialQuery: [{example: {type: ['PersonalPreferencesCredential']}}]
+  }]
+};
+
+// the wallet backend's side of a sign-in exchange
+function backend({request = SIGN_IN_REQUEST, login} = {}) {
+  httpClient.post.mockImplementation(async (url, {json}) => {
+    if(url === '/authn/exchanges') {
+      return {data: {exchangeId: EXCHANGE_ID, expires: 'soon'}};
+    }
+    if(url === EXCHANGE_ID) {
+      return json.verifiablePresentation ? {data: {}} :
+        {data: {verifiablePresentationRequest: request}};
+    }
+    if(url === '/authn/exchanges/login') {
+      if(login) {
+        return login();
+      }
+      return {data: {account: 'urn:uuid:new-account', created: true}};
+    }
+    throw new Error(`unexpected POST ${url}`);
+  });
+}
 
 function mountPage() {
   const push = vi.fn();
@@ -74,7 +101,8 @@ describe('InviteRequestPage sign-in with a credential', () => {
       allowedOrigins: [ORIGIN],
       signInWithCredential: {
         credentialTypes: ['PersonalPreferencesCredential'],
-        url: '/authn/credential-login'
+        exchangesUrl: '/authn/exchanges',
+        loginUrl: '/authn/exchanges/login'
       }
     }};
     session.data = {};
@@ -82,8 +110,7 @@ describe('InviteRequestPage sign-in with a credential', () => {
       session.data = SIGNED_IN;
     });
     httpClient.post.mockReset();
-    httpClient.post.mockResolvedValue(
-      {data: {account: 'urn:uuid:new-account', created: true}});
+    backend();
     firstRun.provisionDefaultProfile.mockClear();
     firstRun.setPendingDestination.mockClear();
     added = [];
@@ -103,9 +130,17 @@ describe('InviteRequestPage sign-in with a credential', () => {
     const seen = scriptChain();
     const {wrapper, push} = mountPage();
     await chooseContinue(wrapper);
-    expect(httpClient.post).toHaveBeenCalledWith('/authn/credential-login', {
-      json: {verifiableCredential: PREFERENCES}
-    });
+    // start, ask, answer with the credential, finish
+    expect(httpClient.post.mock.calls).toEqual([
+      ['/authn/exchanges', {json: {}}],
+      [EXCHANGE_ID, {json: {}}],
+      [EXCHANGE_ID, {json: {verifiablePresentation: {
+        '@context': ['https://www.w3.org/ns/credentials/v2'],
+        type: ['VerifiablePresentation'],
+        verifiableCredential: [PREFERENCES]
+      }}}],
+      ['/authn/exchanges/login', {json: {}}]
+    ]);
     expect(session.refresh).toHaveBeenCalled();
     expect(firstRun.provisionDefaultProfile).toHaveBeenCalledWith(
       {accountId: 'urn:uuid:new-account'});
@@ -124,7 +159,9 @@ describe('InviteRequestPage sign-in with a credential', () => {
 
   it('shows a sign-in error when the backend refuses the credential',
     async () => {
-      httpClient.post.mockRejectedValue(new Error('400'));
+      backend({login: async () => {
+        throw new Error('400');
+      }});
       scriptChain();
       const {wrapper} = mountPage();
       await chooseContinue(wrapper);
@@ -136,6 +173,20 @@ describe('InviteRequestPage sign-in with a credential', () => {
         .toBe(true);
       wrapper.unmount();
     });
+
+  it('does not present the credential to an exchange that did not ask ' +
+    'for it', async () => {
+    backend({request: {query: [{type: 'DIDAuthentication'}]}});
+    scriptChain();
+    const {wrapper} = mountPage();
+    await chooseContinue(wrapper);
+    expect(httpClient.post.mock.calls.map(([url]) => url)).toEqual(
+      ['/authn/exchanges', EXCHANGE_ID]);
+    expect(session.refresh).not.toHaveBeenCalled();
+    expect(wrapper.find('[data-testid="invite-request-sign-in"]').exists())
+      .toBe(true);
+    wrapper.unmount();
+  });
 
   it('shows a sign-in error when nothing delivered can sign in',
     async () => {
