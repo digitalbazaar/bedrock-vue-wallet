@@ -1,5 +1,15 @@
 # bedrock-vue-wallet ChangeLog
 
+## 33.0.1 - 2026-11-dd
+
+### Added
+- Add `data-testid` handles, prefixed `maestro-`, to the terms checkbox on the
+  registration form and the account menu, for Maestro flows to select with
+  `css: '[data-testid="maestro-..."]'`.
+
+### Fixed
+- Give the terms checkbox and the icon-only account menu accessible names.
+
 ## 33.0.0 - 2026-10-30
 
 ### Added
