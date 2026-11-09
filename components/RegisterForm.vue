@@ -39,6 +39,8 @@
       <div class="row q-my-lg">
         <q-checkbox
           v-model="tosAgree"
+          data-testid="maestro-tos-agree"
+          aria-label="I agree to the Terms of Service"
           dense />
         <span class="q-ml-sm">
           I agree to the
