@@ -1,6 +1,6 @@
 # bedrock-vue-wallet ChangeLog
 
-## 33.0.1 - 2026-11-dd
+## 33.1.0 - 2026-11-17
 
 ### Added
 - Add `data-testid` handles, prefixed `maestro-`, to the terms checkbox on the
