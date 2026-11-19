@@ -1,5 +1,15 @@
 # bedrock-vue-wallet ChangeLog
 
+## 33.1.1 - 2026-11-dd
+
+### Fixed
+- Fit the share screen of `ScannerExchangePage` and `ChapiExchangePage` to a
+  phone-width viewport. Before, a long profile identifier in the selected
+  authentication option widened the screen past the viewport and centered it,
+  so its left edge (the requester name, the credentials heading and the
+  credential checkbox) was cut off and could not be scrolled to. Now the screen
+  takes the viewport width and the identifier is truncated with an ellipsis.
+
 ## 33.1.0 - 2026-11-17
 
 ### Added

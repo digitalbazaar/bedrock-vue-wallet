@@ -47,7 +47,7 @@
               v-if="selectedAuthnOption"
               #selected>
               <q-item
-                class="q-pl-none q-pt-sm q-pb-xs q-pr-sm row"
+                class="q-pl-none q-pt-sm q-pb-xs q-pr-sm row full-width"
                 style="min-height: 24px; max-width: 400px">
                 <q-item-section>
                   <q-item-label
@@ -57,8 +57,7 @@
                   <q-item-label
                     v-if="selectedAuthnOption.value.value.id"
                     caption
-                    lines="1"
-                    style="max-width: 350px">
+                    lines="1">
                     {{selectedAuthnOption.value.value.id}}
                   </q-item-label>
                 </q-item-section>

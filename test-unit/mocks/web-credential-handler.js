@@ -5,3 +5,5 @@
 // here exercises it.
 export const installHandler = () => {};
 export const uninstallHandler = () => {};
+// no CHAPI event ever arrives; a spec drives the page's state itself
+export const receiveCredentialEvent = () => new Promise(() => {});
