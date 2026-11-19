@@ -23,7 +23,7 @@
             color="primary" />
         </q-inner-loading>
         <div
-          class="column"
+          class="column no-wrap full-width"
           style="max-width: 500px">
           <div v-if="requestOrigin">
             <chapi-header

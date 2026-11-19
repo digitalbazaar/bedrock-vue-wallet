@@ -30,6 +30,8 @@ export default defineConfig({
       {find: /^@vue\/test-utils$/, replacement: dep('@vue/test-utils')},
       {find: '@bedrock/web', replacement: mock('bedrock/web.js')},
       {find: '@bedrock/web-wallet', replacement: mock('bedrock/web-wallet.js')},
+      {find: '@bedrock/web-session',
+        replacement: mock('bedrock/web-session.js')},
       {find: 'web-credential-handler',
         replacement: mock('web-credential-handler.js')},
       // A stand-in, and the one that should not be: the real package is not
@@ -76,6 +78,11 @@ export default defineConfig({
           alias: [{
             find: '@digitalbazaar/vc-html-render-method',
             replacement: dep('@digitalbazaar/vc-html-render-method')
+          }, {
+            // the shared alias names the package directory, which resolves
+            // through `main` to the Node build; a browser needs the ESM entry
+            find: /^@digitalbazaar\/http-client$/,
+            replacement: dep('@digitalbazaar/http-client/lib/index.js')
           }]
         },
         test: {

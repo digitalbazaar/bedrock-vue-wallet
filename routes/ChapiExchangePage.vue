@@ -10,7 +10,7 @@
     </q-inner-loading>
     <div
       v-if="userLoggedIn"
-      class="column"
+      class="column no-wrap full-width"
       style="max-width: 500px">
       <div v-if="requestOrigin">
         <chapi-header
